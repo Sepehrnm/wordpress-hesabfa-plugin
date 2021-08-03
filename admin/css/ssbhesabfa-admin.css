@@ -1,0 +1,55 @@
+.hand {
+    cursor: pointer;
+}
+
+.hesabfa-tab-icon {
+    width: 16px;
+    height: 16px;
+    margin-left: 10px;
+}
+
+a.nav-tab {
+    font-family: IRANYekan;
+    padding: 5px 10px;
+    font-weight: normal;
+    border-radius: 7px 7px 0px 0px;
+}
+
+.hesabfa-tab-page-title {
+    font-family: IRANYekan !important;
+    color: dimgray;
+}
+
+.hesabfa-p {
+    font-family: IRANYekan;
+}
+
+.hesabfa-f {
+    font-family: IRANYekan;
+}
+
+.hesabfa-f-12 {
+    font-size: 12pt;
+}
+
+.hesabfa-header {
+    font-family: IRANYekan;
+    background-color: #304967;
+    box-shadow: 5px 5px 5px #f3f3f3;
+    padding: 5px;
+    margin-right: -20px;
+}
+
+.hesabfa-header img {
+    height: 35px;
+}
+
+.hesabfa-card {
+    max-width: none !important;
+    margin-left: 20px;
+    background-color: whitesmoke !important;
+}
+
+.hesabfa-bold {
+    font-weight: bold;
+}

@@ -1,0 +1,586 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="d6ffbd38-8c4a-44bc-ae2d-59f662095f9d" name="Default Changelist" comment="fix bug in export products: if product has variations only export variations." />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ComposerSettings">
+    <execution />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="PhpServers">
+    <servers>
+      <server host="localhost" id="b5312bde-7af0-4665-933b-6a1a09f48d31" name="xamp80" port="8080" />
+    </servers>
+  </component>
+  <component name="PhpWorkspaceProjectConfiguration" interpreter_name="PHP 7.4">
+    <include_path>
+      <path value="$PROJECT_DIR$" />
+    </include_path>
+  </component>
+  <component name="ProjectId" id="1p3X4vFcTOqucAlP3Lupwb77Rh9" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="nodejs_package_manager_path" value="npm" />
+    <property name="settings.editor.selected.configurable" value="editor.preferences.tabs" />
+    <property name="vue.rearranger.settings.migration" value="true" />
+  </component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\xampp\htdocs\wp\wp-content\plugins\hesabfa-accounting\admin\img" />
+      <recent name="C:\xampp\htdocs\wp\wp-content\plugins\hesabfa-accounting\admin\fonts" />
+      <recent name="C:\xampp\htdocs\wp\wp-content\plugins\hesabfa-accounting\admin\css" />
+      <recent name="C:\xampp\htdocs\wp\wp-content\plugins\hesabfa-accounting\admin\img\icons" />
+    </key>
+  </component>
+  <component name="RunManager">
+    <configuration name="xdebug test" type="PhpWebAppRunConfigurationType" factoryName="PHP Web Application" browser="a7bb68e0-33c0-4d6f-a81a-aac1fdb870c8" server_name="xamp80" start_url="/test">
+      <method v="2" />
+    </configuration>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="d6ffbd38-8c4a-44bc-ae2d-59f662095f9d" name="Default Changelist" comment="" />
+      <created>1614412560926</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1614412560926</updated>
+      <workItem from="1614412562543" duration="5793000" />
+      <workItem from="1614421130503" duration="57855000" />
+      <workItem from="1615019023669" duration="11211000" />
+      <workItem from="1615204589262" duration="21952000" />
+      <workItem from="1615632189552" duration="6802000" />
+      <workItem from="1615712006041" duration="11214000" />
+      <workItem from="1615796155686" duration="1299000" />
+      <workItem from="1615880480671" duration="8186000" />
+      <workItem from="1615910614168" duration="89000" />
+      <workItem from="1615971410871" duration="3122000" />
+      <workItem from="1615975290934" duration="17489000" />
+      <workItem from="1616495711712" duration="133000" />
+      <workItem from="1616828789650" duration="7823000" />
+      <workItem from="1617108128205" duration="4096000" />
+      <workItem from="1617174084124" duration="4989000" />
+      <workItem from="1617434445316" duration="7733000" />
+      <workItem from="1617520836730" duration="5216000" />
+      <workItem from="1617533859484" duration="14014000" />
+      <workItem from="1617783653505" duration="2518000" />
+      <workItem from="1617787900441" duration="3752000" />
+      <workItem from="1617793628840" duration="3705000" />
+      <workItem from="1617868455809" duration="6323000" />
+      <workItem from="1617878774578" duration="63000" />
+      <workItem from="1618037637142" duration="799000" />
+      <workItem from="1618042169246" duration="10869000" />
+      <workItem from="1618062392606" duration="230000" />
+      <workItem from="1618143658830" duration="891000" />
+      <workItem from="1618147457713" duration="54000" />
+      <workItem from="1618207789812" duration="9182000" />
+      <workItem from="1618221283410" duration="929000" />
+      <workItem from="1618301153519" duration="22098000" />
+      <workItem from="1618409696679" duration="4795000" />
+      <workItem from="1618478792071" duration="2077000" />
+      <workItem from="1618493847682" duration="13000" />
+      <workItem from="1618643016317" duration="977000" />
+      <workItem from="1618908575849" duration="3890000" />
+      <workItem from="1618995143924" duration="1692000" />
+      <workItem from="1619077994543" duration="15259000" />
+      <workItem from="1619353886976" duration="15000" />
+      <workItem from="1619855447826" duration="2143000" />
+      <workItem from="1619872599718" duration="606000" />
+      <workItem from="1620028635258" duration="10850000" />
+      <workItem from="1620202275819" duration="10540000" />
+      <workItem from="1620288553051" duration="4054000" />
+      <workItem from="1620461398220" duration="12801000" />
+      <workItem from="1620634883864" duration="4660000" />
+      <workItem from="1620720133417" duration="9882000" />
+      <workItem from="1620804267245" duration="7942000" />
+      <workItem from="1621071831704" duration="6793000" />
+      <workItem from="1621148208589" duration="16562000" />
+      <workItem from="1621409016807" duration="3105000" />
+      <workItem from="1621663431053" duration="1079000" />
+      <workItem from="1622099963362" duration="597000" />
+      <workItem from="1622103907487" duration="1963000" />
+      <workItem from="1622107948826" duration="60000" />
+      <workItem from="1622381010326" duration="52000" />
+      <workItem from="1622457443803" duration="1138000" />
+      <workItem from="1622529371672" duration="9034000" />
+      <workItem from="1622633945270" duration="4000" />
+      <workItem from="1622717432152" duration="124000" />
+      <workItem from="1623068508189" duration="4158000" />
+      <workItem from="1623229363146" duration="799000" />
+      <workItem from="1623231594220" duration="2460000" />
+      <workItem from="1623307827972" duration="14473000" />
+      <workItem from="1623478700448" duration="5050000" />
+      <workItem from="1623505071153" duration="149000" />
+      <workItem from="1623566461405" duration="10026000" />
+      <workItem from="1623652609568" duration="34000" />
+      <workItem from="1624269145221" duration="7788000" />
+      <workItem from="1624343206947" duration="15334000" />
+      <workItem from="1624364966050" duration="2345000" />
+      <workItem from="1624434740926" duration="13175000" />
+      <workItem from="1624517256745" duration="3132000" />
+      <workItem from="1624690255428" duration="17091000" />
+      <workItem from="1624782500505" duration="390000" />
+      <workItem from="1624790586769" duration="386000" />
+      <workItem from="1624792293980" duration="6514000" />
+      <workItem from="1624869797526" duration="11472000" />
+      <workItem from="1624951027004" duration="3004000" />
+      <workItem from="1624965938932" duration="73000" />
+      <workItem from="1625038662807" duration="3617000" />
+      <workItem from="1625127651788" duration="3928000" />
+      <workItem from="1625138472068" duration="623000" />
+      <workItem from="1625296037225" duration="7305000" />
+      <workItem from="1625308877505" duration="24000" />
+      <workItem from="1625389759295" duration="10169000" />
+      <workItem from="1625407366567" duration="687000" />
+      <workItem from="1625467530439" duration="4719000" />
+      <workItem from="1625646119248" duration="8612000" />
+      <workItem from="1625987787639" duration="9699000" />
+      <workItem from="1626689625013" duration="596000" />
+      <workItem from="1626765580995" duration="16200000" />
+      <workItem from="1627390697893" duration="1358000" />
+      <workItem from="1627454116592" duration="33700000" />
+      <workItem from="1627897288606" duration="14616000" />
+    </task>
+    <task id="LOCAL-00025" summary="Add second author name, &quot;HamidReza Gharahzadeh&quot;.">
+      <created>1617794183380</created>
+      <option name="number" value="00025" />
+      <option name="presentableId" value="LOCAL-00025" />
+      <option name="project" value="LOCAL" />
+      <updated>1617794183380</updated>
+    </task>
+    <task id="LOCAL-00026" summary="Import products implementation, not completed.">
+      <created>1617798256482</created>
+      <option name="number" value="00026" />
+      <option name="presentableId" value="LOCAL-00026" />
+      <option name="project" value="LOCAL" />
+      <updated>1617798256482</updated>
+    </task>
+    <task id="LOCAL-00027" summary="import products completed, but not tested.">
+      <created>1617878280860</created>
+      <option name="number" value="00027" />
+      <option name="presentableId" value="LOCAL-00027" />
+      <option name="project" value="LOCAL" />
+      <updated>1617878280860</updated>
+    </task>
+    <task id="LOCAL-00028" summary="Import products from Hesabfa completed and tested.">
+      <created>1618062236223</created>
+      <option name="number" value="00028" />
+      <option name="presentableId" value="LOCAL-00028" />
+      <option name="project" value="LOCAL" />
+      <updated>1618062236223</updated>
+    </task>
+    <task id="LOCAL-00029" summary="Add tips for every action in sync and importExport tab.&#10;Set price in hesabfa bug fixed.">
+      <created>1618220987432</created>
+      <option name="number" value="00029" />
+      <option name="presentableId" value="LOCAL-00029" />
+      <option name="project" value="LOCAL" />
+      <updated>1618220987432</updated>
+    </task>
+    <task id="LOCAL-00030" summary="Improve sync products, export products and export opening balance performance and fix bugs.">
+      <created>1618397067849</created>
+      <option name="number" value="00030" />
+      <option name="presentableId" value="LOCAL-00030" />
+      <option name="project" value="LOCAL" />
+      <updated>1618397067849</updated>
+    </task>
+    <task id="LOCAL-00031" summary="change version from 1.6.14 to 1.6.17.">
+      <created>1618397244123</created>
+      <option name="number" value="00031" />
+      <option name="presentableId" value="LOCAL-00031" />
+      <option name="project" value="LOCAL" />
+      <updated>1618397244123</updated>
+    </task>
+    <task id="LOCAL-00032" summary="Improve performance of update products method.&#10;Fix bug: setWebhookChanges.">
+      <created>1618493786739</created>
+      <option name="number" value="00032" />
+      <option name="presentableId" value="LOCAL-00032" />
+      <option name="project" value="LOCAL" />
+      <updated>1618493786740</updated>
+    </task>
+    <task id="LOCAL-00033" summary="bug fix: webhook call.">
+      <created>1618643174088</created>
+      <option name="number" value="00033" />
+      <option name="presentableId" value="LOCAL-00033" />
+      <option name="project" value="LOCAL" />
+      <updated>1618643174088</updated>
+    </task>
+    <task id="LOCAL-00034" summary="change version from 1.6.17 to 1.6.18.">
+      <created>1618643317823</created>
+      <option name="number" value="00034" />
+      <option name="presentableId" value="LOCAL-00034" />
+      <option name="project" value="LOCAL" />
+      <updated>1618643317823</updated>
+    </task>
+    <task id="LOCAL-00035" summary="bug fix in webhook.">
+      <created>1618924845706</created>
+      <option name="number" value="00035" />
+      <option name="presentableId" value="LOCAL-00035" />
+      <option name="project" value="LOCAL" />
+      <updated>1618924845706</updated>
+    </task>
+    <task id="LOCAL-00036" summary="bug fix in converting IRR to IRT.">
+      <created>1620055744677</created>
+      <option name="number" value="00036" />
+      <option name="presentableId" value="LOCAL-00036" />
+      <option name="project" value="LOCAL" />
+      <updated>1620055744677</updated>
+    </task>
+    <task id="LOCAL-00037" summary="bug fix: multiple invoice payment receipts.&#10;bug fix: not numeric price conversion.&#10;Debug sync products price and quantity error in WC_Product method.">
+      <created>1620219002715</created>
+      <option name="number" value="00037" />
+      <option name="presentableId" value="LOCAL-00037" />
+      <option name="project" value="LOCAL" />
+      <updated>1620219002715</updated>
+    </task>
+    <task id="LOCAL-00038" summary="remove debug logs.">
+      <created>1620292336615</created>
+      <option name="number" value="00038" />
+      <option name="presentableId" value="LOCAL-00038" />
+      <option name="project" value="LOCAL" />
+      <updated>1620292336615</updated>
+    </task>
+    <task id="LOCAL-00039" summary="bug fix: error in deleting product.&#10;bug fix: error in syncing products when product not exist in woocommerce.">
+      <created>1620472935829</created>
+      <option name="number" value="00039" />
+      <option name="presentableId" value="LOCAL-00039" />
+      <option name="project" value="LOCAL" />
+      <updated>1620472935829</updated>
+    </task>
+    <task id="LOCAL-00040" summary="bug fix: error in webhook when getting products from hesabfa.">
+      <created>1620476079576</created>
+      <option name="number" value="00040" />
+      <option name="presentableId" value="LOCAL-00040" />
+      <option name="project" value="LOCAL" />
+      <updated>1620476079576</updated>
+    </task>
+    <task id="LOCAL-00041" summary="version changed from 1.7.19 to 1.7.23.">
+      <created>1620476774772</created>
+      <option name="number" value="00041" />
+      <option name="presentableId" value="LOCAL-00041" />
+      <option name="project" value="LOCAL" />
+      <updated>1620476774772</updated>
+    </task>
+    <task id="LOCAL-00042" summary="bug fix: minor bug fixed in getProductVariations method.">
+      <created>1620654402492</created>
+      <option name="number" value="00042" />
+      <option name="presentableId" value="LOCAL-00042" />
+      <option name="project" value="LOCAL" />
+      <updated>1620654402492</updated>
+    </task>
+    <task id="LOCAL-00043" summary="minor change to prevent possible error.">
+      <created>1620738608147</created>
+      <option name="number" value="00043" />
+      <option name="presentableId" value="LOCAL-00043" />
+      <option name="project" value="LOCAL" />
+      <updated>1620738608147</updated>
+    </task>
+    <task id="LOCAL-00044" summary="update plugin logo and menu logo.&#10;add some notes and guides to some pages.">
+      <created>1620828556466</created>
+      <option name="number" value="00044" />
+      <option name="presentableId" value="LOCAL-00044" />
+      <option name="project" value="LOCAL" />
+      <updated>1620828556466</updated>
+    </task>
+    <task id="LOCAL-00045" summary="sync changes automatically.">
+      <created>1621248600192</created>
+      <option name="number" value="00045" />
+      <option name="presentableId" value="LOCAL-00045" />
+      <option name="project" value="LOCAL" />
+      <updated>1621248600192</updated>
+    </task>
+    <task id="LOCAL-00046" summary="version changed from 1.7.23 to 1.7.27.">
+      <created>1621409454881</created>
+      <option name="number" value="00046" />
+      <option name="presentableId" value="LOCAL-00046" />
+      <option name="project" value="LOCAL" />
+      <updated>1621409454881</updated>
+    </task>
+    <task id="LOCAL-00047" summary="Bug fix: product not found in woocommerce in setItemChanges.">
+      <created>1622104608493</created>
+      <option name="number" value="00047" />
+      <option name="presentableId" value="LOCAL-00047" />
+      <option name="project" value="LOCAL" />
+      <updated>1622104608493</updated>
+    </task>
+    <task id="LOCAL-00048" summary="remove redundant code.&#10;delete product relation when product not exist in woocommerce.">
+      <created>1622717539370</created>
+      <option name="number" value="00048" />
+      <option name="presentableId" value="LOCAL-00048" />
+      <option name="project" value="LOCAL" />
+      <updated>1622717539370</updated>
+    </task>
+    <task id="LOCAL-00049" summary="Add Hesabfa invoice number column in woocommerce order list.&#10;Add Submit invoice button in woocommerce order list.">
+      <created>1623332423138</created>
+      <option name="number" value="00049" />
+      <option name="presentableId" value="LOCAL-00049" />
+      <option name="project" value="LOCAL" />
+      <updated>1623332423138</updated>
+    </task>
+    <task id="LOCAL-00050" summary="version changed from 1.7.27 to 1.71.29.&#10;add a note in api settings tab;">
+      <created>1623505190073</created>
+      <option name="number" value="00050" />
+      <option name="presentableId" value="LOCAL-00050" />
+      <option name="project" value="LOCAL" />
+      <updated>1623505190073</updated>
+    </task>
+    <task id="LOCAL-00051" summary="Add business info in api settings tab.">
+      <created>1623586019089</created>
+      <option name="number" value="00051" />
+      <option name="presentableId" value="LOCAL-00051" />
+      <option name="project" value="LOCAL" />
+      <updated>1623586019089</updated>
+    </task>
+    <task id="LOCAL-00052" summary="add a page to show duplicated products.&#10;&#10;version changed from 1.71.29 to 1.72.29.">
+      <created>1624284956236</created>
+      <option name="number" value="00052" />
+      <option name="presentableId" value="LOCAL-00052" />
+      <option name="project" value="LOCAL" />
+      <updated>1624284956236</updated>
+    </task>
+    <task id="LOCAL-00053" summary="Show business expire alert when business is expired.&#10;Show alert when trying to connect plugin to another business in Hesabfa.&#10;set Order Payment besides invoice when click on invoice button in order list.">
+      <created>1624356739385</created>
+      <option name="number" value="00053" />
+      <option name="presentableId" value="LOCAL-00053" />
+      <option name="project" value="LOCAL" />
+      <updated>1624356739385</updated>
+    </task>
+    <task id="LOCAL-00054" summary="change version from 1.72.29 to 1.75.29">
+      <created>1624357110515</created>
+      <option name="number" value="00054" />
+      <option name="presentableId" value="LOCAL-00054" />
+      <option name="project" value="LOCAL" />
+      <updated>1624357110515</updated>
+    </task>
+    <task id="LOCAL-00055" summary="remove checking plugin activation date during sync orders.">
+      <created>1624365451121</created>
+      <option name="number" value="00055" />
+      <option name="presentableId" value="LOCAL-00055" />
+      <option name="project" value="LOCAL" />
+      <updated>1624365451121</updated>
+    </task>
+    <task id="LOCAL-00056" summary="change version from 1.75.29 to 1.75.30.">
+      <created>1624365614779</created>
+      <option name="number" value="00056" />
+      <option name="presentableId" value="LOCAL-00056" />
+      <option name="project" value="LOCAL" />
+      <updated>1624365614779</updated>
+    </task>
+    <task id="LOCAL-00057" summary="some temporary changes to debug and solve customer problems: delete duplicate products. debug strings. etc">
+      <created>1624466154892</created>
+      <option name="number" value="00057" />
+      <option name="presentableId" value="LOCAL-00057" />
+      <option name="project" value="LOCAL" />
+      <updated>1624466154893</updated>
+    </task>
+    <task id="LOCAL-00058" summary="Add batch and progress bar for export orders.&#10;Add batch and progress bar for customer export.&#10;clean and uniform log messages.&#10;remove redundant delete duplicate products temporary feature.&#10;Add customerService class.">
+      <created>1624710629593</created>
+      <option name="number" value="00058" />
+      <option name="presentableId" value="LOCAL-00058" />
+      <option name="project" value="LOCAL" />
+      <updated>1624710629593</updated>
+    </task>
+    <task id="LOCAL-00059" summary="change version from 1.75.31 to 1.77.32.">
+      <created>1624710991491</created>
+      <option name="number" value="00059" />
+      <option name="presentableId" value="LOCAL-00059" />
+      <option name="project" value="LOCAL" />
+      <updated>1624710991491</updated>
+    </task>
+    <task id="LOCAL-00060" summary="bug fix: import products bug fixed.">
+      <created>1624802532368</created>
+      <option name="number" value="00060" />
+      <option name="presentableId" value="LOCAL-00060" />
+      <option name="project" value="LOCAL" />
+      <updated>1624802532368</updated>
+    </task>
+    <task id="LOCAL-00061" summary="bug fix: getProductCountsInHesabfa bug fixed.">
+      <created>1624803004433</created>
+      <option name="number" value="00061" />
+      <option name="presentableId" value="LOCAL-00061" />
+      <option name="project" value="LOCAL" />
+      <updated>1624803004433</updated>
+    </task>
+    <task id="LOCAL-00062" summary="change version from 1.77.32 to 1.77.33.">
+      <created>1624803191254</created>
+      <option name="number" value="00062" />
+      <option name="presentableId" value="LOCAL-00062" />
+      <option name="project" value="LOCAL" />
+      <updated>1624803191254</updated>
+    </task>
+    <task id="LOCAL-00063" summary="bug fixed in import products.">
+      <created>1624884528441</created>
+      <option name="number" value="00063" />
+      <option name="presentableId" value="LOCAL-00063" />
+      <option name="project" value="LOCAL" />
+      <updated>1624884528441</updated>
+    </task>
+    <task id="LOCAL-00064" summary="version changed from 1.77.33 to 1.77.34.">
+      <created>1624889537226</created>
+      <option name="number" value="00064" />
+      <option name="presentableId" value="LOCAL-00064" />
+      <option name="project" value="LOCAL" />
+      <updated>1624889537226</updated>
+    </task>
+    <task id="LOCAL-00065" summary="Import products code improvement.">
+      <created>1624954352160</created>
+      <option name="number" value="00065" />
+      <option name="presentableId" value="LOCAL-00065" />
+      <option name="project" value="LOCAL" />
+      <updated>1624954352160</updated>
+    </task>
+    <task id="LOCAL-00066" summary="change version from 1.77.34 to 1.77.35.">
+      <created>1624954523080</created>
+      <option name="number" value="00066" />
+      <option name="presentableId" value="LOCAL-00066" />
+      <option name="project" value="LOCAL" />
+      <updated>1624954523080</updated>
+    </task>
+    <task id="LOCAL-00067" summary="Revert &quot;Log webhook object.&quot;&#10;This reverts commit eddf6500">
+      <created>1625305832303</created>
+      <option name="number" value="00067" />
+      <option name="presentableId" value="LOCAL-00067" />
+      <option name="project" value="LOCAL" />
+      <updated>1625305832303</updated>
+    </task>
+    <task id="LOCAL-00068" summary="change version from 1.77.35 to 1.77.36.">
+      <created>1625306809699</created>
+      <option name="number" value="00068" />
+      <option name="presentableId" value="LOCAL-00068" />
+      <option name="project" value="LOCAL" />
+      <updated>1625306809699</updated>
+    </task>
+    <task id="LOCAL-00069" summary="Add manual install and uninstall page.">
+      <created>1625401406316</created>
+      <option name="number" value="00069" />
+      <option name="presentableId" value="LOCAL-00069" />
+      <option name="project" value="LOCAL" />
+      <updated>1625401406316</updated>
+    </task>
+    <task id="LOCAL-00070" summary="bug fix in import products (duplicate one product in hesabfa).">
+      <created>1625471145629</created>
+      <option name="number" value="00070" />
+      <option name="presentableId" value="LOCAL-00070" />
+      <option name="project" value="LOCAL" />
+      <updated>1625471145629</updated>
+    </task>
+    <task id="LOCAL-00071" summary="change version from 1.77.36 to 1.77.37.">
+      <created>1625471378025</created>
+      <option name="number" value="00071" />
+      <option name="presentableId" value="LOCAL-00071" />
+      <option name="project" value="LOCAL" />
+      <updated>1625471378025</updated>
+    </task>
+    <task id="LOCAL-00072" summary="fix bugs related to tags in Hesabfa.">
+      <created>1627830419335</created>
+      <option name="number" value="00072" />
+      <option name="presentableId" value="LOCAL-00072" />
+      <option name="project" value="LOCAL" />
+      <updated>1627830419336</updated>
+    </task>
+    <task id="LOCAL-00073" summary="version changed from 1.77.37 to 1.78.37.">
+      <created>1627830643393</created>
+      <option name="number" value="00073" />
+      <option name="presentableId" value="LOCAL-00073" />
+      <option name="project" value="LOCAL" />
+      <updated>1627830643393</updated>
+    </task>
+    <option name="localTasksCounter" value="74" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State>
+              <option name="FILTERS">
+                <map>
+                  <entry key="branch">
+                    <value>
+                      <list>
+                        <option value="master" />
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
+    <option name="oldMeFiltersMigrated" value="true" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Add Hesabfa invoice number column in woocommerce order list.&#10;Add Submit invoice button in woocommerce order list." />
+    <MESSAGE value="version changed from 1.7.27 to 1.71.29.&#10;add a note in api settings tab;" />
+    <MESSAGE value="Add business info in api settings tab." />
+    <MESSAGE value="add a page to show duplicated products.&#10;&#10;version changed from 1.71.29 to 1.72.29." />
+    <MESSAGE value="Show business expire alert when business is expired.&#10;Show alert when trying to connect plugin to another business in Hesabfa.&#10;set Order Payment besides invoice when click on invoice button in order list." />
+    <MESSAGE value="change version from 1.72.29 to 1.75.29" />
+    <MESSAGE value="remove checking plugin activation date during sync orders." />
+    <MESSAGE value="change version from 1.75.29 to 1.75.30." />
+    <MESSAGE value="some temporary changes to debug and solve customer problems: delete duplicate products. debug strings. etc" />
+    <MESSAGE value="Add batch and progress bar for export orders.&#10;Add batch and progress bar for customer export.&#10;clean and uniform log messages.&#10;remove redundant delete duplicate products temporary feature.&#10;Add customerService class." />
+    <MESSAGE value="change version from 1.75.31 to 1.77.32." />
+    <MESSAGE value="bug fix: import products bug fixed." />
+    <MESSAGE value="bug fix: getProductCountsInHesabfa bug fixed." />
+    <MESSAGE value="change version from 1.77.32 to 1.77.33." />
+    <MESSAGE value="bug fixed in import products." />
+    <MESSAGE value="version changed from 1.77.33 to 1.77.34." />
+    <MESSAGE value="Import products code improvement." />
+    <MESSAGE value="change version from 1.77.34 to 1.77.35." />
+    <MESSAGE value="Revert &quot;Log webhook object.&quot;&#10;This reverts commit eddf6500" />
+    <MESSAGE value="change version from 1.77.35 to 1.77.36." />
+    <MESSAGE value="Add manual install and uninstall page." />
+    <MESSAGE value="bug fix in import products (duplicate one product in hesabfa)." />
+    <MESSAGE value="change version from 1.77.36 to 1.77.37." />
+    <MESSAGE value="fix bugs related to tags in Hesabfa." />
+    <MESSAGE value="version changed from 1.77.37 to 1.78.37." />
+    <option name="LAST_COMMIT_MESSAGE" value="version changed from 1.77.37 to 1.78.37." />
+  </component>
+  <component name="WordPressConfiguration" doNotAskAgain="true" />
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="php">
+          <url>file://$PROJECT_DIR$/../../../../test/index.php</url>
+          <line>2</line>
+          <option name="timeStamp" value="3" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="php-line-method">
+          <url>file://$PROJECT_DIR$/admin/partials/ssbhesabfa-admin-display.php</url>
+          <line>279</line>
+          <properties>
+            <option name="className" value="\Ssbhesabfa_Admin_Display" />
+            <option name="methodName" value="hesabfa_plugin_page" />
+          </properties>
+          <option name="timeStamp" value="4" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
+  </component>
+</project>
