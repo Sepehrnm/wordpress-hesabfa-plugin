@@ -206,24 +206,27 @@ class HesabfaWpFaService
     }
 
     public function save(WpFa $wpFa) {
-        Db::getInstance()->insert('ps_hesabfa', array(
-            'id_hesabfa' => $psFa->idHesabfa,
-            'obj_type' => $psFa->objType,
-            'id_ps' => $psFa->idWp,
-            'id_ps_attribute' => $psFa->idWpAttribute,
+        global $wpdb;
+        $wpdb->insert($wpdb->prefix . 'ssbhesabfa', array(
+            'id_hesabfa' => $wpFa->idHesabfa,
+            'obj_type' => $wpFa->objType,
+            'id_ps' => $wpFa->idWp,
+            'id_ps_attribute' => $wpFa->idWpAttribute,
         ));
     }
 
     public function update(WpFa $wpFa) {
-        Db::getInstance()->update('ps_hesabfa', array(
+        global $wpdb;
+        $wpdb->update($wpdb->prefix . 'ssbhesabfa', array(
             'id_hesabfa' => $wpFa->idHesabfa,
             'obj_type' => $wpFa->objType,
             'id_ps' => (int)$wpFa->idWp,
-            'id_ps_attribute' => (int)$wpFa->idWpAttribute
-        ), array('id' => $wpFa->id),0,true,true);
+            'id_ps_attribute' => (int)$wpFa->idWpAttribute,
+        ), array('id' => $wpFa->id));
     }
 
     public function delete($wpFa) {
-        Db::getInstance()->delete('ps_hesabfa', 'id=' . $wpFa->id);
+        global $wpdb;
+        $wpdb->delete($wpdb->prefix . 'ssbhesabfa', array('id' => $wpFa->id));
     }
 }

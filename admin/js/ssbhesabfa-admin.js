@@ -623,6 +623,29 @@ jQuery(function ($) {
                 }
             });
         });
+        $(".hesabfa-item-delete-link").on('click', function (){
+            const productId = $("#panel_product_data_hesabfa").data('product-id');
+            const attributeId = $(this).data('id');
+            var data = {
+                'action': 'adminDeleteProductLink',
+                'productId': productId,
+                'attributeId': attributeId
+            };
+            $(this).prop('disabled', true);
+            const _this = this;
+            $.post(ajaxurl, data, function (response) {
+                $(_this).prop('disabled', false);
+                if ('failed' !== response) {
+                    const res = JSON.parse(response);
+                    $("#hesabfa-item-" + attributeId).val('');
+                    alert(res.error ? res.message : 'کد کالای متصل با موفقیت حذف کرد.');
+                    return false;
+                } else {
+                    alert('خطا در هنگام حذف ارتباط.');
+                    return false;
+                }
+            });
+        });
     });
 
 });

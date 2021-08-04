@@ -255,6 +255,7 @@ class Ssbhesabfa
             $this->loader->add_filter('wp_ajax_adminInstallPluginData', $plugin_admin, 'adminInstallPluginDataCallback', 10, 4);
 
             $this->loader->add_filter('wp_ajax_adminChangeProductCode', $plugin_admin, 'adminChangeProductCodeCallback');
+            $this->loader->add_filter('wp_ajax_adminDeleteProductLink', $plugin_admin, 'adminDeleteProductLinkCallback');
 
         } else {
             $this->loader->add_action('admin_notices', $plugin_admin, 'ssbhesabfa_missing_notice');

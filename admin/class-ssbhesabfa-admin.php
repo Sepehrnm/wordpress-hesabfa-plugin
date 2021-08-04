@@ -905,11 +905,19 @@ class Ssbhesabfa_Admin
     function adminChangeProductCodeCallback() {
         if (is_admin() && (defined('DOING_AJAX') || DOING_AJAX)) {
 
-            $productId = wc_clean($_POST['productId']);
-            $attributeId = wc_clean($_POST['attributeId']);
+            $productId = (int)wc_clean($_POST['productId']);
+            $attributeId = (int)wc_clean($_POST['attributeId']);
             if($productId == $attributeId) $attributeId = 0;
-            $code = wc_clean($_POST['code']);
+            $code = (int)wc_clean($_POST['code']);
             $result = array();
+
+            if(!$code) {
+                $result["error"] = true;
+                $result["message"] = "کد کالا وارد نشده است.";
+                echo json_encode($result);
+                die();
+                return;
+            }
 
             $wpFaService = new HesabfaWpFaService();
             $wpFa = $wpFaService->getWpFaByHesabfaId('product', $code);
@@ -943,6 +951,25 @@ class Ssbhesabfa_Admin
                 $wpFa->objType = 'product';
                 $wpFaService->save($wpFa);
             }
+            $result["error"] = false;
+            echo json_encode($result);
+            die(); // this is required to return a proper result
+        }
+    }
+
+    function adminDeleteProductLinkCallback() {
+        if (is_admin() && (defined('DOING_AJAX') || DOING_AJAX)) {
+
+            $productId = wc_clean($_POST['productId']);
+            $attributeId = wc_clean($_POST['attributeId']);
+            if($productId == $attributeId) $attributeId = 0;
+            $result = array();
+
+            $wpFaService = new HesabfaWpFaService();
+            $wpFa = $wpFaService->getWpFa('product', $productId, $attributeId);
+            if($wpFa)
+                $wpFaService->delete($wpFa);
+
             $result["error"] = false;
             echo json_encode($result);
             die(); // this is required to return a proper result
