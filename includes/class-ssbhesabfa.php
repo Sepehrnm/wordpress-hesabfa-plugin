@@ -214,6 +214,10 @@ class Ssbhesabfa
                 $this->loader->add_action('woocommerce_product_after_variable_attributes', $plugin_admin, 'ssbhesabfa_hook_product_after_variable_attributes', 10, 3);
                 $this->loader->add_action('woocommerce_save_product_variation', $plugin_admin, 'ssbhesabfa_hook_save_product_variation', 10, 3);
 
+                $this->loader->add_filter('woocommerce_product_data_tabs', $plugin_admin, 'add_hesabfa_product_data_tab');
+                $this->loader->add_action('woocommerce_product_data_panels', $plugin_admin, 'add_hesabfa_product_data_fields');
+
+
             } elseif (!get_option('ssbhesabfa_live_mode')) {
                 if (get_option('ssbhesabfa_business_expired'))
                     $this->loader->add_action('admin_notices', $plugin_admin, 'ssbhesabfa_business_expired_notice');

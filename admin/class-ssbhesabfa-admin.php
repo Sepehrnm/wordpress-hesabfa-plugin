@@ -14,45 +14,48 @@ include_once(plugin_dir_path(__DIR__) . 'admin/services/HesabfaWpFaService.php')
  * @author     Saeed Sattar Beglou <saeed.sb@gmail.com>
  * @author     HamidReza Gharahzadeh <hamidprime@gmail.com>
  */
-class Ssbhesabfa_Admin {
+class Ssbhesabfa_Admin
+{
 
-	/**
-	 * The ID of this plugin.
-	 *
-	 * @since    1.0.0
-	 * @access   private
-	 * @var      string    $plugin_name    The ID of this plugin.
-	 */
-	private $plugin_name;
+    /**
+     * The ID of this plugin.
+     *
+     * @since    1.0.0
+     * @access   private
+     * @var      string $plugin_name The ID of this plugin.
+     */
+    private $plugin_name;
 
-	/**
-	 * The version of this plugin.
-	 *
-	 * @since    1.0.0
-	 * @access   private
-	 * @var      string    $version    The current version of this plugin.
-	 */
-	private $version;
+    /**
+     * The version of this plugin.
+     *
+     * @since    1.0.0
+     * @access   private
+     * @var      string $version The current version of this plugin.
+     */
+    private $version;
 
-	/**
-	 * Initialize the class and set its properties.
-	 *
-	 * @since    1.0.0
-	 * @param      string    $plugin_name       The name of this plugin.
-	 * @param      string    $version    The version of this plugin.
-	 */
-	public function __construct( $plugin_name, $version ) {
-		$this->plugin_name = $plugin_name;
-		$this->version = $version;
+    /**
+     * Initialize the class and set its properties.
+     *
+     * @param string $plugin_name The name of this plugin.
+     * @param string $version The version of this plugin.
+     * @since    1.0.0
+     */
+    public function __construct($plugin_name, $version)
+    {
+        $this->plugin_name = $plugin_name;
+        $this->version = $version;
         $this->load_dependencies();
     }
 
-	/**
-	 * Check DB ver on plugin update and do necessary actions
-	 *
-	 * @since    1.0.7
-	 */
-	public function ssbhesabfa_update_db_check() {
+    /**
+     * Check DB ver on plugin update and do necessary actions
+     *
+     * @since    1.0.7
+     */
+    public function ssbhesabfa_update_db_check()
+    {
         $current_db_ver = get_site_option('ssbhesabfa_db_version');
         if ($current_db_ver === false || $current_db_ver < 1.1) {
             global $wpdb;
@@ -70,52 +73,55 @@ class Ssbhesabfa_Admin {
         }
     }
 
-	/**
-	 * Register the stylesheets for the admin area.
-	 *
-	 * @since    1.0.0
-	 */
-	public function enqueue_styles() {
-		/**
-		 * This function is provided for demonstration purposes only.
-		 *
-		 * An instance of this class should be passed to the run() function
-		 * defined in Ssbhesabfa_Loader as all of the hooks are defined
-		 * in that particular class.
-		 *
-		 * The Ssbhesabfa_Loader will then create the relationship
-		 * between the defined hooks and the functions defined in this
-		 * class.
-		 */
+    /**
+     * Register the stylesheets for the admin area.
+     *
+     * @since    1.0.0
+     */
+    public function enqueue_styles()
+    {
+        /**
+         * This function is provided for demonstration purposes only.
+         *
+         * An instance of this class should be passed to the run() function
+         * defined in Ssbhesabfa_Loader as all of the hooks are defined
+         * in that particular class.
+         *
+         * The Ssbhesabfa_Loader will then create the relationship
+         * between the defined hooks and the functions defined in this
+         * class.
+         */
 
-        wp_enqueue_style( 'fontiran_css', plugin_dir_url( __FILE__ ) . 'css/fontiran.css', array(), $this->version, 'all' );
-        wp_enqueue_style( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'css/ssbhesabfa-admin.css?v=1', array(), $this->version, 'all' );
-		wp_enqueue_style( 'bootstrap_css', plugin_dir_url( __FILE__ ) . 'css/bootstrap.css', array(), $this->version, 'all' );
-	}
+        wp_enqueue_style('fontiran_css', plugin_dir_url(__FILE__) . 'css/fontiran.css', array(), $this->version, 'all');
+        wp_enqueue_style($this->plugin_name, plugin_dir_url(__FILE__) . 'css/ssbhesabfa-admin.css?v=1', array(), $this->version, 'all');
+        wp_enqueue_style('bootstrap_css', plugin_dir_url(__FILE__) . 'css/bootstrap.css', array(), $this->version, 'all');
+    }
 
-	/**
-	 * Register the JavaScript for the admin area.
-	 *
-	 * @since    1.0.0
-	 */
-	public function enqueue_scripts() {
-		/**
-		 * This function is provided for demonstration purposes only.
-		 *
-		 * An instance of this class should be passed to the run() function
-		 * defined in Ssbhesabfa_Loader as all of the hooks are defined
-		 * in that particular class.
-		 *
-		 * The Ssbhesabfa_Loader will then create the relationship
-		 * between the defined hooks and the functions defined in this
-		 * class.
-		 */
+    /**
+     * Register the JavaScript for the admin area.
+     *
+     * @since    1.0.0
+     */
+    public function enqueue_scripts()
+    {
+        /**
+         * This function is provided for demonstration purposes only.
+         *
+         * An instance of this class should be passed to the run() function
+         * defined in Ssbhesabfa_Loader as all of the hooks are defined
+         * in that particular class.
+         *
+         * The Ssbhesabfa_Loader will then create the relationship
+         * between the defined hooks and the functions defined in this
+         * class.
+         */
 
-		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/ssbhesabfa-admin.js', array('jquery'), $this->version, false );
-		wp_enqueue_script( 'bootstrap_js', plugin_dir_url( __FILE__ ) . 'js/bootstrap.bundle.min.js', array('jquery'), $this->version, false );
-	}
+        wp_enqueue_script($this->plugin_name, plugin_dir_url(__FILE__) . 'js/ssbhesabfa-admin.js', array('jquery'), $this->version, false);
+        wp_enqueue_script('bootstrap_js', plugin_dir_url(__FILE__) . 'js/bootstrap.bundle.min.js', array('jquery'), $this->version, false);
+    }
 
-    private function load_dependencies() {
+    private function load_dependencies()
+    {
         /**
          * The class responsible for defining all actions that occur in the Dashboard
          */
@@ -142,7 +148,8 @@ class Ssbhesabfa_Admin {
      *
      * @since    1.0.0
      */
-    public function ssbhesabfa_missing_notice() {
+    public function ssbhesabfa_missing_notice()
+    {
         echo '<div class="error"><p>' . sprintf(__('Hesabfa Plugin requires the %s to work!', 'ssbhesabfa'), '<a href="https://wordpress.org/plugins/woocommerce/" target="_blank">' . __('WooCommerce', 'ssbhesabfa') . '</a>') . '</p></div>';
     }
 
@@ -151,11 +158,13 @@ class Ssbhesabfa_Admin {
      *
      * @since    1.0.0
      */
-    public function ssbhesabfa_live_mode_notice() {
+    public function ssbhesabfa_live_mode_notice()
+    {
         echo '<div class="error"><p>' . __('Hesabfa Plugin need to connect to Hesabfa Accounting, Please check the API credential!', 'ssbhesabfa') . '</p></div>';
     }
 
-    public function ssbhesabfa_business_expired_notice() {
+    public function ssbhesabfa_business_expired_notice()
+    {
         echo '<div class="error"><p>' . __('Cannot connect to Hesabfa. Business expired.', 'ssbhesabfa') . '</p></div>';
     }
 
@@ -164,7 +173,8 @@ class Ssbhesabfa_Admin {
      *
      * @since    1.0.0
      */
-    public function ssbhesabfa_currency_notice() {
+    public function ssbhesabfa_currency_notice()
+    {
         echo '<div class="error"><p>' . __('Hesabfa Plugin cannot works! because WooCommerce currency in not match with Hesabfa.', 'ssbhesabfa') . '</p></div>';
     }
 
@@ -172,7 +182,8 @@ class Ssbhesabfa_Admin {
      * Action - Ajax 'export products' from Hesabfa/Export tab
      * @since	1.0.0
      */
-    public function adminExportProductsCallback() {
+    public function adminExportProductsCallback()
+    {
         if (is_admin() && (defined('DOING_AJAX') || DOING_AJAX)) {
 
             $batch = wc_clean($_POST['batch']);
@@ -198,7 +209,8 @@ class Ssbhesabfa_Admin {
         }
     }
 
-    public function adminImportProductsCallback() {
+    public function adminImportProductsCallback()
+    {
         if (is_admin() && (defined('DOING_AJAX') || DOING_AJAX)) {
 
             $batch = wc_clean($_POST['batch']);
@@ -229,7 +241,8 @@ class Ssbhesabfa_Admin {
      * Action - Ajax 'export products Opening Quantity' from Hesabfa/Export tab
      * @since	1.0.6
      */
-    public function adminExportProductsOpeningQuantityCallback() {
+    public function adminExportProductsOpeningQuantityCallback()
+    {
         if (is_admin() && (defined('DOING_AJAX') || DOING_AJAX)) {
 
             $batch = wc_clean($_POST['batch']);
@@ -238,16 +251,16 @@ class Ssbhesabfa_Admin {
 
             $func = new Ssbhesabfa_Admin_Functions();
             $result = $func->exportOpeningQuantity($batch, $totalBatch, $total);
-            if($result['error']) {
-                if($result['errorType'] == 'shareholderError') {
+            if ($result['error']) {
+                if ($result['errorType'] == 'shareholderError') {
                     $result["redirectUrl"] = admin_url('admin.php?page=ssbhesabfa-option&tab=export&productOpeningQuantityExportResult=false&shareholderError=true');
-                } else if($result['errorType'] == 'noProduct') {
+                } else if ($result['errorType'] == 'noProduct') {
                     $result["redirectUrl"] = admin_url('admin.php?page=ssbhesabfa-option&tab=export&productOpeningQuantityExportResult=false&noProduct=true');
                 } else {
                     $result["redirectUrl"] = admin_url('admin.php?page=ssbhesabfa-option&tab=export&productOpeningQuantityExportResult=false');
                 }
             } else {
-                if($result["done"] == true)
+                if ($result["done"] == true)
                     update_option('ssbhesabfa_use_export_product_opening_quantity', true);
                 $result["redirectUrl"] = admin_url('admin.php?page=ssbhesabfa-option&tab=export&productOpeningQuantityExportResult=true');
             }
@@ -261,7 +274,8 @@ class Ssbhesabfa_Admin {
      * Action - Ajax 'export customers' from Hesabfa/Export tab
      * @since	1.0.0
      */
-    public function adminExportCustomersCallback() {
+    public function adminExportCustomersCallback()
+    {
         if (is_admin() && (defined('DOING_AJAX') || DOING_AJAX)) {
 
             $batch = wc_clean($_POST['batch']);
@@ -287,9 +301,10 @@ class Ssbhesabfa_Admin {
      * Action - Ajax 'Sync Changes' from Hesabfa/Sync tab
      * @since	1.0.0
      */
-    public function adminSyncChangesCallback() {
+    public function adminSyncChangesCallback()
+    {
         if (is_admin() && (defined('DOING_AJAX') || DOING_AJAX)) {
-            include (plugin_dir_path( __DIR__ ) . 'includes/class-ssbhesabfa-webhook.php');
+            include(plugin_dir_path(__DIR__) . 'includes/class-ssbhesabfa-webhook.php');
             new Ssbhesabfa_Webhook();
 
             $redirect_url = admin_url('admin.php?page=ssbhesabfa-option&tab=sync&changesSyncResult=true');
@@ -303,7 +318,8 @@ class Ssbhesabfa_Admin {
      * Action - Ajax 'Sync Products' from Hesabfa/Sync tab
      * @since	1.0.0
      */
-    public function adminSyncProductsCallback() {
+    public function adminSyncProductsCallback()
+    {
         if (is_admin() && (defined('DOING_AJAX') || DOING_AJAX)) {
 
             $batch = wc_clean($_POST['batch']);
@@ -327,7 +343,8 @@ class Ssbhesabfa_Admin {
      * Action - Ajax 'Sync Orders from Hesabfa/Sync tab
      * @since	1.0.0
      */
-    public function adminSyncOrdersCallback() {
+    public function adminSyncOrdersCallback()
+    {
         if (is_admin() && (defined('DOING_AJAX') || DOING_AJAX)) {
 
             $batch = wc_clean($_POST['batch']);
@@ -339,7 +356,7 @@ class Ssbhesabfa_Admin {
             $func = new Ssbhesabfa_Admin_Functions();
             $result = $func->syncOrders($from_date, $batch, $totalBatch, $total, $updateCount);
 
-            if(!$result['error'])
+            if (!$result['error'])
                 $result["redirectUrl"] = admin_url('admin.php?page=ssbhesabfa-option&tab=sync&orderSyncResult=true&processed=' . $result["updateCount"]);
             else {
                 switch ($result['error']) {
@@ -363,7 +380,8 @@ class Ssbhesabfa_Admin {
     * Action - Ajax 'Update Products' from Hesabfa/Sync tab
     * @since	1.0.0
     */
-    public function adminUpdateProductsCallback() {
+    public function adminUpdateProductsCallback()
+    {
         if (is_admin() && (defined('DOING_AJAX') || DOING_AJAX)) {
 
             $batch = wc_clean($_POST['batch']);
@@ -383,14 +401,15 @@ class Ssbhesabfa_Admin {
         }
     }
 
-    public function adminSubmitInvoiceCallback() {
+    public function adminSubmitInvoiceCallback()
+    {
         if (is_admin() && (defined('DOING_AJAX') || DOING_AJAX)) {
 
             $orderId = wc_clean($_POST['orderId']);
 
             $func = new Ssbhesabfa_Admin_Functions();
             $result = $func->setOrder($orderId);
-            if($result)
+            if ($result)
                 $func->setOrderPayment($orderId);
 
             echo json_encode($result);
@@ -399,15 +418,16 @@ class Ssbhesabfa_Admin {
     }
 
 
-    public function adminSyncProductsManuallyCallback() {
+    public function adminSyncProductsManuallyCallback()
+    {
         HesabfaLogService::writeLogStr('===== Sync Products Manually =====');
 
         if (is_admin() && (defined('DOING_AJAX') || DOING_AJAX)) {
 
             $page = wc_clean($_POST["page"]);
             $rpp = wc_clean($_POST["rpp"]);
-            if(!$page) $page = 1;
-            if(!$rpp) $rpp = 10;
+            if (!$page) $page = 1;
+            if (!$rpp) $rpp = 10;
 
             if (isset($_POST["data"])) {
                 $data = wc_clean($_POST['data']);
@@ -431,7 +451,8 @@ class Ssbhesabfa_Admin {
         }
     }
 
-    public function adminClearPluginDataCallback() {
+    public function adminClearPluginDataCallback()
+    {
         HesabfaLogService::writeLogStr('===== Clear Plugin Data =====');
         if (is_admin() && (defined('DOING_AJAX') || DOING_AJAX)) {
 
@@ -453,12 +474,13 @@ class Ssbhesabfa_Admin {
         }
     }
 
-    public function adminInstallPluginDataCallback() {
+    public function adminInstallPluginDataCallback()
+    {
         HesabfaLogService::writeLogStr('===== Install Plugin Data =====');
         if (is_admin() && (defined('DOING_AJAX') || DOING_AJAX)) {
 
             // create table and settings
-            require_once plugin_dir_path( __DIR__ ) . 'includes/class-ssbhesabfa-activator.php';
+            require_once plugin_dir_path(__DIR__) . 'includes/class-ssbhesabfa-activator.php';
             Ssbhesabfa_Activator::activate();
 
             die();
@@ -468,14 +490,14 @@ class Ssbhesabfa_Admin {
     //This functions related to set webhook
     public function ssbhesabfa_init_internal()
     {
-        add_rewrite_rule( 'ssbhesabfa-webhook.php$', 'index.php?ssbhesabfa_webhook=1', 'top' );
+        add_rewrite_rule('ssbhesabfa-webhook.php$', 'index.php?ssbhesabfa_webhook=1', 'top');
         $this->checkForSyncChanges();
     }
 
-    private function checkForSyncChanges() {
+    private function checkForSyncChanges()
+    {
         $syncChangesLastDate = get_option('ssbhesabfa_sync_changes_last_date');
-        if(!isset($syncChangesLastDate) || $syncChangesLastDate == false)
-        {
+        if (!isset($syncChangesLastDate) || $syncChangesLastDate == false) {
             add_option('ssbhesabfa_sync_changes_last_date', new DateTime());
             $syncChangesLastDate = new DateTime();
         }
@@ -483,27 +505,28 @@ class Ssbhesabfa_Admin {
         $nowDateTime = new DateTime();
         $diff = $nowDateTime->diff($syncChangesLastDate);
 
-        if($diff->i > 1) {
+        if ($diff->i > 1) {
             HesabfaLogService::writeLogStr('===== Sync Changes Automatically =====');
             update_option('ssbhesabfa_sync_changes_last_date', new DateTime());
-            require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-ssbhesabfa-webhook.php';
+            require_once plugin_dir_path(dirname(__FILE__)) . 'includes/class-ssbhesabfa-webhook.php';
             new Ssbhesabfa_Webhook();
         }
     }
 
-    public function ssbhesabfa_query_vars( $query_vars )
+    public function ssbhesabfa_query_vars($query_vars)
     {
         $query_vars[] = 'ssbhesabfa_webhook';
         return $query_vars;
     }
 
-    public function custom_hesabfa_column_order_list($columns) {
+    public function custom_hesabfa_column_order_list($columns)
+    {
         $reordered_columns = array();
 
         // Inserting columns to a specific location
-        foreach( $columns as $key => $column){
+        foreach ($columns as $key => $column) {
             $reordered_columns[$key] = $column;
-            if( $key ==  'order_status' ){
+            if ($key == 'order_status') {
                 // Inserting after "Status" column
                 $reordered_columns['hesabfa-column-invoice-number'] = __('Invoice in Hesabfa', 'ssbhesabfa');
                 $reordered_columns['hesabfa-column-submit-invoice'] = __('Submit Invoice', 'ssbhesabfa');
@@ -512,35 +535,35 @@ class Ssbhesabfa_Admin {
         return $reordered_columns;
     }
 
-    public function custom_orders_list_column_content($column, $post_id) {
+    public function custom_orders_list_column_content($column, $post_id)
+    {
         global $wpdb;
 
-        switch ( $column )
-        {
+        switch ($column) {
             case 'hesabfa-column-invoice-number' :
                 // Get custom post meta data
-                $row = $wpdb->get_row("SELECT `id_hesabfa` FROM `".$wpdb->prefix."ssbhesabfa` WHERE `id_ps` = $post_id AND `obj_type` = 'order'");
+                $row = $wpdb->get_row("SELECT `id_hesabfa` FROM `" . $wpdb->prefix . "ssbhesabfa` WHERE `id_ps` = $post_id AND `obj_type` = 'order'");
 
                 //$my_var_one = get_post_meta( $post_id, '_the_meta_key1', true );
-                if(!empty($row))
+                if (!empty($row))
                     echo '<mark class="order-status"><span>' . $row->id_hesabfa . '</span></mark>';
                 else
                     echo '<small></small>';
                 break;
 
             case 'hesabfa-column-submit-invoice' :
-                    echo '<a role="button" class="button btn-submit-invoice" ';
-                    echo "data-order-id='$post_id'>";
-                    echo __('Submit Invoice', 'ssbhesabfa');
-                    echo '</a>';
+                echo '<a role="button" class="button btn-submit-invoice" ';
+                echo "data-order-id='$post_id'>";
+                echo __('Submit Invoice', 'ssbhesabfa');
+                echo '</a>';
                 break;
         }
     }
 
-    public function ssbhesabfa_parse_request( &$wp )
+    public function ssbhesabfa_parse_request(&$wp)
     {
-        if ( array_key_exists( 'ssbhesabfa_webhook', $wp->query_vars ) ) {
-            include (plugin_dir_path( __DIR__ ) . 'includes/ssbhesabfa-webhook.php');
+        if (array_key_exists('ssbhesabfa_webhook', $wp->query_vars)) {
+            include(plugin_dir_path(__DIR__) . 'includes/ssbhesabfa-webhook.php');
             exit();
         }
         return;
@@ -560,7 +583,7 @@ class Ssbhesabfa_Admin {
         $id_obj = $wpFaService->getWpFaId('customer', $id_customer);
         if ($id_obj != false) {
             global $wpdb;
-            $row = $wpdb->get_row("SELECT `id_hesabfa` FROM `".$wpdb->prefix."ssbhesabfa` WHERE `id` = $id_obj AND `obj_type` = 'customer'");
+            $row = $wpdb->get_row("SELECT `id_hesabfa` FROM `" . $wpdb->prefix . "ssbhesabfa` WHERE `id` = $id_obj AND `obj_type` = 'customer'");
 
             if (is_object($row)) {
                 $hesabfaApi = new Ssbhesabfa_Api();
@@ -568,7 +591,7 @@ class Ssbhesabfa_Admin {
             }
 
             global $wpdb;
-            $wpdb->delete($wpdb->prefix.'ssbhesabfa', array('id_ps' => $id_customer));
+            $wpdb->delete($wpdb->prefix . 'ssbhesabfa', array('id_ps' => $id_customer));
 
             HesabfaLogService::log(array("Customer deleted. Customer ID: $id_customer"));
         }
@@ -608,9 +631,10 @@ class Ssbhesabfa_Admin {
 
     //Item
     private $call_time = 1;
+
     public function ssbhesabfa_hook_new_product($id_product)
     {
-        if($this->call_time === 1) {
+        if ($this->call_time === 1) {
             $this->call_time++;
             return;
         } else {
@@ -628,12 +652,12 @@ class Ssbhesabfa_Admin {
         $code = $_POST[$variable_field_id];
         $id_product = $_POST['product_id'];
 
-        if($code === "")
+        if ($code === "")
             return;
 
         if (isset($code)) {
             global $wpdb;
-            $row = $wpdb->get_row("SELECT * FROM `".$wpdb->prefix."ssbhesabfa` WHERE `id_hesabfa` = ".$code." AND `obj_type` = 'product'");
+            $row = $wpdb->get_row("SELECT * FROM `" . $wpdb->prefix . "ssbhesabfa` WHERE `id_hesabfa` = " . $code . " AND `obj_type` = 'product'");
 
             if (is_object($row)) {
                 if ($row->id_ps == $id_product && $row->id_ps_attribute == $id_attribute) {
@@ -643,10 +667,9 @@ class Ssbhesabfa_Admin {
                 echo '<div class="error"><p>' . __('The new Item code already used for another Item', 'ssbhesabfa') . '</p></div>';
                 HesabfaLogService::log(array("The new Item code already used for another Item. Product ID: $id_product"));
             } else {
-                $row2 = $wpdb->get_row("SELECT * FROM `".$wpdb->prefix."ssbhesabfa` WHERE `id_ps` = $id_product AND `obj_type` = 'product' AND `id_ps_attribute` = $id_attribute");
+                $row2 = $wpdb->get_row("SELECT * FROM `" . $wpdb->prefix . "ssbhesabfa` WHERE `id_ps` = $id_product AND `obj_type` = 'product' AND `id_ps_attribute` = $id_attribute");
 
-                if(is_object($row2))
-                {
+                if (is_object($row2)) {
                     $wpdb->update($wpdb->prefix . 'ssbhesabfa', array(
                         'id_hesabfa' => (int)$code,
                     ), array(
@@ -654,7 +677,7 @@ class Ssbhesabfa_Admin {
                         'id_ps_attribute' => $id_attribute,
                         'obj_type' => 'product',
                     ));
-                } else if((int)$code !== 0) {
+                } else if ((int)$code !== 0) {
                     $wpdb->insert($wpdb->prefix . 'ssbhesabfa', array(
                         'id_hesabfa' => (int)$code,
                         'id_ps' => (int)$id_product,
@@ -691,7 +714,7 @@ class Ssbhesabfa_Admin {
                 $code = $wpFaService->getProductCodeByWpId($id_product, $id_attribute);
                 if ($code != false) {
                     $hesabfaApi->itemDelete($code);
-                    $wpdb->delete($wpdb->prefix.'ssbhesabfa', array('id_hesabfa' => $code, 'obj_type' => 'product'));
+                    $wpdb->delete($wpdb->prefix . 'ssbhesabfa', array('id_hesabfa' => $code, 'obj_type' => 'product'));
                     HesabfaLogService::log(array("Product variation deleted. Product ID: $id_product-$id_attribute"));
                 }
             }
@@ -700,7 +723,7 @@ class Ssbhesabfa_Admin {
         $code = $wpFaService->getProductCodeByWpId($id_product);
         if ($code != false) {
             $hesabfaApi->itemDelete($code);
-            $wpdb->delete($wpdb->prefix.'ssbhesabfa', array('id_hesabfa' => $code, 'obj_type' => 'product'));
+            $wpdb->delete($wpdb->prefix . 'ssbhesabfa', array('id_hesabfa' => $code, 'obj_type' => 'product'));
             HesabfaLogService::log(array("Product deleted. Product ID: $id_product"));
         }
     }
@@ -710,12 +733,12 @@ class Ssbhesabfa_Admin {
 //        $func = new Ssbhesabfa_Admin_Functions();
         $hesabfaApi = new Ssbhesabfa_Api();
         global $wpdb;
-        $row = $wpdb->get_row("SELECT * FROM `".$wpdb->prefix."ssbhesabfa` WHERE `id_ps_attribute` = $id_attribute AND `obj_type` = 'product'");
+        $row = $wpdb->get_row("SELECT * FROM `" . $wpdb->prefix . "ssbhesabfa` WHERE `id_ps_attribute` = $id_attribute AND `obj_type` = 'product'");
 
         if (is_object($row)) {
             $hesabfaApi->itemDelete($row->id_hesabfa);
 
-            $wpdb->delete($wpdb->prefix.'ssbhesabfa', array('id' => $row->id));
+            $wpdb->delete($wpdb->prefix . 'ssbhesabfa', array('id' => $row->id));
             HesabfaLogService::log(array("Product variation deleted. Product ID: $row->id_ps-$id_attribute"));
         }
     }
@@ -726,9 +749,9 @@ class Ssbhesabfa_Admin {
         $value = isset($_GET['post']) ? $wpFaService->getProductCodeByWpId($_GET['post']) : '';
         $args = array(
             'id' => 'ssbhesabfa_hesabfa_item_code_0',
-            'label' => __( 'Hesabfa base item code', 'ssbhesabfa' ),
+            'label' => __('Hesabfa base item code', 'ssbhesabfa'),
             'desc_tip' => true,
-            'description' => __( 'The base Item code of this product in Hesabfa, if you want to map this product to another item in Hesabfa, enter the new Item code.', 'ssbhesabfa' ),
+            'description' => __('The base Item code of this product in Hesabfa, if you want to map this product to another item in Hesabfa, enter the new Item code.', 'ssbhesabfa'),
             'value' => $value,
             'type' => 'number',
         );
@@ -739,21 +762,20 @@ class Ssbhesabfa_Admin {
     {
         $itemCode = isset($_POST['ssbhesabfa_hesabfa_item_code_0']) ? $_POST['ssbhesabfa_hesabfa_item_code_0'] : '';
 
-        if($itemCode === "")
+        if ($itemCode === "")
             return;
 
         if (isset($itemCode)) {
             global $wpdb;
-            $row = $wpdb->get_row("SELECT * FROM `".$wpdb->prefix."ssbhesabfa` WHERE `id_hesabfa` = ".$itemCode." AND `obj_type` = 'product'");
+            $row = $wpdb->get_row("SELECT * FROM `" . $wpdb->prefix . "ssbhesabfa` WHERE `id_hesabfa` = " . $itemCode . " AND `obj_type` = 'product'");
 
             if (is_object($row)) {
                 //ToDo: show error to customer in BO
                 echo '<div class="error"><p>' . __('The new Item code already used for another Item', 'ssbhesabfa') . '</p></div>';
                 HesabfaLogService::log(array("The new Item code already used for another Item. Product ID: $post_id"));
             } else {
-                $row2 = $wpdb->get_row("SELECT * FROM `".$wpdb->prefix."ssbhesabfa` WHERE `id_ps` = $post_id AND `obj_type` = 'product' AND `id_ps_attribute` = 0");
-                if(is_object($row2))
-                {
+                $row2 = $wpdb->get_row("SELECT * FROM `" . $wpdb->prefix . "ssbhesabfa` WHERE `id_ps` = $post_id AND `obj_type` = 'product' AND `id_ps_attribute` = 0");
+                if (is_object($row2)) {
                     $wpdb->update($wpdb->prefix . 'ssbhesabfa', array(
                         'id_hesabfa' => (int)$itemCode,
                     ), array(
@@ -761,7 +783,7 @@ class Ssbhesabfa_Admin {
                         'id_ps_attribute' => 0,
                         'obj_type' => 'product',
                     ));
-                } else if((int)$itemCode !== 0) {
+                } else if ((int)$itemCode !== 0) {
                     $wpdb->insert($wpdb->prefix . 'ssbhesabfa', array(
                         'id_hesabfa' => (int)$itemCode,
                         'id_ps' => (int)$post_id,
@@ -791,7 +813,8 @@ class Ssbhesabfa_Admin {
     * Action - Ajax 'clean log file' from Hesabfa/Log tab
     * @since	1.0.0
     */
-    public function adminCleanLogFileCallback() {
+    public function adminCleanLogFileCallback()
+    {
         if (is_admin() && (defined('DOING_AJAX') || DOING_AJAX)) {
             $func = new Ssbhesabfa_Admin_Functions();
             $result = $func->cleanLogFile();
@@ -805,6 +828,71 @@ class Ssbhesabfa_Admin {
 
             die(); // this is required to return a proper result
         }
+    }
+
+    // custom data tab in edit product page in admin panel
+    function add_hesabfa_product_data_tab($product_data_tabs)
+    {
+        $product_data_tabs['hesabfa'] = array(
+            'label' => __('Hesabfa', 'ssbhesabfa'),
+            'target' => 'panel_product_data_hesabfa',
+        );
+        return $product_data_tabs;
+    }
+
+    function add_hesabfa_product_data_fields()
+    {
+        global $woocommerce, $post;
+
+        $funcs = new Ssbhesabfa_Admin_Functions();
+        $items = array();
+        $id_product = $post->ID;
+        $product = new WC_Product($id_product);
+
+        $items[] = ssbhesabfaItemService::mapProduct($product, $id_product, false);
+        $items[0]["Quantity"] = $product->get_stock_quantity();
+        $i = 1;
+
+        $variations = $funcs->getProductVariations($id_product);
+        if ($variations) {
+            foreach ($variations as $variation) {
+                $items[] = ssbhesabfaItemService::mapProductVariation($product, $variation, $id_product, false);
+                $items[$i]["Quantity"] = $variation->get_stock_quantity();
+                $i++;
+            }
+        }
+
+        ?>
+        <div id="panel_product_data_hesabfa" class="panel woocommerce_options_panel">
+            <table class="table table-striped">
+                <tr class="small fw-bold">
+                    <td>نام کالا</td>
+                    <td>کد در حسابفا</td>
+                    <td>ذخیره کد</td>
+                    <td>حذف ارتباط</td>
+                    <td>بروزرسانی قیمت و موجودی</td>
+                    <td>قیمت</td>
+                    <td>موجودی</td>
+                </tr>
+            <?php
+            foreach ($items as $item) {
+                ?>
+                <tr>
+                    <td><?php echo $item["Name"] ?></td>
+                    <td><input type="text" value="<?php echo $item["Code"] ?>" style="width: 75px;"></td>
+                    <td><input type="button" value="ذخیره" class="button"></td>
+                    <td><input type="button" value="حذف ارتباط" class="button"></td>
+                    <td><input type="button" value="بروزرسانی" class="button button-primary"></td>
+                    <td><?php echo $item["SellPrice"] ?></td>
+                    <td><?php echo $item["Quantity"] ?></td>
+                </tr>
+                <?php
+            }
+            ?>
+            </table>
+        </div>
+        <?php
+
     }
 
 }
