@@ -882,9 +882,9 @@ class Ssbhesabfa_Admin
                 <tr>
                     <td><?php echo $item["Name"] ?></td>
                     <td><input type="text" value="<?php echo $item["Code"] ?>" id="hesabfa-item-<?php echo $item["Id"] ?>" style="width: 75px;"></td>
-                    <td><input type="button" value="ذخیره" data-id="<?php echo $item["Id"] ?>" class="button"></td>
-                    <td><input type="button" value="حذف ارتباط" data-id="<?php echo $item["Id"] ?>" class="button"></td>
-                    <td><input type="button" value="بروزرسانی" data-id="<?php echo $item["Id"] ?>" class="button button-primary"></td>
+                    <td><input type="button" value="ذخیره" data-id="<?php echo $item["Id"] ?>" class="button hesabfa-item-save"></td>
+                    <td><input type="button" value="حذف ارتباط" data-id="<?php echo $item["Id"] ?>" class="button hesabfa-item-delete-link"></td>
+                    <td><input type="button" value="بروزرسانی" data-id="<?php echo $item["Id"] ?>" class="button button-primary hesabfa-item-update"></td>
                     <td><?php echo $item["SellPrice"] ?></td>
                     <td><?php echo $item["Quantity"] ?></td>
                 </tr>
@@ -892,9 +892,61 @@ class Ssbhesabfa_Admin
             }
             ?>
             </table>
+
+            <input type="button" value="ذخیره همه" id="hesabfa-item-save-all" class="button">
+            <input type="button" value="حذف ارتباط همه" id="hesabfa-item-delete-link-all" class="button">
+            <input type="button" value="بروزرسانی همه" id="hesabfa-item-update-all" class="button button-primary">
+
         </div>
         <?php
 
+    }
+
+    function adminChangeProductCodeCallback() {
+        if (is_admin() && (defined('DOING_AJAX') || DOING_AJAX)) {
+
+            $productId = wc_clean($_POST['productId']);
+            $attributeId = wc_clean($_POST['attributeId']);
+            if($productId == $attributeId) $attributeId = 0;
+            $code = wc_clean($_POST['code']);
+            $result = array();
+
+            $wpFaService = new HesabfaWpFaService();
+            $wpFa = $wpFaService->getWpFaByHesabfaId('product', $code);
+            if($wpFa){
+                $result["error"] = true;
+                $result["message"] = "این کد به کالای دیگری متصل است. \n" . $wpFa->idWp . " - " . $wpFa->idWpAttribute;
+                echo json_encode($result);
+                die();
+                return;
+            }
+
+            $api = new Ssbhesabfa_Api();
+            $response = $api->itemGet($code);
+            if (!$response->Success) {
+                $result["error"] = true;
+                $result["message"] = "کالایی با کد وارد شده در حسابفا پیدا نشد.";
+                echo json_encode($result);
+                die();
+                return;
+            }
+
+            $wpFa = $wpFaService->getWpFa('product', $productId, $attributeId);
+            if($wpFa) {
+                $wpFa->idHesabfa = $code;
+                $wpFaService->update($wpFa);
+            } else {
+                $wpFa = new WpFa();
+                $wpFa->idHesabfa = $code;
+                $wpFa->idWp = $productId;
+                $wpFa->idWpAttribute = $attributeId;
+                $wpFa->objType = 'product';
+                $wpFaService->save($wpFa);
+            }
+            $result["error"] = false;
+            echo json_encode($result);
+            die(); // this is required to return a proper result
+        }
     }
 
 }

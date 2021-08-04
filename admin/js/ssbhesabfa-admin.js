@@ -598,6 +598,33 @@ jQuery(function ($) {
         });
     });
 
+    $(function () {
+        $(".hesabfa-item-save").on('click', function (){
+            const productId = $("#panel_product_data_hesabfa").data('product-id');
+            const attributeId = $(this).data('id');
+            const code = $("#hesabfa-item-" + attributeId).val();
+            var data = {
+                'action': 'adminChangeProductCode',
+                'productId': productId,
+                'attributeId': attributeId,
+                'code': code,
+            };
+            $(this).prop('disabled', true);
+            const _this = this;
+            $.post(ajaxurl, data, function (response) {
+                $(_this).prop('disabled', false);
+                if ('failed' !== response) {
+                    const res = JSON.parse(response);
+                    alert(res.error ? res.message : 'کد کالای متصل با موفقیت تغییر کرد.');
+                    return false;
+                } else {
+                    alert('خطا در هنگام تغییر کد کالای متصل.');
+                    return false;
+                }
+            });
+        });
+    });
+
 });
 
 
