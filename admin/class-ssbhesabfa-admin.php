@@ -851,6 +851,7 @@ class Ssbhesabfa_Admin
 
         $items[] = ssbhesabfaItemService::mapProduct($product, $id_product, false);
         $items[0]["Quantity"] = $product->get_stock_quantity();
+        $items[0]["Id"] = $id_product;
         $i = 1;
 
         $variations = $funcs->getProductVariations($id_product);
@@ -858,12 +859,13 @@ class Ssbhesabfa_Admin
             foreach ($variations as $variation) {
                 $items[] = ssbhesabfaItemService::mapProductVariation($product, $variation, $id_product, false);
                 $items[$i]["Quantity"] = $variation->get_stock_quantity();
+                $items[$i]["Id"] = $variation->get_id();
                 $i++;
             }
         }
 
         ?>
-        <div id="panel_product_data_hesabfa" class="panel woocommerce_options_panel">
+        <div id="panel_product_data_hesabfa" class="panel woocommerce_options_panel" data-product-id="<?php echo $id_product ?>">
             <table class="table table-striped">
                 <tr class="small fw-bold">
                     <td>نام کالا</td>
@@ -879,10 +881,10 @@ class Ssbhesabfa_Admin
                 ?>
                 <tr>
                     <td><?php echo $item["Name"] ?></td>
-                    <td><input type="text" value="<?php echo $item["Code"] ?>" style="width: 75px;"></td>
-                    <td><input type="button" value="ذخیره" class="button"></td>
-                    <td><input type="button" value="حذف ارتباط" class="button"></td>
-                    <td><input type="button" value="بروزرسانی" class="button button-primary"></td>
+                    <td><input type="text" value="<?php echo $item["Code"] ?>" id="hesabfa-item-<?php echo $item["Id"] ?>" style="width: 75px;"></td>
+                    <td><input type="button" value="ذخیره" data-id="<?php echo $item["Id"] ?>" class="button"></td>
+                    <td><input type="button" value="حذف ارتباط" data-id="<?php echo $item["Id"] ?>" class="button"></td>
+                    <td><input type="button" value="بروزرسانی" data-id="<?php echo $item["Id"] ?>" class="button button-primary"></td>
                     <td><?php echo $item["SellPrice"] ?></td>
                     <td><?php echo $item["Quantity"] ?></td>
                 </tr>
