@@ -1350,6 +1350,9 @@ class Ssbhesabfa_Admin_Functions
             }
 
             $product = new WC_Product($id_product);
+            $result = array();
+            $result["newPrice"] = null;
+            $result["newQuantity"] = null;
 
             //1.set new Price
             if (get_option('ssbhesabfa_item_update_price') == 'yes') {
@@ -1361,8 +1364,8 @@ class Ssbhesabfa_Admin_Functions
                         $new_price = Ssbhesabfa_Admin_Functions::getPriceInWooCommerceDefaultCurrency($item->SellPrice);
                         update_post_meta($id_attribute, '_price', $new_price);
                         update_post_meta($id_attribute, '_regular_price', $new_price);
-
-                        HesabfaLogService::log(array("product ID $id_product-$id_attribute Price changed. Old Price: $old_price. New Price: $item->SellPrice"));
+                        HesabfaLogService::log(array("product ID $id_product-$id_attribute Price changed. Old Price: $old_price. New Price: $new_price"));
+                        $result["newPrice"] = $new_price;
                     }
                 } else {
                     $price = Ssbhesabfa_Admin_Functions::getPriceInHesabfaDefaultCurrency($product->get_regular_price());
@@ -1371,8 +1374,8 @@ class Ssbhesabfa_Admin_Functions
                         $new_price = Ssbhesabfa_Admin_Functions::getPriceInWooCommerceDefaultCurrency($item->SellPrice);
                         update_post_meta($id_product, '_price', $new_price);
                         update_post_meta($id_product, '_regular_price', $new_price);
-
-                        HesabfaLogService::log(array("product ID $id_product Price changed. Old Price: $old_price. New Price: $item->SellPrice"));
+                        HesabfaLogService::log(array("product ID $id_product Price changed. Old Price: $old_price. New Price: $new_price"));
+                        $result["newPrice"] = $new_price;
                     }
                 }
             }
@@ -1389,7 +1392,8 @@ class Ssbhesabfa_Admin_Functions
                         update_post_meta($id_attribute, '_stock', $new_quantity);
                         wc_update_product_stock_status($id_attribute, $new_stock_status);
 
-                        HesabfaLogService::log(array("product ID $id_product-$id_attribute quantity changed. Old qty: $old_quantity. New qty: $item->Stock"));
+                        HesabfaLogService::log(array("product ID $id_product-$id_attribute quantity changed. Old qty: $old_quantity. New qty: $new_quantity"));
+                        $result["newQuantity"] = $new_quantity;
                     }
                 } else {
                     if ($item->Stock != $product->get_stock_quantity()) {
@@ -1400,10 +1404,13 @@ class Ssbhesabfa_Admin_Functions
                         update_post_meta($id_product, '_stock', $new_quantity);
                         wc_update_product_stock_status($id_product, $new_stock_status);
 
-                        HesabfaLogService::log(array("product ID $id_product quantity changed. Old qty: $old_quantity. New qty: $item->Stock"));
+                        HesabfaLogService::log(array("product ID $id_product quantity changed. Old qty: $old_quantity. New qty: $new_quantity"));
+                        $result["newQuantity"] = $new_quantity;
                     }
                 }
             }
+
+            return $result;
         }
     }
 }

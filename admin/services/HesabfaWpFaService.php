@@ -101,16 +101,18 @@ class HesabfaWpFaService
 
 
     public function getProductAndCombinations($idWp) {
-        $sql = "SELECT * FROM `" . _DB_PREFIX_  . "ps_hesabfa` WHERE `obj_type` = 'product' AND `id_ps` = '$idWp'";
-        $result = Db::getInstance()->executeS($sql);
+        global $wpdb;
 
-        $psFaObjects = array();
+        $sql = "SELECT * FROM `" . $wpdb->prefix  . "ssbhesabfa` WHERE `obj_type` = 'product' AND `id_ps` = '$idWp'";
+        $result = $wpdb->get_results($sql);
+
+        $wpFaObjects = array();
         if(isset($result) && is_array($result) && count($result) > 0)
         {
             foreach ($result as $item) {
-                $psFaObjects[] = $this->mapPsFa($item);
+                $wpFaObjects[] = $this->mapWpFa($item);
             }
-            return $psFaObjects;
+            return $wpFaObjects;
         }
         return null;
     }
@@ -225,8 +227,12 @@ class HesabfaWpFaService
         ), array('id' => $wpFa->id));
     }
 
-    public function delete($wpFa) {
+    public function delete(WpFa $wpFa) {
         global $wpdb;
         $wpdb->delete($wpdb->prefix . 'ssbhesabfa', array('id' => $wpFa->id));
+    }
+    public function deleteAll($productId) {
+        global $wpdb;
+        $wpdb->delete($wpdb->prefix . 'ssbhesabfa', array('id_ps' => $productId));
     }
 }

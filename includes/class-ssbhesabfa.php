@@ -256,6 +256,10 @@ class Ssbhesabfa
 
             $this->loader->add_filter('wp_ajax_adminChangeProductCode', $plugin_admin, 'adminChangeProductCodeCallback');
             $this->loader->add_filter('wp_ajax_adminDeleteProductLink', $plugin_admin, 'adminDeleteProductLinkCallback');
+            $this->loader->add_filter('wp_ajax_adminUpdateProduct', $plugin_admin, 'adminUpdateProductCallback');
+            $this->loader->add_filter('wp_ajax_adminChangeProductsCode', $plugin_admin, 'adminChangeProductsCodeCallback');
+            $this->loader->add_filter('wp_ajax_adminDeleteProductsLink', $plugin_admin, 'adminDeleteProductsLinkCallback');
+            $this->loader->add_filter('wp_ajax_adminUpdateProductAndVariations', $plugin_admin, 'adminUpdateProductAndVariationsCallback');
 
         } else {
             $this->loader->add_action('admin_notices', $plugin_admin, 'ssbhesabfa_missing_notice');

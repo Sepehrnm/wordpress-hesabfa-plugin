@@ -638,10 +638,125 @@ jQuery(function ($) {
                 if ('failed' !== response) {
                     const res = JSON.parse(response);
                     $("#hesabfa-item-" + attributeId).val('');
-                    alert(res.error ? res.message : 'کد کالای متصل با موفقیت حذف کرد.');
+                    alert(res.error ? res.message : 'ارتباط محصول با موفقیت حذف شد.');
                     return false;
                 } else {
                     alert('خطا در هنگام حذف ارتباط.');
+                    return false;
+                }
+            });
+        });
+        $(".hesabfa-item-update").on('click', function (){
+            const productId = $("#panel_product_data_hesabfa").data('product-id');
+            const attributeId = $(this).data('id');
+            var data = {
+                'action': 'adminUpdateProduct',
+                'productId': productId,
+                'attributeId': attributeId
+            };
+            $(this).prop('disabled', true);
+            const _this = this;
+            $.post(ajaxurl, data, function (response) {
+                $(_this).prop('disabled', false);
+                if ('failed' !== response) {
+                    const res = JSON.parse(response);
+                    if(res.newPrice)
+                        $("#hesabfa-item-price-" + attributeId).text(res.newPrice);
+                    if(res.newQuantity)
+                        $("#hesabfa-item-quantity-" + attributeId).text(res.newQuantity);
+                    if(res.error)
+                        alert(res.error);
+                    return false;
+                } else {
+                    alert('خطا در هنگام بروزرسانی محصول.');
+                    return false;
+                }
+            });
+        });
+
+        $("#hesabfa-item-save-all").on('click', function (){
+            const productId = $("#panel_product_data_hesabfa").data('product-id');
+            const itemsCode = $(".hesabfa-item-code");
+            const itemsData = [];
+            for (let i = 0; i < itemsCode.length; i++) {
+                const item = itemsCode[i];
+                const attributeId = $(item).data('id');
+                const code = $(item).val();
+                itemsData.push({attributeId: attributeId, code: code});
+            }
+
+            var data = {
+                'action': 'adminChangeProductsCode',
+                'productId': productId,
+                'itemsData': itemsData
+            };
+            $(this).prop('disabled', true);
+            const _this = this;
+            $.post(ajaxurl, data, function (response) {
+                $(_this).prop('disabled', false);
+                if ('failed' !== response) {
+                    const res = JSON.parse(response);
+                    alert(res.error ? res.message : 'کد کالاهای متصل با موفقیت تغییر کرد.');
+                    return false;
+                } else {
+                    alert('خطا در هنگام تغییر کد کالاهای متصل.');
+                    return false;
+                }
+            });
+        });
+        $("#hesabfa-item-delete-link-all").on('click', function (){
+            const productId = $("#panel_product_data_hesabfa").data('product-id');
+            var data = {
+                'action': 'adminDeleteProductsLink',
+                'productId': productId
+            };
+            $(this).prop('disabled', true);
+            const _this = this;
+            $.post(ajaxurl, data, function (response) {
+                $(_this).prop('disabled', false);
+                if ('failed' !== response) {
+                    const res = JSON.parse(response);
+                    const itemsCode = $(".hesabfa-item-code");
+                    for (let i = 0; i < itemsCode.length; i++) {
+                        const item = itemsCode[i];
+                        $(item).val('');
+                    }
+                    setTimeout(function (){
+                        alert(res.error ? res.message : 'ارتباط محصولات با موفقیت حذف شد.');
+                    }, 100);
+                    return false;
+                } else {
+                    alert('خطا در هنگام حذف ارتباط.');
+                    return false;
+                }
+            });
+        });
+        $("#hesabfa-item-update-all").on('click', function (){
+            const productId = $("#panel_product_data_hesabfa").data('product-id');
+            var data = {
+                'action': 'adminUpdateProductAndVariations',
+                'productId': productId
+            };
+            $(this).prop('disabled', true);
+            const _this = this;
+            $.post(ajaxurl, data, function (response) {
+                $(_this).prop('disabled', false);
+                if ('failed' !== response) {
+                    const res = JSON.parse(response);
+                    if(res.error)
+                    {
+                        alert(res.message);
+                        return false;
+                    }
+                    for (let i = 0; i < res.newData.length; i++) {
+                        if(res.newData[i].newPrice)
+                            $("#hesabfa-item-price-" + res.newData[i].attributeId).text(res.newData[i].newPrice);
+                        if(res.newData[i].newQuantity)
+                            $("#hesabfa-item-quantity-" + res.newData[i].attributeId).text(res.newData[i].newQuantity);
+                    }
+                    return false;
+                } else {
+                    alert('خطا در هنگام بروزرسانی محصول.');
                     return false;
                 }
             });
