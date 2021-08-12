@@ -4,7 +4,7 @@ include_once(plugin_dir_path(__DIR__) . 'services/HesabfaLogService.php');
 
 /**
  * @class      Ssbhesabfa_Setting
- * @version    1.78.38
+ * @version    1.80.38
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin/setting
@@ -89,6 +89,30 @@ class Ssbhesabfa_Setting
             'title' => __('Update Quantity', 'ssbhesabfa'),
             'desc' => __('Update Quantity after change in Hesabfa', 'ssbhesabfa'),
             'id' => 'ssbhesabfa_item_update_quantity',
+            'default' => 'no',
+            'type' => 'checkbox'
+        );
+
+        $fields[] = array(
+            'title' => "",
+            'desc' => __('Do not submit product in Hesabfa automatically by saving product in woocommerce', 'ssbhesabfa'),
+            'id' => 'ssbhesabfa_do_not_submit_product_automatically',
+            'default' => 'no',
+            'type' => 'checkbox'
+        );
+
+        $fields[] = array(
+            'title' => "",
+            'desc' => __('Do not update product price in Hesabfa by editing product in woocommerce', 'ssbhesabfa'),
+            'id' => 'ssbhesabfa_do_not_update_product_price_in_hesabfa',
+            'default' => 'no',
+            'type' => 'checkbox'
+        );
+
+        $fields[] = array(
+            'title' => "",
+            'desc' => __('Do not update product barcode in Hesabfa by saving product in woocommerce', 'ssbhesabfa'),
+            'id' => 'ssbhesabfa_do_not_update_product_barcode_in_hesabfa',
             'default' => 'no',
             'type' => 'checkbox'
         );

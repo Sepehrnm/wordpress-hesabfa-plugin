@@ -7,7 +7,7 @@ include_once(plugin_dir_path(__DIR__) . 'admin/services/HesabfaWpFaService.php')
  * The admin-specific functionality of the plugin.
  *
  * @class      Ssbhesabfa_Admin
- * @version    1.78.38
+ * @version    1.80.38
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin
@@ -641,12 +641,16 @@ class Ssbhesabfa_Admin
             $this->call_time = 1;
         }
 
+        if (get_option("ssbhesabfa_do_not_submit_product_automatically", "no") === "yes")
+            return;
         $function = new Ssbhesabfa_Admin_Functions();
         $function->setItems(array($id_product));
     }
 
     public function ssbhesabfa_hook_save_product_variation($id_attribute)
     {
+        HesabfaLogService::writeLogStr("=== ssbhesabfa_hook_save_product_variation ===");
+
         //change hesabfa item code
         $variable_field_id = "ssbhesabfa_hesabfa_item_code_" . $id_attribute;
         $code = $_POST[$variable_field_id];
@@ -849,6 +853,19 @@ class Ssbhesabfa_Admin
         $id_product = $post->ID;
         $product = new WC_Product($id_product);
 
+        if ($product->get_status() === "auto-draft") {
+            ?>
+            <div id="panel_product_data_hesabfa" class="panel woocommerce_options_panel"
+                 data-product-id="<?php echo $id_product ?>">
+                هنوز محصول ذخیره نشده است.
+                <br>
+                پس از ذخیره محصول، در این قسمت می توانید ارتباط محصول و متغیرهای آن با حسابفا
+                را مدیریت کنید.
+            </div>
+            <?php
+            return;
+        }
+
         $items[] = ssbhesabfaItemService::mapProduct($product, $id_product, false);
         $items[0]["Quantity"] = $product->get_stock_quantity();
         $items[0]["Id"] = $id_product;
@@ -988,10 +1005,21 @@ class Ssbhesabfa_Admin
     {
         if (is_admin() && (defined('DOING_AJAX') || DOING_AJAX)) {
 
+            if (get_option('ssbhesabfa_item_update_price', 'no') == 'no' &&
+                get_option('ssbhesabfa_item_update_quantity', 'no') == 'no') {
+                $result["error"] = true;
+                $result["message"] = "خطا: در تنظیمات افزونه، گزینه های بروزرسانی قیمت و موجودی محصول بر اساس حسابفا فعال نیستند.";
+                echo json_encode($result);
+                die();
+            }
+
             $productId = wc_clean($_POST['productId']);
             $attributeId = wc_clean($_POST['attributeId']);
             if ($productId == $attributeId) $attributeId = 0;
             $result = array();
+
+            if (get_option('ssbhesabfa_item_update_quantity', 'no') == 'yes')
+                update_post_meta($attributeId, '_manage_stock', 'yes');
 
             $wpFaService = new HesabfaWpFaService();
             $wpFa = $wpFaService->getWpFa('product', $productId, $attributeId);
@@ -1121,21 +1149,35 @@ class Ssbhesabfa_Admin
     function adminUpdateProductAndVariationsCallback()
     {
         if (is_admin() && (defined('DOING_AJAX') || DOING_AJAX)) {
+
+            if (get_option('ssbhesabfa_item_update_price', 'no') == 'no' &&
+                get_option('ssbhesabfa_item_update_quantity', 'no') == 'no') {
+                $result["error"] = true;
+                $result["message"] = "خطا: در تنظیمات افزونه، گزینه های بروزرسانی قیمت و موجودی محصول بر اساس حسابفا فعال نیستند.";
+                echo json_encode($result);
+                die();
+            }
+
             $api = new Ssbhesabfa_Api();
             $wpFaService = new HesabfaWpFaService();
 
             $productId = wc_clean($_POST['productId']);
             $productAndCombinations = $wpFaService->getProductAndCombinations($productId);
             $result = array();
-            if(count($productAndCombinations) == 0) {
+            if (count($productAndCombinations) == 0) {
                 $result["error"] = true;
                 $result["message"] = "هیچ ارتباطی پیدا نشد.";
                 echo json_encode($result);
                 die();
             }
             $codes = [];
-            foreach ($productAndCombinations as $p)
+            $ssbhesabfa_item_update_quantity = get_option('ssbhesabfa_item_update_quantity', 'no');
+            foreach ($productAndCombinations as $p) {
                 $codes[] = str_pad($p->idHesabfa, 6, "0", STR_PAD_LEFT);
+
+                if ($ssbhesabfa_item_update_quantity == 'yes')
+                    update_post_meta($p->idWpAttribute == 0 ? $p->idWp : $p->idWpAttribute, '_manage_stock', 'yes');
+            }
 
             $filters = array(array("Property" => "Code", "Operator" => "in", "Value" => $codes));
             $response = $api->itemGetItems(array('Filters' => $filters));

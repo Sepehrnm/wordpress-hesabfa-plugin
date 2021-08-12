@@ -665,7 +665,7 @@ jQuery(function ($) {
                     if(res.newQuantity)
                         $("#hesabfa-item-quantity-" + attributeId).text(res.newQuantity);
                     if(res.error)
-                        alert(res.error);
+                        alert(res.message);
                     return false;
                 } else {
                     alert('خطا در هنگام بروزرسانی محصول.');

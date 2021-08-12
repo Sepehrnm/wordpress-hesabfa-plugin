@@ -16,12 +16,16 @@ class ssbhesabfaItemService
             'PurchasesTitle' => Ssbhesabfa_Validation::itemNameValidation($product->get_title()),
             'SalesTitle' => Ssbhesabfa_Validation::itemNameValidation($product->get_title()),
             'ItemType' => $product->is_virtual() == 1 ? 1 : 0,
-            'Barcode' => Ssbhesabfa_Validation::itemBarcodeValidation($product->get_sku()),
             'Tag' => json_encode(array('id_product' => $id, 'id_attribute' => 0)),
             'NodeFamily' => self::getCategoryPath($categories[0]),
-            'ProductCode' => $id,
-            'SellPrice' => self::getPriceInHesabfaDefaultCurrency($price)
+            'ProductCode' => $id
         );
+
+        if(!$code || get_option("ssbhesabfa_do_not_update_product_price_in_hesabfa", "no") === "no")
+            $hesabfaItem["SellPrice"] = self::getPriceInHesabfaDefaultCurrency($price);
+        if(get_option("ssbhesabfa_do_not_update_product_barcode_in_hesabfa", "no") === "no")
+            $hesabfaItem["Barcode"] = Ssbhesabfa_Validation::itemBarcodeValidation($product->get_sku());
+
         return $hesabfaItem;
     }
 
@@ -43,15 +47,18 @@ class ssbhesabfaItemService
             'PurchasesTitle' => $fullName,
             'SalesTitle' => $fullName,
             'ItemType' => $variation->is_virtual() == 1 ? 1 : 0,
-            'Barcode' => Ssbhesabfa_Validation::itemBarcodeValidation($variation->get_sku()),
             'Tag' => json_encode(array(
                 'id_product' => $id_product,
                 'id_attribute' => $id_attribute
             )),
             'NodeFamily' => self::getCategoryPath($categories[0]),
-            'ProductCode' => $id_attribute,
-            'SellPrice' => self::getPriceInHesabfaDefaultCurrency($price)
+            'ProductCode' => $id_attribute
         );
+
+        if(!$code || get_option("ssbhesabfa_do_not_update_product_price_in_hesabfa", "no") === "no")
+            $hesabfaItem["SellPrice"] = self::getPriceInHesabfaDefaultCurrency($price);
+        if(get_option("ssbhesabfa_do_not_update_product_barcode_in_hesabfa", "no") === "no")
+            $hesabfaItem["Barcode"] = Ssbhesabfa_Validation::itemBarcodeValidation($variation->get_sku());
 
         return $hesabfaItem;
     }

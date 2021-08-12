@@ -2,7 +2,7 @@
 
 /**
  * @class      Ssbhesabfa_Admin_Display
- * @version    1.78.38
+ * @version    1.80.38
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin/display
@@ -12,17 +12,26 @@
 
 class Ssbhesabfa_Admin_Display
 {
+    /**
+     * Ssbhesabfa_Admin_Display constructor.
+     */
+    public function __construct()
+    {
+        //add_action('admin_menu', array(__CLASS__, 'hesabfa_add_settings_menu'));
+        add_action('admin_menu', array(__CLASS__, 'hesabfa_add_menu'));
+    }
+
 
     /**
      * Hook in methods
      * @since    1.0.0
      * @access   static
      */
-    public static function init()
-    {
-        //add_action('admin_menu', array(__CLASS__, 'hesabfa_add_settings_menu'));
-        add_action('admin_menu', array(__CLASS__, 'hesabfa_add_menu'));
-    }
+//    public static function init()
+//    {
+//        //add_action('admin_menu', array(__CLASS__, 'hesabfa_add_settings_menu'));
+//        add_action('admin_menu', array(__CLASS__, 'hesabfa_add_menu'));
+//    }
 
     /**
      * @since    1.0.0
@@ -341,4 +350,5 @@ class Ssbhesabfa_Admin_Display
     }
 }
 
-Ssbhesabfa_Admin_Display::init();
+//Ssbhesabfa_Admin_Display::init();
+new Ssbhesabfa_Admin_Display();

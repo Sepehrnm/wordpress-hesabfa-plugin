@@ -624,6 +624,23 @@ msgstr "فاکتور حسابفا"
 msgid "Submit Invoice"
 msgstr "ثبت فاکتور"
 
+msgid "Submit Product in Hesabfa"
+msgstr "ثبت محصول در حسابفا"
+
+msgid "Do not submit product in Hesabfa automatically by saving product in woocommerce"
+msgstr "با ذخیره محصول در ووکامرس، محصول را بصورت اتوماتیک در حسابفا ثبت نکن"
+
+msgid "Submit Price in Hesabfa"
+msgstr "ثبت قیمت در حسابفا"
+
+msgid "Do not update product price in Hesabfa by editing product in woocommerce"
+msgstr "با ویرایش محصول در ووکامرس، قیمت محصول را در حسابفا بروز نکن"
+
+msgid "Barcode in Hesabfa"
+msgstr "بارکد در حسابفا"
+
+msgid "Do not update product barcode in Hesabfa by saving product in woocommerce"
+msgstr "با ذخیره محصول در ووکامرس، بارکد محصول را در حسابفا بروز نکن"
 
 #~ msgid "Sync completed, All products added/updated."
 #~ msgstr "همسان‌سازی پایان یافت. تمامی محصولات به‌روزرسانی/افزوده شدند."
