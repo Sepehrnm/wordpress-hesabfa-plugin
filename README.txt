@@ -4,7 +4,7 @@ Tags: accounting cloud hesabfa
 Requires at least: 5.2
 Tested up to: 5.6
 Requires PHP: 5.6
-Stable tag: 1.80.38
+Stable tag: 1.84.39
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -232,6 +232,14 @@ For more information and a full guide to how to use Hesabfa and WooCommerce Plug
 = 1.80.38 - 05.08.2021 =
 * new interface for manually change product and variations link with hesabfa
 and delete link or update price and quantity (in edit product page product data tab).
+
+= 1.84.39 - 12.08.2021 =
+* add new settings for product:
+    * do not submit product in hesabfa automatically
+    * do not update product price in hesabfa by editing in woocommerce
+    * do not save barcode in hesabfa by saving product in woocommerce
+* change product and its variations stock management status to yes
+by clicking update stock and price button in hesabfa tab in product edit page
 
 == Upgrade Notice ==
 Automatic updates should work smoothly, but we still recommend you back up your site.
