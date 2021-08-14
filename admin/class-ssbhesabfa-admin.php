@@ -505,7 +505,7 @@ class Ssbhesabfa_Admin
         $nowDateTime = new DateTime();
         $diff = $nowDateTime->diff($syncChangesLastDate);
 
-        if ($diff->i > 1) {
+        if ($diff->i > 3) {
             HesabfaLogService::writeLogStr('===== Sync Changes Automatically =====');
             update_option('ssbhesabfa_sync_changes_last_date', new DateTime());
             require_once plugin_dir_path(dirname(__FILE__)) . 'includes/class-ssbhesabfa-webhook.php';
@@ -1015,11 +1015,12 @@ class Ssbhesabfa_Admin
 
             $productId = wc_clean($_POST['productId']);
             $attributeId = wc_clean($_POST['attributeId']);
-            if ($productId == $attributeId) $attributeId = 0;
-            $result = array();
 
             if (get_option('ssbhesabfa_item_update_quantity', 'no') == 'yes')
                 update_post_meta($attributeId, '_manage_stock', 'yes');
+
+            if ($productId == $attributeId) $attributeId = 0;
+            $result = array();
 
             $wpFaService = new HesabfaWpFaService();
             $wpFa = $wpFaService->getWpFa('product', $productId, $attributeId);

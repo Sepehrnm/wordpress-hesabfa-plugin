@@ -33,8 +33,8 @@ class Ssbhesabfa_Activator {
         add_option('ssbhesabfa_activation_date', date("Y-m-d"));
         add_option('ssbhesabfa_use_export_product_opening_quantity', false);
         add_option('ssbhesabfa_business_expired', 0);
-        add_option('ssbhesabfa_do_not_submit_product_automatically', 0);
-        add_option('ssbhesabfa_do_not_update_product_price_in_hesabfa', 0);
+        add_option('ssbhesabfa_do_not_submit_product_automatically', "no");
+        add_option('ssbhesabfa_do_not_update_product_price_in_hesabfa', "no");
 
         self::ssbhesabfa_create_database_table();
 	}
