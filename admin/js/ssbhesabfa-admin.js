@@ -616,6 +616,10 @@ jQuery(function ($) {
                 if ('failed' !== response) {
                     const res = JSON.parse(response);
                     alert(res.error ? res.message : 'کد کالای متصل با موفقیت تغییر کرد.');
+                    if(productId === attributeId)
+                        $("#ssbhesabfa_hesabfa_item_code_0").val(code);
+                    else
+                        $("#ssbhesabfa_hesabfa_item_code_" + attributeId).val(code);
                     return false;
                 } else {
                     alert('خطا در هنگام تغییر کد کالای متصل.');
@@ -638,7 +642,13 @@ jQuery(function ($) {
                 if ('failed' !== response) {
                     const res = JSON.parse(response);
                     $("#hesabfa-item-" + attributeId).val('');
-                    alert(res.error ? res.message : 'ارتباط محصول با موفقیت حذف شد.');
+                    if(productId === attributeId)
+                        $("#ssbhesabfa_hesabfa_item_code_0").val('');
+                    else
+                        $("#ssbhesabfa_hesabfa_item_code_" + attributeId).val('');
+                    setTimeout(function (){
+                        alert(res.error ? res.message : 'ارتباط محصول با موفقیت حذف شد.');
+                    }, 100);
                     return false;
                 } else {
                     alert('خطا در هنگام حذف ارتباط.');
@@ -697,6 +707,7 @@ jQuery(function ($) {
                 if ('failed' !== response) {
                     const res = JSON.parse(response);
                     alert(res.error ? res.message : 'کد کالاهای متصل با موفقیت تغییر کرد.');
+                    location.reload();
                     return false;
                 } else {
                     alert('خطا در هنگام تغییر کد کالاهای متصل.');
@@ -721,6 +732,7 @@ jQuery(function ($) {
                         const item = itemsCode[i];
                         $(item).val('');
                     }
+                    $('[id^="ssbhesabfa_hesabfa_item_code_"]').val('');
                     setTimeout(function (){
                         alert(res.error ? res.message : 'ارتباط محصولات با موفقیت حذف شد.');
                     }, 100);
