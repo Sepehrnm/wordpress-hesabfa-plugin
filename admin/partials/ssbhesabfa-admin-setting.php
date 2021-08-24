@@ -69,6 +69,10 @@ class Ssbhesabfa_Setting
                 </li>
             </ul>
         </div>
+
+        <div id="2446366821" class="p-4">
+            <script type="text/JavaScript" src="https://www.aparat.com/embed/LlFyY?data[rnddiv]=2446366821&data[responsive]=yes&data[title]=%D8%B1%D8%A7%D9%87%D9%86%D9%85%D8%A7%DB%8C%20%D8%A7%D9%81%D8%B2%D9%88%D9%86%D9%87%20%D9%88%D9%88%DA%A9%D8%A7%D9%85%D8%B1%D8%B3%20%D8%AD%D8%B3%D8%A7%D8%A8%D9%81%D8%A7&&recom=none"></script>
+        </div>
         <?php
     }
 
