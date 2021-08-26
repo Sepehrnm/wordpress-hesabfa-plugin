@@ -870,7 +870,7 @@ class Ssbhesabfa_Admin_Functions
         // get products from hesabfa
         $offset = ($batch - 1) * $rpp;
 
-        $response = $hesabfa->itemGetItems(array('Skip' => 0, 'Take' => $rpp, 'SortBy' => 'Id', 'Filters' => $filters));
+        $response = $hesabfa->itemGetItems(array('Skip' => $offset, 'Take' => $rpp, 'SortBy' => 'Id', 'Filters' => $filters));
         if ($response->Success) {
             $items = $response->Result->List;
             $from = $response->Result->From;
