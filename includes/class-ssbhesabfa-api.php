@@ -362,7 +362,19 @@ class Ssbhesabfa_Api
         return $this->apiRequest($method);
     }
 
-    public function settingGetCurrency()
+	public function settingGetProjects()
+	{
+		$method = 'setting/getProjects';
+		return $this->apiRequest($method);
+	}
+
+	public function settingGetSalesmen()
+	{
+		$method = 'setting/getSalesmen';
+		return $this->apiRequest($method);
+	}
+
+	public function settingGetCurrency()
     {
         $method = 'setting/getCurrency';
 
