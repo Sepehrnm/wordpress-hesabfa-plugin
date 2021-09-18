@@ -201,6 +201,9 @@ class Ssbhesabfa_Setting
 
 	public static function ssbhesabfa_invoice_setting_fields()
 	{
+		$projects = Ssbhesabfa_Setting::ssbhesabfa_get_projects();
+		$salesmen = Ssbhesabfa_Setting::ssbhesabfa_get_salesmen();
+
 		$fields[] = array('title' => __('Invoice Settings', 'ssbhesabfa'), 'type' => 'title', 'desc' => '', 'id' => 'invoice_options');
 
 		$fields[] = array(
@@ -233,6 +236,20 @@ class Ssbhesabfa_Setting
 				'failed' => __('Failed', 'ssbhesabfa'),
 				'checkout-draft' => __('Draft', 'ssbhesabfa'),
 			),
+		);
+
+		$fields[] = array(
+			'title' => __("Invoice's Project", 'ssbhesabfa'),
+			'id' => 'ssbhesabfa_invoice_project',
+			'type' => 'select',
+			'options' => $projects,
+		);
+
+		$fields[] = array(
+			'title' => __("Invoice's Salesman", 'ssbhesabfa'),
+			'id' => 'ssbhesabfa_invoice_project',
+			'type' => 'select',
+			'options' => $salesmen,
 		);
 
 		$fields[] = array('type' => 'sectionend', 'id' => 'invoice_options');
