@@ -577,7 +577,14 @@ class Ssbhesabfa_Admin_Functions
             'InvoiceItems' => $invoiceItems,
         );
 
-        $hesabfa = new Ssbhesabfa_Api();
+		$invoice_project = get_option('ssbhesabfa_invoice_project');
+		$invoice_salesman = get_option('ssbhesabfa_invoice_salesman');
+		if($invoice_project != -1)
+			$data['Project'] = $invoice_project;
+		if($invoice_salesman != -1)
+			$data['SalesmanCode'] = $invoice_salesman;
+
+		$hesabfa = new Ssbhesabfa_Api();
         $response = $hesabfa->invoiceSave($data);
 
         if ($response->Success) {

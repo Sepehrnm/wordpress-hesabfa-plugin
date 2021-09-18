@@ -247,7 +247,7 @@ class Ssbhesabfa_Setting
 
 		$fields[] = array(
 			'title' => __("Invoice's Salesman", 'ssbhesabfa'),
-			'id' => 'ssbhesabfa_invoice_project',
+			'id' => 'ssbhesabfa_invoice_salesman',
 			'type' => 'select',
 			'options' => $salesmen,
 		);
@@ -1098,7 +1098,7 @@ class Ssbhesabfa_Setting
 			$available_projects[-1] = __('No need to set!', 'ssbhesabfa');
 			foreach ($projects->Result as $project) {
                 if($project->Active)
-				    $available_projects[$project->Id] = $project->Title;
+				    $available_projects[$project->Title] = $project->Title;
 			}
 			return $available_projects;
 		} else {
