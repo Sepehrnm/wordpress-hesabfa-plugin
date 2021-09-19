@@ -642,6 +642,15 @@ msgstr "بارکد در حسابفا"
 msgid "Do not update product barcode in Hesabfa by saving product in woocommerce"
 msgstr "با ذخیره محصول در ووکامرس، بارکد محصول را در حسابفا بروز نکن"
 
+msgid "Shipping method"
+msgstr "روش حمل و نقل"
+
+msgid "Invoice's Salesman"
+msgstr "فروشنده فاکتور"
+
+msgid "Invoice's Project"
+msgstr "پروژه فاکتور"
+
 #~ msgid "Sync completed, All products added/updated."
 #~ msgstr "همسان‌سازی پایان یافت. تمامی محصولات به‌روزرسانی/افزوده شدند."
 
