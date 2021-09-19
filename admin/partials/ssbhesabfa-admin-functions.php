@@ -577,8 +577,8 @@ class Ssbhesabfa_Admin_Functions
             'InvoiceItems' => $invoiceItems,
         );
 
-		$invoice_project = get_option('ssbhesabfa_invoice_project');
-		$invoice_salesman = get_option('ssbhesabfa_invoice_salesman');
+		$invoice_project = get_option('ssbhesabfa_invoice_project', -1);
+		$invoice_salesman = get_option('ssbhesabfa_invoice_salesman', -1);
 		if($invoice_project != -1)
 			$data['Project'] = $invoice_project;
 		if($invoice_salesman != -1)
