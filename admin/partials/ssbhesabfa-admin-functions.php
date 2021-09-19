@@ -575,6 +575,7 @@ class Ssbhesabfa_Admin_Functions
             'Tag' => json_encode(array('id_order' => $id_order)),
             'Freight' => $this->getPriceInHesabfaDefaultCurrency($order->get_shipping_total() + $order->get_shipping_tax()),
             'InvoiceItems' => $invoiceItems,
+			'Note' => $order->customer_note
         );
 
 		$invoice_project = get_option('ssbhesabfa_invoice_project', -1);
