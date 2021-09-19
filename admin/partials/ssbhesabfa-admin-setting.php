@@ -122,6 +122,14 @@ class Ssbhesabfa_Setting
 			'type' => 'checkbox'
 		);
 
+		$fields[] = array(
+			'title' => "",
+			'desc' => __('Do not update product category in Hesabfa by saving product in woocommerce', 'ssbhesabfa'),
+			'id' => 'ssbhesabfa_do_not_update_product_category_in_hesabfa',
+			'default' => 'no',
+			'type' => 'checkbox'
+		);
+
 		$fields[] = array('type' => 'sectionend', 'id' => 'catalog_options');
 
 		return $fields;

@@ -17,7 +17,6 @@ class ssbhesabfaItemService
             'SalesTitle' => Ssbhesabfa_Validation::itemNameValidation($product->get_title()),
             'ItemType' => $product->is_virtual() == 1 ? 1 : 0,
             'Tag' => json_encode(array('id_product' => $id, 'id_attribute' => 0)),
-            'NodeFamily' => self::getCategoryPath($categories[0]),
             'ProductCode' => $id
         );
 
@@ -25,8 +24,10 @@ class ssbhesabfaItemService
             $hesabfaItem["SellPrice"] = self::getPriceInHesabfaDefaultCurrency($price);
         if(get_option("ssbhesabfa_do_not_update_product_barcode_in_hesabfa", "no") === "no")
             $hesabfaItem["Barcode"] = Ssbhesabfa_Validation::itemBarcodeValidation($product->get_sku());
+		if(get_option("ssbhesabfa_do_not_update_product_category_in_hesabfa", "no") === "no")
+			$hesabfaItem["NodeFamily"] = self::getCategoryPath($categories[0]);
 
-        return $hesabfaItem;
+		return $hesabfaItem;
     }
 
     public static function mapProductVariation($product, $variation, $id_product, $new = true) {
@@ -51,7 +52,6 @@ class ssbhesabfaItemService
                 'id_product' => $id_product,
                 'id_attribute' => $id_attribute
             )),
-            'NodeFamily' => self::getCategoryPath($categories[0]),
             'ProductCode' => $id_attribute
         );
 
@@ -59,6 +59,8 @@ class ssbhesabfaItemService
             $hesabfaItem["SellPrice"] = self::getPriceInHesabfaDefaultCurrency($price);
         if(get_option("ssbhesabfa_do_not_update_product_barcode_in_hesabfa", "no") === "no")
             $hesabfaItem["Barcode"] = Ssbhesabfa_Validation::itemBarcodeValidation($variation->get_sku());
+		if(get_option("ssbhesabfa_do_not_update_product_category_in_hesabfa", "no") === "no")
+			$hesabfaItem["NodeFamily"] = self::getCategoryPath($categories[0]);
 
         return $hesabfaItem;
     }
