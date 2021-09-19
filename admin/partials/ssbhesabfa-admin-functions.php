@@ -462,7 +462,7 @@ class Ssbhesabfa_Admin_Functions
 
         $order = new WC_Order($id_order);
 
-        $id_customer = $order->get_customer_id();
+		$id_customer = $order->get_customer_id();
         if ($id_customer !== 0) {
             //set registered customer
             $contactCode = $this->getContactCodeByCustomerId($id_customer);
@@ -560,11 +560,18 @@ class Ssbhesabfa_Admin_Functions
                 $date = $date_obj->date('Y-m-d H:i:s');
         }
 
-        if ($reference === null) {
+        if ($reference === null)
             $reference = $id_order;
-        }
 
-        $data = array(
+		$order_shipping_method = "";
+		foreach( $order->get_items( 'shipping' ) as $item )
+			$order_shipping_method = $item->get_name();
+
+		$note = $order->customer_note;
+		if($order_shipping_method)
+			$note .= "\n" . __('Shipping method', 'ssbhesabfa') . ": " . $order_shipping_method;
+
+		$data = array(
             'Number' => $number,
             'InvoiceType' => $orderType,
             'ContactCode' => $contactCode,
@@ -575,7 +582,7 @@ class Ssbhesabfa_Admin_Functions
             'Tag' => json_encode(array('id_order' => $id_order)),
             'Freight' => $this->getPriceInHesabfaDefaultCurrency($order->get_shipping_total() + $order->get_shipping_tax()),
             'InvoiceItems' => $invoiceItems,
-			'Note' => $order->customer_note
+			'Note' => $note
         );
 
 		$invoice_project = get_option('ssbhesabfa_invoice_project', -1);
