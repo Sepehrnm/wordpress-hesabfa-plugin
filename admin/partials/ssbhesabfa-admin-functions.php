@@ -6,7 +6,7 @@ include_once(plugin_dir_path(__DIR__) . 'services/HesabfaWpFaService.php');
 
 /**
  * @class      Ssbhesabfa_Admin_Functions
- * @version    1.86.42
+ * @version    1.87.43
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin/functions

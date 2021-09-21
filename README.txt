@@ -4,7 +4,7 @@ Tags: accounting cloud hesabfa
 Requires at least: 5.2
 Tested up to: 5.6
 Requires PHP: 5.6
-Stable tag: 1.86.42
+Stable tag: 1.87.43
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -253,6 +253,13 @@ by clicking update stock and price button in hesabfa tab in product edit page
 
 = 1.86.42 - 27.08.2021 =
 * fix bug: fix a bug in import products.
+
+= 1.87.43 - 21.09.2021 =
+* Set invoice project and salesman
+* Add customer note to invoice
+* Add shipping method to invoice note
+* Add an option to prevent changing product category in Hesabfa
+* A syntax error fixed
 
 == Upgrade Notice ==
 Automatic updates should work smoothly, but we still recommend you back up your site.
