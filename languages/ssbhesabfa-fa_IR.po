@@ -654,6 +654,12 @@ msgstr "فروشنده فاکتور"
 msgid "Invoice's Project"
 msgstr "پروژه فاکتور"
 
+msgid "Plugin Tutorial Video"
+msgstr "ویدیوی خودآموز افزونه"
+
+msgid "Titles"
+msgstr "عناوین"
+
 #~ msgid "Sync completed, All products added/updated."
 #~ msgstr "همسان‌سازی پایان یافت. تمامی محصولات به‌روزرسانی/افزوده شدند."
 

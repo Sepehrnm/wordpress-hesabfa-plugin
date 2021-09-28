@@ -70,10 +70,83 @@ class Ssbhesabfa_Setting
             </ul>
         </div>
 
-        <div id="2446366821" class="p-4">
-            <script type="text/JavaScript"
-                    src="https://www.aparat.com/embed/LlFyY?data[rnddiv]=2446366821&data[responsive]=yes&data[title]=%D8%B1%D8%A7%D9%87%D9%86%D9%85%D8%A7%DB%8C%20%D8%A7%D9%81%D8%B2%D9%88%D9%86%D9%87%20%D9%88%D9%88%DA%A9%D8%A7%D9%85%D8%B1%D8%B3%20%D8%AD%D8%B3%D8%A7%D8%A8%D9%81%D8%A7&&recom=none"></script>
+
+        <div class="row" style="margin-left: 10px;">
+            <div class="col">
+                <h4 class="h4 hesabfa-tab-page-title mt-4"><?php esc_attr_e('Plugin Tutorial Video', 'ssbhesabfa'); ?></h4>
+                <video controls id="hesabfa-tutorial-video" style="border: 1px solid gray" class="mt-3">
+                    <source src="https://www.hesabfa.com/file/woocommerce/woocommerce-plugin-tutorial.mp4" type="video/mp4"></source>
+                </video>
+            </div>
+            <div class="col-3">
+                <h4 class="h4 hesabfa-tab-page-title mt-4 mb-3"><?php esc_attr_e('Titles', 'ssbhesabfa'); ?></h4>
+                <div class="hesabfa-plugin-tutorial-chapter" onclick="hesabfaTutorialJumpTo(0)">
+                    نصب افزونه
+                    <br><strong class="text-info">00:00</strong>
+                </div>
+                <div class="hesabfa-plugin-tutorial-chapter" onclick="hesabfaTutorialJumpTo(75)">
+                    اتصال افزونه به حسابفا
+                    <br><strong class="text-info">01:15</strong>
+                </div>
+                <div class="hesabfa-plugin-tutorial-chapter" onclick="hesabfaTutorialJumpTo(246)">
+                    تنظیمات افزونه
+                    <br><strong class="text-info">04:06</strong>
+                </div>
+                <div class="hesabfa-plugin-tutorial-chapter" onclick="hesabfaTutorialJumpTo(520)">
+                    تعریف محصول و لینک کردن محصول به حسابفا
+                    <br><strong class="text-info">08:40</strong>
+                </div>
+                <div class="hesabfa-plugin-tutorial-chapter" onclick="hesabfaTutorialJumpTo(1378)">
+                    خروجی محصولات به حسابفا
+                    <br><strong class="text-info">22:58</strong>
+                </div>
+                <div class="hesabfa-plugin-tutorial-chapter" onclick="hesabfaTutorialJumpTo(1462)">
+                    خروجی موجودی اول دوره محصولات به حسابفا
+                    <br><strong class="text-info">24:22</strong>
+                </div>
+                <div class="hesabfa-plugin-tutorial-chapter" onclick="hesabfaTutorialJumpTo(1495)">
+                    خروجی مشتریان
+                    <br><strong class="text-info">24:55</strong>
+                </div>
+                <div class="hesabfa-plugin-tutorial-chapter" onclick="hesabfaTutorialJumpTo(1525)">
+                    ورود محصولات از حسابفا به فروشگاه
+                    <br><strong class="text-info">25:25</strong>
+                </div>
+                <div class="hesabfa-plugin-tutorial-chapter" onclick="hesabfaTutorialJumpTo(1592)">
+                    همسان سازی قیمت و موجودی محصولات
+                    <br><strong class="text-info">26:32</strong>
+                </div>
+                <div class="hesabfa-plugin-tutorial-chapter" onclick="hesabfaTutorialJumpTo(1645)">
+                    همسان سازی سفارشات
+                    <br><strong class="text-info">27:25</strong>
+                </div>
+                <div class="hesabfa-plugin-tutorial-chapter" onclick="hesabfaTutorialJumpTo(1758)">
+                    بروزرسانی محصولات در حسابفا بر اساس فروشگاه
+                    <br><strong class="text-info">29:18</strong>
+                </div>
+                <div class="hesabfa-plugin-tutorial-chapter" onclick="hesabfaTutorialJumpTo(1805)">
+                    سفارشات و ثبت فاکتور در حسابفا
+                    <br><strong class="text-info">30:05</strong>
+                </div>
+                <div class="hesabfa-plugin-tutorial-chapter" onclick="hesabfaTutorialJumpTo(2120)">
+                    پشتیبان گیری از جدول افزونه در دیتابیس
+                    <br><strong class="text-info">35:20</strong>
+                </div>
+                <div class="hesabfa-plugin-tutorial-chapter" onclick="hesabfaTutorialJumpTo(2502)">
+                    لاگ رویدادها و خطاها
+                    <br><strong class="text-info">41:42</strong>
+                </div>
+                <div class="hesabfa-plugin-tutorial-chapter" onclick="hesabfaTutorialJumpTo(3046)">
+                    حذف محصولات
+                    <br><strong class="text-info">50:46</strong>
+                </div>
+                <div class="hesabfa-plugin-tutorial-chapter" onclick="hesabfaTutorialJumpTo(3143)">
+                    محصول پیش نویس
+                    <br><strong class="text-info">52:23</strong>
+                </div>
+            </div>
         </div>
+
 		<?php
 	}
 

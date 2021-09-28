@@ -9,7 +9,7 @@
 }
 
 a.nav-tab {
-    font-family: IRANYekan;
+    font-family: IRANYekan, Tahoma;
     padding: 5px 10px;
     font-weight: normal;
     border-radius: 7px 7px 0px 0px;
@@ -21,11 +21,11 @@ a.nav-tab {
 }
 
 .hesabfa-p {
-    font-family: IRANYekan;
+    font-family: IRANYekan, Tahoma;
 }
 
 .hesabfa-f {
-    font-family: IRANYekan;
+    font-family: IRANYekan, Tahoma;
 }
 
 .hesabfa-f-12 {
@@ -33,7 +33,7 @@ a.nav-tab {
 }
 
 .hesabfa-header {
-    font-family: IRANYekan;
+    font-family: IRANYekan, Tahoma;
     background-color: #304967;
     box-shadow: 5px 5px 5px #f3f3f3;
     padding: 5px;
@@ -52,4 +52,17 @@ a.nav-tab {
 
 .hesabfa-bold {
     font-weight: bold;
+}
+
+.hesabfa-plugin-tutorial-chapter {
+    color: dimgray;
+    font-weight: bold;
+    border-bottom: 1px solid silver;
+    margin-bottom: 5px;
+    padding-bottom: 10px;
+    margin-top: 10px;
+}
+.hesabfa-plugin-tutorial-chapter:hover {
+    color: dodgerblue;
+    cursor: pointer;
 }

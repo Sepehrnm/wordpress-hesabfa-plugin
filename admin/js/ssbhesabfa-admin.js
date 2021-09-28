@@ -777,4 +777,11 @@ jQuery(function ($) {
 
 });
 
+function hesabfaTutorialJumpTo(time) {
+    let vidEl = document.getElementById('hesabfa-tutorial-video');
+    vidEl.play();
+    vidEl.pause();
+    vidEl.currentTime = time;
+    vidEl.play();
+}
 
