@@ -147,7 +147,7 @@ msgstr "مشتری به عنوان مهمان ثبت‌نام کرده است."
 #. Plugin Name of the plugin/theme
 #: admin/partials/ssbhesabfa-admin-setting.php:44
 msgid "Hesabfa Accounting"
-msgstr "نرم‌افزار حسابداری ابری حسابفا"
+msgstr "نرم‌افزار حسابداری آنلاین حسابفا"
 
 #: admin/partials/ssbhesabfa-admin-setting.php:45
 msgid ""
