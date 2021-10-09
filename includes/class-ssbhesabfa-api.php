@@ -233,6 +233,20 @@ class Ssbhesabfa_Api
         return $this->apiRequest($method, $data);
     }
 
+    public function itemGetQuantity($warehouseCode, $codes)
+    {
+//        HesabfaLogService::writeLogStr("warehouse code: $warehouseCode");
+//        HesabfaLogService::writeLogObj($codes);
+
+        $method = 'item/GetQuantity';
+        $data = array(
+            'warehouseCode' => $warehouseCode,
+            'codes' => $codes,
+        );
+
+        return $this->apiRequest($method, $data);
+    }
+
     //Invoice functions
     public function invoiceGet($number, $type = 0)
     {

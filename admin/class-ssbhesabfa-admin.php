@@ -1032,9 +1032,15 @@ class Ssbhesabfa_Admin
             $wpFa = $wpFaService->getWpFa('product', $productId, $attributeId);
             if ($wpFa) {
                 $api = new Ssbhesabfa_Api();
-                $response = $api->itemGet($wpFa->idHesabfa);
+                $warehouse = get_option('ssbhesabfa_item_update_quantity_based_on', "-1");
+                if($warehouse == "-1")
+                    $response = $api->itemGet($wpFa->idHesabfa);
+                else
+                    $response = $api->itemGetQuantity($warehouse, array($wpFa->idHesabfa));
+
                 if ($response->Success) {
-                    $newProps = Ssbhesabfa_Admin_Functions::setItemChanges($response->Result);
+                    $item = $warehouse == "-1" ? $response->Result : $response->Result[0];
+                    $newProps = Ssbhesabfa_Admin_Functions::setItemChanges($item);
                     $result["error"] = false;
                     $result["newPrice"] = $newProps["newPrice"];
                     $result["newQuantity"] = $newProps["newQuantity"];
@@ -1187,9 +1193,14 @@ class Ssbhesabfa_Admin
             }
 
             $filters = array(array("Property" => "Code", "Operator" => "in", "Value" => $codes));
-            $response = $api->itemGetItems(array('Filters' => $filters));
+            $warehouse = get_option('ssbhesabfa_item_update_quantity_based_on', "-1");
+            if($warehouse == "-1")
+                $response = $api->itemGetItems(array('Filters' => $filters));
+            else
+                $response = $api->itemGetQuantity($warehouse, $codes);
+
             if ($response->Success) {
-                $items = $response->Result->List;
+                $items = $warehouse == "-1" ? $response->Result->List : $response->Result;
                 $newData = [];
                 $result["error"] = false;
                 foreach ($items as $item) {

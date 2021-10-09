@@ -1210,8 +1210,19 @@ class Ssbhesabfa_Admin_Functions
 
             $offset = ($batch - 1) * $rpp;
             $response = $hesabfa->itemGetItems(array('Skip' => $offset, 'Take' => $rpp, 'SortBy' => 'Id', 'Filters' => $filters));
-            if ($response->Success) {
+
+            $warehouse = get_option('ssbhesabfa_item_update_quantity_based_on', "-1");
+            if($warehouse != "-1")
+            {
                 $products = $response->Result->List;
+                $codes = [];
+                foreach ($products as $product)
+                    $codes[] = $product->Code;
+                $response = $hesabfa->itemGetQuantity($warehouse, $codes);
+            }
+
+            if ($response->Success) {
+                $products = $warehouse == "-1" ? $response->Result->List : $response->Result;
                 foreach ($products as $product) {
                     self::setItemChanges($product);
                 }
@@ -1334,6 +1345,9 @@ class Ssbhesabfa_Admin_Functions
 
     public static function setItemChanges($item)
     {
+        if($item->Quantity || !$item->Stock)
+            $item->Stock = $item->Quantity;
+
         $wpFaService = new HesabfaWpFaService();
 
         if (!is_object($item)) {

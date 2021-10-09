@@ -261,12 +261,16 @@ class Ssbhesabfa_Webhook
         $filters = array(array("Property" => "Code", "Operator" => "in", "Value" => $codeList));
         $hesabfaApi = new Ssbhesabfa_Api();
 
-        $result = $hesabfaApi->itemGetItems(array('Take' => 100000, 'Filters' => $filters));
+        $warehouse = get_option('ssbhesabfa_item_update_quantity_based_on', "-1");
+        if($warehouse == "-1")
+            $result = $hesabfaApi->itemGetItems(array('Take' => 100000, 'Filters' => $filters));
+        else
+            $result = $hesabfaApi->itemGetQuantity($warehouse, $codeList);
 
         //$result = $hesabfaApi->itemGetItems($queryInfo);
 
         if (is_object($result) && $result->Success) {
-            return $result->Result->List;
+            return $warehouse == "-1" ? $result->Result->List : $result->Result;
         }
 
         return false;

@@ -660,6 +660,18 @@ msgstr "ویدیوی خودآموز افزونه"
 msgid "Titles"
 msgstr "عناوین"
 
+msgid "Accounting quantity (Total inventory)"
+msgstr "موجودی حسابداری (موجودی کل)"
+
+msgid "Cannot get warehouses."
+msgstr "امکان دریافت اطلاعات انبارها نیست."
+
+msgid "Update product's quantity based on"
+msgstr "بروزرسانی موجودی کالا بر اساس"
+
+msgid "Warehouse system is not active in Hesabfa."
+msgstr "سیستم انبارداری در حسابفا فعال نیست."
+
 #~ msgid "Sync completed, All products added/updated."
 #~ msgstr "همسان‌سازی پایان یافت. تمامی محصولات به‌روزرسانی/افزوده شدند."
 

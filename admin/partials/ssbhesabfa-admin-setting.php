@@ -153,7 +153,9 @@ class Ssbhesabfa_Setting
 
 	public static function ssbhesabfa_catalog_setting_fields()
 	{
-		$fields[] = array('title' => __('Catalog Settings', 'ssbhesabfa'), 'type' => 'title', 'desc' => '', 'id' => 'catalog_options');
+        $warehouses = Ssbhesabfa_Setting::ssbhesabfa_get_warehouses();
+
+        $fields[] = array('title' => __('Catalog Settings', 'ssbhesabfa'), 'type' => 'title', 'desc' => '', 'id' => 'catalog_options');
 
 		$fields[] = array(
 			'title' => __('Update Price', 'ssbhesabfa'),
@@ -171,7 +173,14 @@ class Ssbhesabfa_Setting
 			'type' => 'checkbox'
 		);
 
-		$fields[] = array(
+        $fields[] = array(
+            'title' => __("Update product's quantity based on", 'ssbhesabfa'),
+            'id' => 'ssbhesabfa_item_update_quantity_based_on',
+            'type' => 'select',
+            'options' => $warehouses,
+        );
+
+        $fields[] = array(
 			'title' => "",
 			'desc' => __('Do not submit product in Hesabfa automatically by saving product in woocommerce', 'ssbhesabfa'),
 			'id' => 'ssbhesabfa_do_not_submit_product_automatically',
@@ -1285,6 +1294,35 @@ class Ssbhesabfa_Setting
         </div>
 		<?php
 	}
+
+    public static function ssbhesabfa_get_warehouses()
+    {
+        $ssbhesabfa_api = new Ssbhesabfa_Api();
+        $warehouses = $ssbhesabfa_api->settingGetWarehouses();
+
+        if(is_object($warehouses) && $warehouses->ErrorCode == 199)
+        {
+            $available_warehouses = array();
+            $available_warehouses[-1] = __('Accounting quantity (Total inventory)', 'ssbhesabfa');
+            return $available_warehouses;
+        }
+
+        if (is_object($warehouses) && $warehouses->Success) {
+            $available_warehouses = array();
+            $available_warehouses[-1] = __('Accounting quantity (Total inventory)', 'ssbhesabfa');
+            foreach ($warehouses->Result as $warehouse) {
+                    $available_warehouses[$warehouse->Code] = $warehouse->Name;
+            }
+            return $available_warehouses;
+        } else {
+            update_option('ssbhesabfa_live_mode', 0);
+            echo '<div class="error">';
+            echo '<p class="hesabfa-p">' . __('Cannot get warehouses.', 'ssbhesabfa') . '</p>';
+            echo '</div>';
+            HesabfaLogService::log(array("Cannot get Warehouses. Error Code: $warehouses->ErrorCode. Error Message: $warehouses->ErrorMessage."));
+            return array('0' => __('Cannot get warehouses.', 'ssbhesabfa'));
+        }
+    }
 
 }
 
