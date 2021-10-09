@@ -601,21 +601,27 @@ class Ssbhesabfa_Admin
     public function ssbhesabfa_hook_order_status_change($id_order, $from, $to)
     {
         HesabfaLogService::writeLogStr("===== Order Status Hook =====");
+        $function = new Ssbhesabfa_Admin_Functions();
 
         foreach (get_option('ssbhesabfa_invoice_status') as $status) {
             HesabfaLogService::writeLogStr("status: $status");
 
             if ($status == $to) {
-                $function = new Ssbhesabfa_Admin_Functions();
-                $function->setOrder($id_order);
+                $orderResult = $function->setOrder($id_order);
+                if($orderResult)
+                {
+                    // set payment
+                    foreach (get_option('ssbhesabfa_payment_status') as $statusPayment) {
+                        if ($statusPayment == $to)
+                            $function->setOrderPayment($id_order);
+                    }
+                }
             }
         }
 
         foreach (get_option('ssbhesabfa_invoice_return_status') as $status) {
-            if ($status == $to) {
-                $function = new Ssbhesabfa_Admin_Functions();
+            if ($status == $to)
                 $function->setOrder($id_order, 2, $function->getInvoiceCodeByOrderId($id_order));
-            }
         }
     }
 
