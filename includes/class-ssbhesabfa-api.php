@@ -348,6 +348,15 @@ class Ssbhesabfa_Api
         return $this->apiRequest($method, $data);
     }
 
+    public function saveWarehouseReceipt($receipt) {
+        $method = 'invoice/SaveWarehouseReceipt';
+        $data = array(
+            'receipt' => $receipt,
+        );
+
+        return $this->apiRequest($method, $data);
+    }
+
     //Settings functions
     public function settingSetChangeHook($url, $hookPassword)
     {
