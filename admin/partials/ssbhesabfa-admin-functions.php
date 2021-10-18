@@ -462,7 +462,7 @@ class Ssbhesabfa_Admin_Functions
 
         $order = new WC_Order($id_order);
 
-		$id_customer = $order->get_customer_id();
+        $id_customer = $order->get_customer_id();
         if ($id_customer !== 0) {
             //set registered customer
             $contactCode = $this->getContactCodeByCustomerId($id_customer);
@@ -563,15 +563,15 @@ class Ssbhesabfa_Admin_Functions
         if ($reference === null)
             $reference = $id_order;
 
-		$order_shipping_method = "";
-		foreach( $order->get_items( 'shipping' ) as $item )
-			$order_shipping_method = $item->get_name();
+        $order_shipping_method = "";
+        foreach ($order->get_items('shipping') as $item)
+            $order_shipping_method = $item->get_name();
 
-		$note = $order->customer_note;
-		if($order_shipping_method)
-			$note .= "\n" . __('Shipping method', 'ssbhesabfa') . ": " . $order_shipping_method;
+        $note = $order->customer_note;
+        if ($order_shipping_method)
+            $note .= "\n" . __('Shipping method', 'ssbhesabfa') . ": " . $order_shipping_method;
 
-		$data = array(
+        $data = array(
             'Number' => $number,
             'InvoiceType' => $orderType,
             'ContactCode' => $contactCode,
@@ -582,17 +582,17 @@ class Ssbhesabfa_Admin_Functions
             'Tag' => json_encode(array('id_order' => $id_order)),
             'Freight' => $this->getPriceInHesabfaDefaultCurrency($order->get_shipping_total() + $order->get_shipping_tax()),
             'InvoiceItems' => $invoiceItems,
-			'Note' => $note
+            'Note' => $note
         );
 
-		$invoice_project = get_option('ssbhesabfa_invoice_project', -1);
-		$invoice_salesman = get_option('ssbhesabfa_invoice_salesman', -1);
-		if($invoice_project != -1)
-			$data['Project'] = $invoice_project;
-		if($invoice_salesman != -1)
-			$data['SalesmanCode'] = $invoice_salesman;
+        $invoice_project = get_option('ssbhesabfa_invoice_project', -1);
+        $invoice_salesman = get_option('ssbhesabfa_invoice_salesman', -1);
+        if ($invoice_project != -1)
+            $data['Project'] = $invoice_project;
+        if ($invoice_salesman != -1)
+            $data['SalesmanCode'] = $invoice_salesman;
 
-		$hesabfa = new Ssbhesabfa_Api();
+        $hesabfa = new Ssbhesabfa_Api();
         $response = $hesabfa->invoiceSave($data);
 
         if ($response->Success) {
@@ -624,11 +624,38 @@ class Ssbhesabfa_Admin_Functions
                 HesabfaLogService::log(array("Invoice successfully updated. Invoice number: " . (string)$response->Result->Number . ". Order ID: $id_order"));
             }
 
+            // set warehouse receipt
+            $warehouse = get_option('ssbhesabfa_item_update_quantity_based_on', "-1");
+            if ($warehouse != "-1" && $orderType === 0)
+                $this->setWarehouseReceipt($invoiceItems, (int)$response->Result->Number, $warehouse, $date, $invoice_project);
+
             return true;
         } else {
             HesabfaLogService::log(array("Cannot add/update Invoice. Error Code: " . (string)$response->ErrorCode . ". Error Message: " . (string)$response->ErrorMessage . ". Order ID: $id_order"));
             return false;
         }
+    }
+
+    public function setWarehouseReceipt($items, $invoiceNumber, $warehouseCode, $date, $project)
+    {
+        $data = array(
+            'WarehouseCode' => $warehouseCode,
+            'InvoiceNumber' => $invoiceNumber,
+            'InvoiceType' => 0,
+            'Date' => $date,
+            'Items' => $items
+        );
+
+        if ($project != -1)
+            $data['Project'] = $project;
+
+        $hesabfa = new Ssbhesabfa_Api();
+        $response = $hesabfa->saveWarehouseReceipt($data);
+
+        if ($response->Success)
+            HesabfaLogService::log(array("Warehouse receipt successfully saved/updated. warehouse receipt number: " . (string)$response->Result->Number . ". Invoice number: $invoiceNumber"));
+        else
+            HesabfaLogService::log(array("Cannot save/update Warehouse receipt. Error Code: " . (string)$response->ErrorCode . ". Error Message: " . (string)$response->ErrorMessage . ". Invoice number: $invoiceNumber"));
     }
 
     public static function getPriceInHesabfaDefaultCurrency($price)
@@ -893,7 +920,7 @@ class Ssbhesabfa_Admin_Functions
 
             foreach ($items as $item) {
                 $wpFa = $wpFaService->getWpFaByHesabfaId('product', $item->Code);
-                if($wpFa)
+                if ($wpFa)
                     continue;
                 // add product to database
                 $wpdb->insert($wpdb->prefix . 'posts', array(
@@ -1212,8 +1239,7 @@ class Ssbhesabfa_Admin_Functions
             $response = $hesabfa->itemGetItems(array('Skip' => $offset, 'Take' => $rpp, 'SortBy' => 'Id', 'Filters' => $filters));
 
             $warehouse = get_option('ssbhesabfa_item_update_quantity_based_on', "-1");
-            if($warehouse != "-1")
-            {
+            if ($warehouse != "-1") {
                 $products = $response->Result->List;
                 $codes = [];
                 foreach ($products as $product)
@@ -1345,7 +1371,7 @@ class Ssbhesabfa_Admin_Functions
 
     public static function setItemChanges($item)
     {
-        if($item->Quantity || !$item->Stock)
+        if ($item->Quantity || !$item->Stock)
             $item->Stock = $item->Quantity;
 
         $wpFaService = new HesabfaWpFaService();
@@ -1357,7 +1383,7 @@ class Ssbhesabfa_Admin_Functions
         global $wpdb;
 
         $wpFa = $wpFaService->getWpFaByHesabfaId('product', $item->Code);
-        if(!$wpFa)
+        if (!$wpFa)
             return false;
 
         $id_product = $wpFa->idWp;

@@ -351,6 +351,7 @@ class Ssbhesabfa_Api
     public function saveWarehouseReceipt($receipt) {
         $method = 'invoice/SaveWarehouseReceipt';
         $data = array(
+            'deleteOldReceipts' => true,
             'receipt' => $receipt,
         );
 
