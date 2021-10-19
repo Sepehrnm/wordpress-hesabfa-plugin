@@ -223,10 +223,11 @@ class Ssbhesabfa_Admin_Functions
         $code = $this->getContactCodeByCustomerId($id_customer);
 
         $customer = new WC_Customer($id_customer);
-        $name = $customer->get_first_name() . ' ' . $customer->get_last_name();
-        if (empty($customer->get_first_name()) && empty($customer->get_last_name())) {
+        $firstName = $customer->get_first_name() ? $customer->get_first_name() : $customer->get_billing_first_name();
+        $lastName = $customer->get_last_name() ? $customer->get_last_name() : $customer->get_billing_last_name();
+        $name = $firstName . ' ' . $lastName;
+        if (empty($name) || $name === ' ')
             $name = __('Not Define', 'ssbhesabfa');
-        }
 
         switch ($type) {
             case 'first':
@@ -238,8 +239,8 @@ class Ssbhesabfa_Admin_Functions
                     array(
                         'Code' => $code,
                         'Name' => $name,
-                        'FirstName' => Ssbhesabfa_Validation::contactFirstNameValidation($customer->get_first_name()),
-                        'LastName' => Ssbhesabfa_Validation::contactLastNameValidation($customer->get_last_name()),
+                        'FirstName' => Ssbhesabfa_Validation::contactFirstNameValidation($firstName),
+                        'LastName' => Ssbhesabfa_Validation::contactLastNameValidation($lastName),
                         'ContactType' => 1,
                         'NodeFamily' => 'اشخاص :' . get_option('ssbhesabfa_contact_node_family'),
                         'Address' => Ssbhesabfa_Validation::contactAddressValidation($customer->get_billing_address()),
@@ -262,8 +263,8 @@ class Ssbhesabfa_Admin_Functions
                     array(
                         'Code' => $code,
                         'Name' => $name,
-                        'FirstName' => Ssbhesabfa_Validation::contactFirstNameValidation($customer->get_first_name()),
-                        'LastName' => Ssbhesabfa_Validation::contactLastNameValidation($customer->get_last_name()),
+                        'FirstName' => Ssbhesabfa_Validation::contactFirstNameValidation($firstName),
+                        'LastName' => Ssbhesabfa_Validation::contactLastNameValidation($lastName),
                         'ContactType' => 1,
                         'NodeFamily' => 'اشخاص :' . get_option('ssbhesabfa_contact_node_family'),
                         'Address' => Ssbhesabfa_Validation::contactAddressValidation($customer->get_shipping_address()),

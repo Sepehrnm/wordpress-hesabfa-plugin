@@ -4,18 +4,20 @@
 class ssbhesabfaCustomerService
 {
     public static function mapCustomer($customer, $id_customer, $countries, $states) {
-        $name = $customer->get_first_name() . ' ' . $customer->get_last_name();
-        if (empty($name) || $name === ' ') {
-            $name = __('Not Define', 'ssbhesabfa');
-        }
+        $firstName = $customer->get_first_name() ? $customer->get_first_name() : $customer->get_billing_first_name();
+        $lastName = $customer->get_last_name() ? $customer->get_last_name() : $customer->get_billing_last_name();
+        $name = $firstName . ' ' . $lastName;
+
+        if (empty($name) || $name === ' ')
+                $name = __('Not Define', 'ssbhesabfa');
 
         $country_name = $countries[$customer->get_billing_country()];
         $state_name = $states[$customer->get_billing_country()][$customer->get_billing_state()];
 
         $hesabfaCustomer = array(
             'Name' => $name,
-            'FirstName' => Ssbhesabfa_Validation::contactFirstNameValidation($customer->get_first_name()),
-            'LastName' => Ssbhesabfa_Validation::contactLastNameValidation($customer->get_last_name()),
+            'FirstName' => Ssbhesabfa_Validation::contactFirstNameValidation($firstName),
+            'LastName' => Ssbhesabfa_Validation::contactLastNameValidation($lastName),
             'ContactType' => 1,
             'NodeFamily' => 'اشخاص :' . get_option('ssbhesabfa_contact_node_family'),
             'Address' => Ssbhesabfa_Validation::contactAddressValidation($customer->get_billing_address()),
