@@ -16,6 +16,7 @@ class Ssbhesabfa_Webhook
     public $invoiceItemsCode = array();
     public $itemsObjectId = array();
     public $contactsObjectId = array();
+    public $warehouseReceiptsObjectId = array();
 
     public function __construct()
     {
@@ -25,6 +26,7 @@ class Ssbhesabfa_Webhook
         $hesabfaApi = new Ssbhesabfa_Api();
         $lastChange = get_option('ssbhesabfa_last_log_check_id');
         $changes = $hesabfaApi->settingGetChanges($lastChange + 1);
+
         if ($changes->Success) {
             update_option('ssbhesabfa_business_expired', 0);
 
@@ -38,6 +40,9 @@ class Ssbhesabfa_Webhook
                                     $this->invoiceItemsCode[] = $invoiceItem;
                                 }
                             }
+                            break;
+                        case 'WarehouseReceipt':
+                            $this->warehouseReceiptsObjectId[] = $item->ObjectId;
                             break;
                         case 'Product':
                             //if Action was deleted
@@ -120,6 +125,16 @@ class Ssbhesabfa_Webhook
         //Items
         $items = array();
 
+        if (!empty($this->warehouseReceiptsObjectId)) {
+            $receipts = $this->getObjectsByIdList($this->warehouseReceiptsObjectId, 'WarehouseReceipt');
+            if ($receipts != false) {
+                foreach ($receipts as $receipt) {
+                    foreach ($receipt->Items as $item)
+                        array_push($this->invoiceItemsCode, $item->ItemCode);
+                }
+            }
+        }
+
         if (!empty($this->itemsObjectId)) {
             $objects = $this->getObjectsByIdList($this->itemsObjectId, 'item');
             if ($objects != false) {
@@ -180,7 +195,6 @@ class Ssbhesabfa_Webhook
                         $id_hesabfa_old = $row->id_hesabfa;
                         //ToDo: number must int in hesabfa, what can i do
                         $wpdb->update($wpdb->prefix . 'ssbhesabfa', array('id_hesabfa' => $number), array('id' => $id_obj));
-
                         HesabfaLogService::log(array("Invoice Number changed. Old Number: $id_hesabfa_old. New ID: $number"));
                     }
                 }
@@ -243,6 +257,9 @@ class Ssbhesabfa_Webhook
                 break;
             case 'invoice':
                 $result = $hesabfaApi->invoiceGetByIdList($idList);
+                break;
+            case 'WarehouseReceipt':
+                $result = $hesabfaApi->warehouseReceiptGetByIdList($idList);
                 break;
             default:
                 return false;

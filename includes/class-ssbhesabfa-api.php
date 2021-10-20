@@ -358,6 +358,16 @@ class Ssbhesabfa_Api
         return $this->apiRequest($method, $data);
     }
 
+    public function warehouseReceiptGetByIdList($idList)
+    {
+        $method = 'invoice/getWarehouseReceipt';
+        $data = array(
+            'idList' => $idList,
+        );
+
+        return $this->apiRequest($method, $data);
+    }
+
     //Settings functions
     public function settingSetChangeHook($url, $hookPassword)
     {
