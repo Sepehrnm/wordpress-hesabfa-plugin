@@ -672,6 +672,9 @@ msgstr "بروزرسانی موجودی کالا بر اساس"
 msgid "Warehouse system is not active in Hesabfa."
 msgstr "سیستم انبارداری در حسابفا فعال نیست."
 
+msgid "API Address"
+msgstr "آدرس API"
+
 #~ msgid "Sync completed, All products added/updated."
 #~ msgstr "همسان‌سازی پایان یافت. تمامی محصولات به‌روزرسانی/افزوده شدند."
 

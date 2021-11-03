@@ -473,6 +473,13 @@ class Ssbhesabfa_Setting
 			'type' => 'text',
 		);
 
+        $fields[] = array(
+            'title' => __("API Address", 'ssbhesabfa'),
+            'id' => 'ssbhesabfa_api_address',
+            'type' => 'select',
+            'options' => array("Server 1 (Cloudflare)","Server 2 (Arvancloud)")
+        );
+
 		$fields[] = array('type' => 'sectionend', 'id' => 'api_options');
 
 		return $fields;

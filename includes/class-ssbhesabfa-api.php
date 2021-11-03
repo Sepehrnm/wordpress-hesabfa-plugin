@@ -22,6 +22,10 @@ class Ssbhesabfa_Api
 
         $endpoint = 'https://api.hesabfa.com/v1/' . $method;
 
+        $apiAddress = get_option('ssbhesabfa_api_address', 0);
+        if($apiAddress == 1)
+            $endpoint = 'http://api.hesabfa.ir/v1/' . $method;
+
         $body = array_merge(array(
             'apiKey' => get_option('ssbhesabfa_account_api'),
             'userId' => get_option('ssbhesabfa_account_username'),
