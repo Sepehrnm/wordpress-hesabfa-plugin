@@ -74,7 +74,7 @@ class Ssbhesabfa_Setting
         <div class="row" style="margin-left: 10px;">
             <div class="col">
                 <h4 class="h4 hesabfa-tab-page-title mt-4"><?php esc_attr_e('Plugin Tutorial Video', 'ssbhesabfa'); ?></h4>
-                <video controls id="hesabfa-tutorial-video" style="border: 1px solid gray" class="mt-3">
+                <video controls poster="https://www.hesabfa.com/img/woocommerc-plugin-help-cover.jpg" id="hesabfa-tutorial-video" style="border: 1px solid gray" class="mt-3">
                     <source src="https://www.hesabfa.com/file/woocommerce/woocommerce-plugin-tutorial.mp4" type="video/mp4"></source>
                 </video>
             </div>

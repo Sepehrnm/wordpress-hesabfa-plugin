@@ -1414,9 +1414,9 @@ class Ssbhesabfa_Admin_Functions
             if (get_option('ssbhesabfa_item_update_price') == 'yes') {
                 if ($id_attribute != 0) {
                     $variation = new WC_Product_Variation($id_attribute);
-                    $price = Ssbhesabfa_Admin_Functions::getPriceInHesabfaDefaultCurrency($variation->get_regular_price());
-                    if ($item->SellPrice != $price) {
-                        $old_price = $variation->get_regular_price();
+                    $old_price = $variation->get_regular_price() ? $variation->get_regular_price() : $variation->get_price();
+                    $old_price = Ssbhesabfa_Admin_Functions::getPriceInHesabfaDefaultCurrency($old_price);
+                    if ($item->SellPrice != $old_price) {
                         $new_price = Ssbhesabfa_Admin_Functions::getPriceInWooCommerceDefaultCurrency($item->SellPrice);
                         update_post_meta($id_attribute, '_price', $new_price);
                         update_post_meta($id_attribute, '_regular_price', $new_price);
@@ -1424,9 +1424,9 @@ class Ssbhesabfa_Admin_Functions
                         $result["newPrice"] = $new_price;
                     }
                 } else {
-                    $price = Ssbhesabfa_Admin_Functions::getPriceInHesabfaDefaultCurrency($product->get_regular_price());
-                    if ($item->SellPrice != $price) {
-                        $old_price = $product->get_regular_price();
+                    $old_price = $product->get_regular_price() ? $product->get_regular_price() : $product->get_price();
+                    $old_price = Ssbhesabfa_Admin_Functions::getPriceInHesabfaDefaultCurrency($old_price);
+                    if ($item->SellPrice != $old_price) {
                         $new_price = Ssbhesabfa_Admin_Functions::getPriceInWooCommerceDefaultCurrency($item->SellPrice);
                         update_post_meta($id_product, '_price', $new_price);
                         update_post_meta($id_product, '_regular_price', $new_price);

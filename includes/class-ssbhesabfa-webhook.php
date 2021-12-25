@@ -155,9 +155,14 @@ class Ssbhesabfa_Webhook
         }
 
         if (!empty($items)) {
-            foreach ($items as $item) {
-                Ssbhesabfa_Admin_Functions::setItemChanges($item);
-                //$this->setItemChanges($item);
+            update_option("ssbhesabfa_inside_product_edit", 1);
+            try {
+                foreach ($items as $item) {
+                    Ssbhesabfa_Admin_Functions::setItemChanges($item);
+                }
+            } catch (Exception $e) {
+            } finally {
+                update_option("ssbhesabfa_inside_product_edit", 0);
             }
         }
 

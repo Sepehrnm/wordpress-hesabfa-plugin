@@ -505,7 +505,7 @@ class Ssbhesabfa_Admin
         $nowDateTime = new DateTime();
         $diff = $nowDateTime->diff($syncChangesLastDate);
 
-        if ($diff->i > 3) {
+        if ($diff->i >= 3) {
             HesabfaLogService::writeLogStr('===== Sync Changes Automatically =====');
             update_option('ssbhesabfa_sync_changes_last_date', new DateTime());
             require_once plugin_dir_path(dirname(__FILE__)) . 'includes/class-ssbhesabfa-webhook.php';
@@ -640,6 +640,9 @@ class Ssbhesabfa_Admin
 
     public function ssbhesabfa_hook_new_product($id_product)
     {
+        if(get_option("ssbhesabfa_inside_product_edit", 0) === 1)
+            return;
+
         if ($this->call_time === 1) {
             $this->call_time++;
             return;
