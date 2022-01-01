@@ -571,8 +571,60 @@ class Ssbhesabfa_Admin
 
     //Hooks
     //Contact
+    public function ssbhesabfa_hook_edit_user(WP_User $user)
+    {
+        $wpFaService = new HesabfaWpFaService();
+        $code = isset($user) ? $wpFaService->getCustomerCodeByWpId($user->ID) : '';
+        ?>
+        <hr>
+        <table class="form-table">
+            <tr>
+                <th><label for="user_hesabfa_code"
+                           class="text-info"><?php echo __('Contact Code in Hesabfa', 'ssbhesabfa'); ?></label></th>
+                <td>
+                    <input
+                            type="text"
+                            value="<?php echo $code; ?>"
+                            name="user_hesabfa_code"
+                            id="user_hesabfa_code"
+                            class="regular-text"
+                    ><br/>
+                    <div class="description mt-2">
+                        <?php echo __("The contact code of this user in Hesabfa, if you want to map this user "
+                            . "to a contact in Hesabfa, enter the Contact code.", 'ssbhesabfa'); ?>
+                    </div>
+                </td>
+            </tr>
+        </table>
+        <hr>
+        <?php
+    }
+
     public function ssbhesabfa_hook_user_register($id_customer)
     {
+        $user_hesabfa_code = $_REQUEST['user_hesabfa_code'];
+        if (isset($user_hesabfa_code) && $user_hesabfa_code !== "") {
+            $wpFaService = new HesabfaWpFaService();
+            $wpFaOld = $wpFaService->getWpFaByHesabfaId('customer', $user_hesabfa_code);
+            $wpFa = $wpFaService->getWpFa('customer', $id_customer);
+
+            if (!$wpFaOld || !$wpFa || $wpFaOld->id !== $wpFa->id) {
+                if ($wpFaOld)
+                    $wpFaService->delete($wpFaOld);
+
+                if ($wpFa) {
+                    $wpFa->idHesabfa = $user_hesabfa_code;
+                    $wpFaService->update($wpFa);
+                } else {
+                    $wpFa = new WpFa();
+                    $wpFa->objType = 'customer';
+                    $wpFa->idWp = $id_customer;
+                    $wpFa->idHesabfa = intval($user_hesabfa_code);
+                    $wpFaService->save($wpFa);
+                }
+            }
+        }
+
         $function = new Ssbhesabfa_Admin_Functions();
         $function->setContact($id_customer);
     }
@@ -608,8 +660,7 @@ class Ssbhesabfa_Admin
 
             if ($status == $to) {
                 $orderResult = $function->setOrder($id_order);
-                if($orderResult)
-                {
+                if ($orderResult) {
                     // set payment
                     foreach (get_option('ssbhesabfa_payment_status') as $statusPayment) {
                         if ($statusPayment == $to)
@@ -640,7 +691,7 @@ class Ssbhesabfa_Admin
 
     public function ssbhesabfa_hook_new_product($id_product)
     {
-        if(get_option("ssbhesabfa_inside_product_edit", 0) === 1)
+        if (get_option("ssbhesabfa_inside_product_edit", 0) === 1)
             return;
 
         if ($this->call_time === 1) {
@@ -1036,7 +1087,7 @@ class Ssbhesabfa_Admin
             if ($wpFa) {
                 $api = new Ssbhesabfa_Api();
                 $warehouse = get_option('ssbhesabfa_item_update_quantity_based_on', "-1");
-                if($warehouse == "-1")
+                if ($warehouse == "-1")
                     $response = $api->itemGet($wpFa->idHesabfa);
                 else
                     $response = $api->itemGetQuantity($warehouse, array($wpFa->idHesabfa));
@@ -1197,7 +1248,7 @@ class Ssbhesabfa_Admin
 
             $filters = array(array("Property" => "Code", "Operator" => "in", "Value" => $codes));
             $warehouse = get_option('ssbhesabfa_item_update_quantity_based_on', "-1");
-            if($warehouse == "-1")
+            if ($warehouse == "-1")
                 $response = $api->itemGetItems(array('Filters' => $filters));
             else
                 $response = $api->itemGetQuantity($warehouse, $codes);

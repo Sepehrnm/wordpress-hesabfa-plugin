@@ -212,8 +212,8 @@ class HesabfaWpFaService
         $wpdb->insert($wpdb->prefix . 'ssbhesabfa', array(
             'id_hesabfa' => $wpFa->idHesabfa,
             'obj_type' => $wpFa->objType,
-            'id_ps' => $wpFa->idWp,
-            'id_ps_attribute' => $wpFa->idWpAttribute,
+            'id_ps' => (int)$wpFa->idWp,
+            'id_ps_attribute' => (int)$wpFa->idWpAttribute,
         ));
     }
 

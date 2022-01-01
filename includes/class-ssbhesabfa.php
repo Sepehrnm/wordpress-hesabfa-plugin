@@ -187,6 +187,8 @@ class Ssbhesabfa
                 $this->loader->add_filter('woocommerce_order_status_changed', $plugin_admin, 'ssbhesabfa_hook_payment_confirmation', 11, 3);
 
                 //Runs when a user's profile is first created.
+                $this->loader->add_action('edit_user_profile', $plugin_admin, 'ssbhesabfa_hook_edit_user');
+
                 $this->loader->add_action('user_register', $plugin_admin, 'ssbhesabfa_hook_user_register');
 //                $this->loader->add_action('woocommerce_new_customer', $plugin_admin, 'ssbhesabfa_hook_user_register');
 //                $this->loader->add_action('woocommerce_created_customer', $plugin_admin, 'ssbhesabfa_hook_user_register');

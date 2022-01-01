@@ -675,6 +675,16 @@ msgstr "سیستم انبارداری در حسابفا فعال نیست."
 msgid "API Address"
 msgstr "آدرس API"
 
+msgid "Contact Code in Hesabfa"
+msgstr "کد شخص در حسابفا"
+
+msgid ""
+"The contact code of this user in Hesabfa, if you want to map this user "
+"to a contact in Hesabfa, enter the Contact code."
+msgstr ""
+"این فیلد کد شخص در حسابفا است، اگر می‌خواهید این کاربر را به شخصی "
+"در حسابفا ارتباط دهید، کد شخص را وارد نمایید."
+
 #~ msgid "Sync completed, All products added/updated."
 #~ msgstr "همسان‌سازی پایان یافت. تمامی محصولات به‌روزرسانی/افزوده شدند."
 
