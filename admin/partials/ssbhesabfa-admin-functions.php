@@ -923,6 +923,11 @@ class Ssbhesabfa_Admin_Functions
                 $wpFa = $wpFaService->getWpFaByHesabfaId('product', $item->Code);
                 if ($wpFa)
                     continue;
+
+                $clearedName = str_replace(' ', '-', trim($item->Name));
+                $clearedName = str_replace('/', '-', $clearedName);
+                $clearedName = str_replace('\\', '-', $clearedName);
+
                 // add product to database
                 $wpdb->insert($wpdb->prefix . 'posts', array(
                     'post_author' => get_current_user_id(),
@@ -935,14 +940,14 @@ class Ssbhesabfa_Admin_Functions
                     'comment_status' => 'open',
                     'ping_status' => 'closed',
                     'post_password' => '',
-                    'post_name' => str_replace(' ', '-', trim($item->Name)),
+                    'post_name' => $clearedName,
                     'to_ping' => '',
                     'pinged' => '',
                     'post_modified' => date("Y-m-d H:i:s"),
                     'post_modified_gmt' => date("Y-m-d H:i:s"),
                     'post_content_filtered' => '',
                     'post_parent' => 0,
-                    'guid' => get_site_url() . '/product/' . str_replace(' ', '-', trim($item->Name)) . '/',
+                    'guid' => get_site_url() . '/product/' . $clearedName . '/',
                     'menu_order' => 0,
                     'post_type' => 'product',
                     'post_mime_type' => '',
