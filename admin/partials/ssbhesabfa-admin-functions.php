@@ -1406,7 +1406,7 @@ class Ssbhesabfa_Admin_Functions
                                 WHERE ID = $id_product");
 
             if (!$found) {
-                HesabfaLogService::writeLogStr("product not found in woocommerce. product id: $id_product");
+                HesabfaLogService::writeLogStr("product not found in woocommerce.code: $item->Code, product id: $id_product, variation id: $id_attribute");
                 return false;
             }
 

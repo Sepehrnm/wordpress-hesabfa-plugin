@@ -239,9 +239,6 @@ class Ssbhesabfa_Api
 
     public function itemGetQuantity($warehouseCode, $codes)
     {
-//        HesabfaLogService::writeLogStr("warehouse code: $warehouseCode");
-//        HesabfaLogService::writeLogObj($codes);
-
         $method = 'item/GetQuantity';
         $data = array(
             'warehouseCode' => $warehouseCode,
