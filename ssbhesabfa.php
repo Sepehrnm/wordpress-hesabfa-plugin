@@ -9,7 +9,7 @@
  * Plugin Name:       Hesabfa Accounting
  * Plugin URI:        https://www.hesabfa.com/
  * Description:       Connect Hesabfa Online Accounting to WooCommerce.
- * Version:           1.89.47
+ * Version:           1.90.49
  * Author:            HamidReza Gharahzadeh
  * License:           GPL-3.0+
  * License URI:       http://www.gnu.org/licenses/gpl-3.0.txt
@@ -27,7 +27,7 @@ if (!defined('WPINC')) {
 /**
  * Currently plugin version.
  */
-define('SSBHESABFA_VERSION', '1.89.47');
+define('SSBHESABFA_VERSION', '1.90.49');
 
 /**
  * The code that runs during plugin activation.

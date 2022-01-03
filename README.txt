@@ -4,7 +4,7 @@ Tags: accounting cloud hesabfa
 Requires at least: 5.2
 Tested up to: 5.6
 Requires PHP: 5.6
-Stable tag: 1.89.47
+Stable tag: 1.90.49
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -273,6 +273,11 @@ by clicking update stock and price button in hesabfa tab in product edit page
 = 1.89.47 - 25.12.2021 =
 * Add cover for tutorial video
 * Fix bug: prevent product update hook call when update product property manually
+
+= 1.90.49 - 03.01.2022 =
+* Add ability to link a user to a contact in Hesabfa manually
+* Clear product name when import from Hesabfa to not cause problem in unique product link
+* set zero quantity for products that not exist in warehouse when synchronizing
 
 == Upgrade Notice ==
 Automatic updates should work smoothly, but we still recommend you back up your site.
