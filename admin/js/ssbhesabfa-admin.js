@@ -1,11 +1,5 @@
 jQuery(function ($) {
-    $('#syncProductsProgress').hide();
-    $('#exportProductsProgress').hide();
-    $('#exportCustomersProgress').hide();
-    $('#importProductsProgress').hide();
-    $('#exportProductsOpeningQuantityProgress').hide();
-    $('#updateProductsProgress').hide();
-    $('#syncOrdersProgress').hide();
+    $('.progress').hide();
 
     'use strict';
     $(function () {

@@ -378,10 +378,10 @@ class Ssbhesabfa_Setting
 	{
 		$banks = Ssbhesabfa_Setting::ssbhesabfa_get_banks();
 
-		$payment_gateways = new WC_Payment_Gateways;
+        $payment_gateways = new WC_Payment_Gateways;
 		$available_payment_gateways = $payment_gateways->get_available_payment_gateways();
 
-		$fields[] = array('title' => __('Payment methods Settings', 'ssbhesabfa'), 'type' => 'title', 'desc' => '', 'id' => 'payment_options');
+        $fields[] = array('title' => __('Payment methods Settings', 'ssbhesabfa'), 'type' => 'title', 'desc' => '', 'id' => 'payment_options');
 
 		$fields[] = array(
 			'title' => __('Add payment in which status', 'ssbhesabfa'),

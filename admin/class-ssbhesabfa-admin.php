@@ -195,7 +195,7 @@ class Ssbhesabfa_Admin
             $result = $func->exportProducts($batch, $totalBatch, $total, $updateCount);
 
             if ($result['error']) {
-                if ($update_count === -1) {
+                if ($updateCount === -1) {
                     $result["redirectUrl"] = admin_url('admin.php?page=ssbhesabfa-option&tab=export&productExportResult=false&error=-1');
                 } else {
                     $result["redirectUrl"] = admin_url('admin.php?page=ssbhesabfa-option&tab=export&productExportResult=false');
