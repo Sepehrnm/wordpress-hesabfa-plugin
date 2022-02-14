@@ -23,7 +23,7 @@ class Ssbhesabfa_Validation
     public static function itemNameValidation($name)
     {
         $name = self::formatFarsiNumbers($name);
-        return mb_substr($name, 0, 99);
+        return mb_substr($name, 0, 199);
     }
 
     public static function formatFarsiNumbers($str) {
