@@ -152,26 +152,30 @@ class HesabfaWpFaService
         return true;
     }
 
-    public function saveCustomer($customer) {
+    public function saveCustomer($customer): bool
+    {
         $json = json_decode($customer->Tag);
-        $id = $this->getPsFaId('customer', (int)$json->id_customer);
+        if((int)$json->id_customer == 0)
+            return true;
 
-        if ($id == false) {
-            Db::getInstance()->insert('ps_hesabfa', array(
+        $id = $this->getWpFaId('customer', (int)$json->id_customer);
+        global $wpdb;
+
+        if (!$id) {
+            $wpdb->insert($wpdb->prefix . 'ssbhesabfa', array(
                 'id_hesabfa' => (int)$customer->Code,
                 'obj_type' => 'customer',
-                'id_ps' => (int)$json->id_customer,
+                'id_ps' => (int)$json->id_customer
             ));
-            LogService::writeLogStr("Customer successfully added. Customer code: " . (string)$customer->Code . ". Customer ID: $json->id_customer");
+            HesabfaLogService::writeLogStr("Customer successfully added. Customer code: " . (string)$customer->Code . ". Customer ID: $json->id_customer");
         } else {
-            Db::getInstance()->update('ps_hesabfa', array(
+            $wpdb->update($wpdb->prefix . 'ssbhesabfa', array(
                 'id_hesabfa' => (int)$customer->Code,
                 'obj_type' => 'customer',
                 'id_ps' => (int)$json->id_customer,
-            ), array('id' => $id),0,true,true);
-            LogService::writeLogStr("Customer successfully updated. Customer code: " . (string)$customer->Code . ". Customer ID: $json->id_customer");
+            ), array('id' =>$id));
+            HesabfaLogService::writeLogStr("Customer successfully updated. Customer code: " . (string)$customer->Code . ". Customer ID: $json->id_customer");
         }
-
         return true;
     }
 

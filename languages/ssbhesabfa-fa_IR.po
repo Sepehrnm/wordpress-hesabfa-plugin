@@ -126,7 +126,7 @@ msgstr ""
 
 #: admin/partials/ssbhesabfa-admin-functions.php:269
 #: admin/partials/ssbhesabfa-admin-functions.php:964
-msgid "Not Define"
+msgid "Not Defined"
 msgstr "وارد نشده"
 
 #: admin/partials/ssbhesabfa-admin-functions.php:290
