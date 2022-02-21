@@ -6,7 +6,7 @@ include_once(plugin_dir_path(__DIR__) . 'services/HesabfaWpFaService.php');
 
 /**
  * @class      Ssbhesabfa_Admin_Functions
- * @version    1.90.52
+ * @version    1.90.53
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin/functions
@@ -257,6 +257,9 @@ class Ssbhesabfa_Admin_Functions
 
     public function getContactCodeByEmail($email)
     {
+        if(!$email || $email == '')
+            return null;
+
         $queryInfo = array(
             'SortBy' => 'Code',
             'SortDesc' => true,

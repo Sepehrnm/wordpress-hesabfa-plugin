@@ -4,7 +4,7 @@ Tags: accounting cloud hesabfa
 Requires at least: 5.2
 Tested up to: 5.6
 Requires PHP: 5.6
-Stable tag: 1.90.52
+Stable tag: 1.90.53
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -283,6 +283,9 @@ by clicking update stock and price button in hesabfa tab in product edit page
 * Product name length limit expanded to 200 characters
 * Fix bug: duplication of contact in Hesabfa when it's a guest customer
 * Some code refactor and improvement
+
+= 1.90.53 - 21.02.2022 =
+* Critical error fixed in set order with guest customer
 
 == Upgrade Notice ==
 Automatic updates should work smoothly, but we still recommend you back up your site.
