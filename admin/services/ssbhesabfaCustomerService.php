@@ -33,7 +33,7 @@ class ssbhesabfaCustomerService
                     'LastName' => Ssbhesabfa_Validation::contactLastNameValidation($lastName),
                     'ContactType' => 1,
                     'NodeFamily' => 'اشخاص :' . get_option('ssbhesabfa_contact_node_family'),
-                    'Address' => Ssbhesabfa_Validation::contactAddressValidation($customer->get_billing_address()),
+                    'Address' => Ssbhesabfa_Validation::contactAddressValidation($customer->get_billing_address_1() . ' ' . $customer->get_billing_address_2()),
                     'City' => Ssbhesabfa_Validation::contactCityValidation($customer->get_billing_city()),
                     'State' => Ssbhesabfa_Validation::contactStateValidation($state_name),
                     'Country' => Ssbhesabfa_Validation::contactCountryValidation($country_name),
