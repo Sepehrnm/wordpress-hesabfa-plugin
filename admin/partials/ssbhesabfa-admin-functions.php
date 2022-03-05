@@ -787,9 +787,9 @@ class Ssbhesabfa_Admin_Functions
                 if ($wpFa)
                     continue;
 
-                $clearedName = str_replace(' ', '-', trim($item->Name));
-                $clearedName = str_replace('/', '-', $clearedName);
-                $clearedName = str_replace('\\', '-', $clearedName);
+                $clearedName = preg_replace("/\s+|\/|\\\|\(|\)/", '-', trim($item->Name));
+                $clearedName = preg_replace("/\-+/", '-', $clearedName);
+                $clearedName = trim($clearedName,'-');
 
                 // add product to database
                 $wpdb->insert($wpdb->prefix . 'posts', array(
