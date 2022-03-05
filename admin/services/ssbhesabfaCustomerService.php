@@ -68,22 +68,7 @@ class ssbhesabfaCustomerService
                 break;
         }
 
-        if($hesabfaCustomer["Phone"] == '')
-            unset($hesabfaCustomer["Phone"]);
-        if($hesabfaCustomer["Email"] == '')
-            unset($hesabfaCustomer["Email"]);
-        if($hesabfaCustomer["Address"] == '')
-            unset($hesabfaCustomer["Address"]);
-        if($hesabfaCustomer["PostalCode"] == '')
-            unset($hesabfaCustomer["PostalCode"]);
-        if($hesabfaCustomer["City"] == '')
-            unset($hesabfaCustomer["City"]);
-        if($hesabfaCustomer["State"] == '')
-            unset($hesabfaCustomer["State"]);
-        if($hesabfaCustomer["Country"] == '')
-            unset($hesabfaCustomer["Country"]);
-
-        return $hesabfaCustomer;
+        return self::correctCustomerData($hesabfaCustomer);
     }
 
     public static function mapGuestCustomer($code, $id_order): array
@@ -98,7 +83,7 @@ class ssbhesabfaCustomerService
         $country_name = self::$countries[$order->get_billing_country()];
         $state_name = self::$states[$order->get_billing_country()][$order->get_billing_state()];
 
-        return array(
+        $hesabfaCustomer = array(
             'Code' => $code,
             'Name' => $name,
             'FirstName' => Ssbhesabfa_Validation::contactFirstNameValidation($order->get_billing_first_name()),
@@ -115,6 +100,41 @@ class ssbhesabfaCustomerService
             'Tag' => json_encode(array('id_customer' => 0)),
             'Note' => __('Customer registered as a GuestCustomer.', 'ssbhesabfa'),
         );
+
+        return self::correctCustomerData($hesabfaCustomer);
+    }
+
+    private static function getMobileFromPhone($phone) {
+        if(preg_match("/^09\d{9}$/", $phone))
+            return $phone;
+        else if(preg_match("/^9\d{9}$/", $phone))
+            return '0' . $phone;
+        else if(preg_match("/^989\d{9}$/", $phone))
+            return str_replace('98', '0' ,$phone);
+        else return '';
+    }
+
+    private static function correctCustomerData($hesabfaCustomer) {
+        if($hesabfaCustomer["Phone"] == '')
+            unset($hesabfaCustomer["Phone"]);
+        else {
+            $mobile = self::getMobileFromPhone($hesabfaCustomer["Phone"]);
+            if($mobile)
+                $hesabfaCustomer["Mobile"] = $mobile;
+        }
+        if($hesabfaCustomer["Email"] == '')
+            unset($hesabfaCustomer["Email"]);
+        if($hesabfaCustomer["Address"] == '')
+            unset($hesabfaCustomer["Address"]);
+        if($hesabfaCustomer["PostalCode"] == '')
+            unset($hesabfaCustomer["PostalCode"]);
+        if($hesabfaCustomer["City"] == '')
+            unset($hesabfaCustomer["City"]);
+        if($hesabfaCustomer["State"] == '')
+            unset($hesabfaCustomer["State"]);
+        if($hesabfaCustomer["Country"] == '')
+            unset($hesabfaCustomer["Country"]);
+        return $hesabfaCustomer;
     }
 
     private static function getCountriesAndStates()
