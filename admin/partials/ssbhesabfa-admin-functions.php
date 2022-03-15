@@ -1236,20 +1236,16 @@ class Ssbhesabfa_Admin_Functions
 
     public static function setItemChanges($item)
     {
+        if (!is_object($item)) return false;
+
         if ($item->Quantity || !$item->Stock)
             $item->Stock = $item->Quantity;
 
         $wpFaService = new HesabfaWpFaService();
-
-        if (!is_object($item)) {
-            return false;
-        }
-
         global $wpdb;
 
         $wpFa = $wpFaService->getWpFaByHesabfaId('product', $item->Code);
-        if (!$wpFa)
-            return false;
+        if (!$wpFa) return false;
 
         $id_product = $wpFa->idWp;
         $id_attribute = $wpFa->idWpAttribute;
@@ -1260,77 +1256,81 @@ class Ssbhesabfa_Admin_Functions
             return false;
         }
 
-        if ($wpFa) {
-            $found = $wpdb->get_var("SELECT COUNT(*) FROM `" . $wpdb->prefix . "posts`                                                                
-                                WHERE ID = $id_product");
+        $found = $wpdb->get_var("SELECT COUNT(*) FROM `" . $wpdb->prefix . "posts` WHERE ID = $id_product");
 
-            if (!$found) {
-                HesabfaLogService::writeLogStr("product not found in woocommerce.code: $item->Code, product id: $id_product, variation id: $id_attribute");
-                return false;
-            }
-
-            $product = new WC_Product($id_product);
-            $result = array();
-            $result["newPrice"] = null;
-            $result["newQuantity"] = null;
-
-            //1.set new Price
-            if (get_option('ssbhesabfa_item_update_price') == 'yes') {
-                if ($id_attribute != 0) {
-                    $variation = new WC_Product_Variation($id_attribute);
-                    $old_price = $variation->get_regular_price() ? $variation->get_regular_price() : $variation->get_price();
-                    $old_price = Ssbhesabfa_Admin_Functions::getPriceInHesabfaDefaultCurrency($old_price);
-                    if ($item->SellPrice != $old_price) {
-                        $new_price = Ssbhesabfa_Admin_Functions::getPriceInWooCommerceDefaultCurrency($item->SellPrice);
-                        update_post_meta($id_attribute, '_price', $new_price);
-                        update_post_meta($id_attribute, '_regular_price', $new_price);
-                        HesabfaLogService::log(array("product ID $id_product-$id_attribute Price changed. Old Price: $old_price. New Price: $new_price"));
-                        $result["newPrice"] = $new_price;
-                    }
-                } else {
-                    $old_price = $product->get_regular_price() ? $product->get_regular_price() : $product->get_price();
-                    $old_price = Ssbhesabfa_Admin_Functions::getPriceInHesabfaDefaultCurrency($old_price);
-                    if ($item->SellPrice != $old_price) {
-                        $new_price = Ssbhesabfa_Admin_Functions::getPriceInWooCommerceDefaultCurrency($item->SellPrice);
-                        update_post_meta($id_product, '_price', $new_price);
-                        update_post_meta($id_product, '_regular_price', $new_price);
-                        HesabfaLogService::log(array("product ID $id_product Price changed. Old Price: $old_price. New Price: $new_price"));
-                        $result["newPrice"] = $new_price;
-                    }
-                }
-            }
-
-            //2.set new Quantity
-            if (get_option('ssbhesabfa_item_update_quantity') == 'yes') {
-                if ($id_attribute != 0) {
-                    $variation = new WC_Product_Variation($id_attribute);
-                    if ($item->Stock != $variation->get_stock_quantity()) {
-                        $old_quantity = $variation->get_stock_quantity();
-                        $new_quantity = $item->Stock;
-
-                        $new_stock_status = ($new_quantity > 0) ? "instock" : "outofstock";
-                        update_post_meta($id_attribute, '_stock', $new_quantity);
-                        wc_update_product_stock_status($id_attribute, $new_stock_status);
-
-                        HesabfaLogService::log(array("product ID $id_product-$id_attribute quantity changed. Old qty: $old_quantity. New qty: $new_quantity"));
-                        $result["newQuantity"] = $new_quantity;
-                    }
-                } else {
-                    if ($item->Stock != $product->get_stock_quantity()) {
-                        $old_quantity = $product->get_stock_quantity();
-                        $new_quantity = $item->Stock;
-
-                        $new_stock_status = ($new_quantity > 0) ? "instock" : "outofstock";
-                        update_post_meta($id_product, '_stock', $new_quantity);
-                        wc_update_product_stock_status($id_product, $new_stock_status);
-
-                        HesabfaLogService::log(array("product ID $id_product quantity changed. Old qty: $old_quantity. New qty: $new_quantity"));
-                        $result["newQuantity"] = $new_quantity;
-                    }
-                }
-            }
-
-            return $result;
+        if (!$found) {
+            HesabfaLogService::writeLogStr("product not found in woocommerce.code: $item->Code, product id: $id_product, variation id: $id_attribute");
+            return false;
         }
+
+        $product = wc_get_product($id_product);
+        $variation = $id_attribute != 0 ? wc_get_product($id_attribute) : null;
+
+        $result = array();
+        $result["newPrice"] = null;
+        $result["newQuantity"] = null;
+
+        //1.set new Price
+        if (get_option('ssbhesabfa_item_update_price') == 'yes') {
+            if ($variation) {
+                $old_price = $variation->get_regular_price() ? $variation->get_regular_price() : $variation->get_price();
+                $old_price = Ssbhesabfa_Admin_Functions::getPriceInHesabfaDefaultCurrency($old_price);
+                if ($item->SellPrice != $old_price) {
+                    $new_price = Ssbhesabfa_Admin_Functions::getPriceInWooCommerceDefaultCurrency($item->SellPrice);
+                    $variation->set_regular_price($new_price);
+                    $variation->set_sale_price($new_price);
+                    HesabfaLogService::log(array("product ID $id_product-$id_attribute Price changed. Old Price: $old_price. New Price: $new_price"));
+                    $result["newPrice"] = $new_price;
+                }
+            } else {
+                $old_price = $product->get_regular_price() ? $product->get_regular_price() : $product->get_price();
+                $old_price = Ssbhesabfa_Admin_Functions::getPriceInHesabfaDefaultCurrency($old_price);
+                if ($item->SellPrice != $old_price) {
+                    $new_price = Ssbhesabfa_Admin_Functions::getPriceInWooCommerceDefaultCurrency($item->SellPrice);
+                    $product->set_regular_price($new_price);
+                    $product->set_sale_price($new_price);
+                    HesabfaLogService::log(array("product ID $id_product Price changed. Old Price: $old_price. New Price: $new_price"));
+                    $result["newPrice"] = $new_price;
+                }
+            }
+        }
+
+        //2.set new Quantity
+        if (get_option('ssbhesabfa_item_update_quantity') == 'yes') {
+            if ($variation) {
+                if ($item->Stock != $variation->get_stock_quantity()) {
+                    $old_quantity = $variation->get_stock_quantity();
+                    $new_quantity = $item->Stock;
+
+                    $new_stock_status = ($new_quantity > 0) ? "instock" : "outofstock";
+                    $variation->set_stock_quantity($new_quantity);
+                    $variation->set_stock_status($new_stock_status);
+
+                    HesabfaLogService::log(array("product ID $id_product-$id_attribute quantity changed. Old qty: $old_quantity. New qty: $new_quantity"));
+                    $result["newQuantity"] = $new_quantity;
+                }
+            } else {
+                if ($item->Stock != $product->get_stock_quantity()) {
+                    $old_quantity = $product->get_stock_quantity();
+                    $new_quantity = $item->Stock;
+
+                    $new_stock_status = ($new_quantity > 0) ? "instock" : "outofstock";
+                    $product->set_stock_quantity($new_quantity);
+                    $product->set_stock_status($new_stock_status);
+
+                    HesabfaLogService::log(array("product ID $id_product quantity changed. Old qty: $old_quantity. New qty: $new_quantity"));
+                    $result["newQuantity"] = $new_quantity;
+                }
+            }
+        }
+
+        if($variation)
+            $variation->save();
+        else
+        {
+            $product->save();
+        }
+
+        return $result;
     }
 }
