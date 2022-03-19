@@ -238,7 +238,7 @@ class Ssbhesabfa_Admin_Functions
             return false;
 
         $order = new WC_Order($id_order);
-        $contactCode = $this->getContactCodeByEmail($order->get_billing_email());
+        $contactCode = $this->getContactCodeByPhoneOrEmail($order->get_billing_phone(), $order->get_billing_email());
 
         $hesabfaCustomer = ssbhesabfaCustomerService::mapGuestCustomer($contactCode, $id_order);
 
@@ -255,32 +255,32 @@ class Ssbhesabfa_Admin_Functions
         }
     }
 
-    public function getContactCodeByEmail($email)
+    public function getContactCodeByPhoneOrEmail($phone, $email)
     {
-        if(!$email || $email == '')
+        if(!$email && !$phone)
             return null;
 
-        $queryInfo = array(
-            'SortBy' => 'Code',
-            'SortDesc' => true,
-            'Take' => 1,
-            'Skip' => 0,
-            'Filters' => array(array(
-                'Property' => 'Email',
-                'Operator' => '=',
-                'Value' => $email,
-            ))
-        );
-
         $hesabfa = new Ssbhesabfa_Api();
-        $response = $hesabfa->contactGetContacts($queryInfo);
+        $response = $hesabfa->contactGetByPhoneOrEmail($phone, $email);
 
         if (is_object($response)) {
             if ($response->Success && $response->Result->TotalCount > 0) {
                 $contact_obj = $response->Result->List;
                 if(!$contact_obj[0]->Code || $contact_obj[0]->Code == '0' || $contact_obj[0]->Code == '000000')
                     return null;
-                return (int)$contact_obj[0]->Code;
+                foreach ($contact_obj as $contact) {
+                    if(($contact->phone == $phone || $contact->mobile = $phone) && $contact->email == $email)
+                        return (int)$contact->Code;
+                }
+                foreach ($contact_obj as $contact) {
+                    if($contact->phone == $phone || $contact->mobile = $phone)
+                        return (int)$contact->Code;
+                }
+                foreach ($contact_obj as $contact) {
+                    if($contact->email == $email)
+                        return (int)$contact->Code;
+                }
+                return null;
             }
         } else {
             HesabfaLogService::log(array("Cannot get Contact list. Error Message: (string)$response->ErrorMessage. Error Code: (string)$response->ErrorCode."));

@@ -166,6 +166,17 @@ class Ssbhesabfa_Api
         return $this->apiRequest($method, $data);
     }
 
+    public function contactGetByPhoneOrEmail($phone, $email) {
+        $method = 'contact/findByPhoneOrEmail';
+        $data = array(
+            'mobile' => $phone,
+            'email' => $email,
+            'phone' => $phone,
+        );
+
+        return $this->apiRequest($method, $data);
+    }
+
     //Items functions
     public function itemGet($code)
     {
@@ -387,7 +398,6 @@ class Ssbhesabfa_Api
         $data = array(
             'start' => $start,
         );
-
         return $this->apiRequest($method, $data);
     }
 
