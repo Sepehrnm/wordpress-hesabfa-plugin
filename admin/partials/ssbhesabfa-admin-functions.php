@@ -266,6 +266,7 @@ class Ssbhesabfa_Admin_Functions
         if (is_object($response)) {
             if ($response->Success && $response->Result->TotalCount > 0) {
                 $contact_obj = $response->Result->List;
+
                 if(!$contact_obj[0]->Code || $contact_obj[0]->Code == '0' || $contact_obj[0]->Code == '000000')
                     return null;
                 foreach ($contact_obj as $contact) {
@@ -273,11 +274,11 @@ class Ssbhesabfa_Admin_Functions
                         return (int)$contact->Code;
                 }
                 foreach ($contact_obj as $contact) {
-                    if($contact->phone == $phone || $contact->mobile = $phone)
+                    if($phone && $contact->phone == $phone || $contact->mobile = $phone)
                         return (int)$contact->Code;
                 }
                 foreach ($contact_obj as $contact) {
-                    if($contact->email == $email)
+                    if($email && $contact->email == $email)
                         return (int)$contact->Code;
                 }
                 return null;
