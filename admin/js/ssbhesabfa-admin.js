@@ -664,9 +664,9 @@ jQuery(function ($) {
                 $(_this).prop('disabled', false);
                 if ('failed' !== response) {
                     const res = JSON.parse(response);
-                    if(res.newPrice)
+                    if(res.newPrice != null)
                         $("#hesabfa-item-price-" + attributeId).text(res.newPrice);
-                    if(res.newQuantity)
+                    if(res.newQuantity != null)
                         $("#hesabfa-item-quantity-" + attributeId).text(res.newQuantity);
                     if(res.error)
                         alert(res.message);
@@ -755,9 +755,9 @@ jQuery(function ($) {
                         return false;
                     }
                     for (let i = 0; i < res.newData.length; i++) {
-                        if(res.newData[i].newPrice)
+                        if(res.newData[i].newPrice != null)
                             $("#hesabfa-item-price-" + res.newData[i].attributeId).text(res.newData[i].newPrice);
-                        if(res.newData[i].newQuantity)
+                        if(res.newData[i].newQuantity != null)
                             $("#hesabfa-item-quantity-" + res.newData[i].attributeId).text(res.newData[i].newQuantity);
                     }
                     return false;

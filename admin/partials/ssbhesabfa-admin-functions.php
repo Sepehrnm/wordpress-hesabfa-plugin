@@ -1302,6 +1302,7 @@ class Ssbhesabfa_Admin_Functions
                 if ($item->Stock != $variation->get_stock_quantity()) {
                     $old_quantity = $variation->get_stock_quantity();
                     $new_quantity = $item->Stock;
+                    if(!$new_quantity) $new_quantity = 0;
 
                     $new_stock_status = ($new_quantity > 0) ? "instock" : "outofstock";
                     $variation->set_stock_quantity($new_quantity);
@@ -1314,6 +1315,7 @@ class Ssbhesabfa_Admin_Functions
                 if ($item->Stock != $product->get_stock_quantity()) {
                     $old_quantity = $product->get_stock_quantity();
                     $new_quantity = $item->Stock;
+                    if(!$new_quantity) $new_quantity = 0;
 
                     $new_stock_status = ($new_quantity > 0) ? "instock" : "outofstock";
                     $product->set_stock_quantity($new_quantity);
