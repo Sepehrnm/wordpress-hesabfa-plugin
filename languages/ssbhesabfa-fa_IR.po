@@ -688,6 +688,12 @@ msgstr ""
 "این فیلد کد شخص در حسابفا است، اگر می‌خواهید این کاربر را به شخصی "
 "در حسابفا ارتباط دهید، کد شخص را وارد نمایید."
 
+msgid "Error: Select maximum 10 orders. Due to some limitations in Hesabfa API, sending too many requests in one minute is not possible."
+msgstr "خطا: حداکثر ۱۰ سفارش را انتخاب کنید. بدلیل محدودیت رابط برنامه نویسی حسابفا، ارسال درخواست های زیاد در یک دقیقه امکان پذیر نیست."
+
+msgid "Selected orders invoices have been saved. Number of saved invoices: "
+msgstr "فاکتور سفارش های انتخاب شده ثبت شد. تعداد فاکتور های ثبت شده: "
+
 #~ msgid "Sync completed, All products added/updated."
 #~ msgstr "همسان‌سازی پایان یافت. تمامی محصولات به‌روزرسانی/افزوده شدند."
 

@@ -182,10 +182,10 @@ class Ssbhesabfa_Admin
         if (!empty( $_REQUEST['submit_selected_orders_invoice_in_hesabfa'])) {
             if(!empty($_REQUEST['error_msg']) && $_REQUEST['error_msg'] == "select_max_10_items") {
                 printf( '<div class="notice notice-error is-dismissible"><p>%s</p></div>',
-                    "خطا: حداکثر ۱۰ سفارش را انتخاب کنید. بدلیل محدودیت رابط برنامه نویسی حسابفا امکان ارسال درخواست های زیاد در یک دقیقه امکان پذیر نیست.");
+                    __('Error: Select maximum 10 orders. Due to some limitations in Hesabfa API, sending too many requests in one minute is not possible.', 'ssbhesabfa'));
             } else {
                 $success_count = intval( $_REQUEST['success_count'] );
-                printf( '<div class="notice notice-success is-dismissible"><p>%s %d</p></div>', "فاکتور سفارش های انتخاب شده ثبت شد. تعداد فاکتور های ثبت شده: ", $success_count);
+                printf( '<div class="notice notice-success is-dismissible"><p>%s %d</p></div>', __('Selected orders invoices have been saved. Number of saved invoices: ', 'ssbhesabfa'), $success_count);
             }
         }
     }
