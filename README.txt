@@ -4,7 +4,7 @@ Tags: accounting cloud hesabfa
 Requires at least: 5.2
 Tested up to: 5.6
 Requires PHP: 5.6
-Stable tag: 1.90.53
+Stable tag: 1.91.55
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -286,6 +286,15 @@ by clicking update stock and price button in hesabfa tab in product edit page
 
 = 1.90.53 - 21.02.2022 =
 * Critical error fixed in set order with guest customer
+
+= 1.91.55 - 17.04.2022 =
+* Add billing address 1 and 2 to address field in Hesabfa
+* Add customer mobile number in Hesabfa if detectable
+* Clear product url by regex when import products from Hesabfa
+* Refactor update product price and quantity function to use default woocommerce methods
+* Check guest customer existence in Hesabfa by phone or email then add or edit it to prevent duplication.
+* Add a bulk action (Submit Invoice in Hesabfa) in orders grid.
+* Fix set new quantity (zero quantity) for product bug.
 
 == Upgrade Notice ==
 Automatic updates should work smoothly, but we still recommend you back up your site.
