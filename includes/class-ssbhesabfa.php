@@ -173,9 +173,13 @@ class Ssbhesabfa
                     $this->loader->add_action('admin_notices', $plugin_admin, 'ssbhesabfa_currency_notice');
                 }
 
+                $this->loader->add_action('admin_notices', $plugin_admin, 'ssbhesabfa_general_notices');
+
                 // add filter and action for woocommerce order list
                 $this->loader->add_filter('manage_edit-shop_order_columns', $plugin_admin, 'custom_hesabfa_column_order_list', 20);
                 $this->loader->add_action('manage_shop_order_posts_custom_column', $plugin_admin, 'custom_orders_list_column_content', 20, 2);
+                $this->loader->add_filter('bulk_actions-edit-shop_order', $plugin_admin, 'custom_orders_list_bulk_action', 20, 1);
+                $this->loader->add_filter('handle_bulk_actions-edit-shop_order', $plugin_admin, 'custom_orders_list_bulk_action_run', 10, 3);
 
                 //Runs when a new order added.
                 $this->loader->add_action('woocommerce_order_status_changed', $plugin_admin, 'ssbhesabfa_hook_order_status_change', 10, 3);

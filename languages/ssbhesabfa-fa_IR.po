@@ -624,6 +624,9 @@ msgstr "فاکتور حسابفا"
 msgid "Submit Invoice"
 msgstr "ثبت فاکتور"
 
+msgid "Submit Invoice in Hesabfa"
+msgstr "ثبت فاکتور در حسابفا"
+
 msgid "Submit Product in Hesabfa"
 msgstr "ثبت محصول در حسابفا"
 

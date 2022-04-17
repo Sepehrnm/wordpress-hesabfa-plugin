@@ -178,6 +178,18 @@ class Ssbhesabfa_Admin
         echo '<div class="error"><p>' . __('Hesabfa Plugin cannot works! because WooCommerce currency in not match with Hesabfa.', 'ssbhesabfa') . '</p></div>';
     }
 
+    public function ssbhesabfa_general_notices() {
+        if (!empty( $_REQUEST['submit_selected_orders_invoice_in_hesabfa'])) {
+            if(!empty($_REQUEST['error_msg']) && $_REQUEST['error_msg'] == "select_max_10_items") {
+                printf( '<div class="notice notice-error is-dismissible"><p>%s</p></div>',
+                    "خطا: حداکثر ۱۰ سفارش را انتخاب کنید. بدلیل محدودیت رابط برنامه نویسی حسابفا امکان ارسال درخواست های زیاد در یک دقیقه امکان پذیر نیست.");
+            } else {
+                $success_count = intval( $_REQUEST['success_count'] );
+                printf( '<div class="notice notice-success is-dismissible"><p>%s %d</p></div>', "فاکتور سفارش های انتخاب شده ثبت شد. تعداد فاکتور های ثبت شده: ", $success_count);
+            }
+        }
+    }
+
     /*
      * Action - Ajax 'export products' from Hesabfa/Export tab
      * @since	1.0.0
@@ -567,6 +579,39 @@ class Ssbhesabfa_Admin
             exit();
         }
         return;
+    }
+
+    public function custom_orders_list_bulk_action($actions) {
+        $actions['submit_invoice_in_hesabfa'] = __('Submit Invoice in Hesabfa', 'ssbhesabfa');
+        return $actions;
+    }
+
+    public function custom_orders_list_bulk_action_run($redirect_to, $action, $post_ids) {
+        if ( $action !== 'submit_invoice_in_hesabfa' )
+            return $redirect_to; // Exit
+        HesabfaLogService::writeLogStr("===== Submit selected orders invoice =====");
+
+        if(count($post_ids) > 10)
+            return $redirect_to = add_query_arg( array(
+                'submit_selected_orders_invoice_in_hesabfa' => '1',
+                'error_msg' => 'select_max_10_items'
+            ), $redirect_to );
+
+        $success_count = 0;
+        $func = new Ssbhesabfa_Admin_Functions();
+        foreach ($post_ids as $orderId) {
+            $result = $func->setOrder($orderId);
+            if ($result) {
+                $success_count++;
+                $func->setOrderPayment($orderId);
+            }
+        }
+
+        return $redirect_to = add_query_arg( array(
+            'submit_selected_orders_invoice_in_hesabfa' => '1',
+            'success_count' => $success_count,
+            'error_msg' => '0'
+        ), $redirect_to );
     }
 
     //Hooks
