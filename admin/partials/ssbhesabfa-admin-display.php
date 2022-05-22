@@ -42,7 +42,7 @@ class Ssbhesabfa_Admin_Display
         //add_options_page(__('Hesabfa Options', 'ssbhesabfa'), __('Hesabfa', 'ssbhesabfa'), 'manage_options', 'ssbhesabfa-option', array(__CLASS__, 'ssbhesabfa_option'));
     }
 
-    function hesabfa_add_menu()
+    static function hesabfa_add_menu()
     {
         $iconUrl = plugins_url('/hesabfa-accounting/admin/img/menu-icon.png');
         add_menu_page("حسابفا", "حسابفا", "manage_options", "ssbhesabfa-option", array(__CLASS__, 'hesabfa_plugin_page'), $iconUrl, null);

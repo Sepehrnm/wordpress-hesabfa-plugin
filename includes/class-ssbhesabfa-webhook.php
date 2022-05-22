@@ -48,7 +48,7 @@ class Ssbhesabfa_Webhook
                             //if Action was deleted
                             if ($item->Action == 53) {
                                 $wpFa = $wpFaService->getWpFaByHesabfaId('product', $item->Extra);
-                                if($wpFa) {
+                                if ($wpFa) {
                                     global $wpdb;
                                     $wpdb->delete($wpdb->prefix . 'ssbhesabfa', array('id' => $wpFa->id));
                                 }
@@ -81,14 +81,16 @@ class Ssbhesabfa_Webhook
 
             //set LastChange ID
             $lastChange = end($changes->Result);
-            if (is_object($lastChange)) {
+            if (is_object($lastChange))
                 update_option('ssbhesabfa_last_log_check_id', $lastChange->Id);
-            }
+            else if ($changes->LastId)
+                update_option('ssbhesabfa_last_log_check_id', $changes->LastId);
+
         } else {
             HesabfaLogService::log(array("ssbhesabfa - Cannot check last changes. Error Message: " . (string)$changes->ErrorMessage . ". Error Code: " . (string)$changes->ErrorCode));
-            if($changes->ErrorCode == 108) {
+            if ($changes->ErrorCode == 108) {
                 update_option('ssbhesabfa_business_expired', 1);
-                add_action('admin_notices', array( __CLASS__, 'ssbhesabfa_business_expired_notice' ));
+                add_action('admin_notices', array(__CLASS__, 'ssbhesabfa_business_expired_notice'));
             }
             return false;
         }
@@ -96,7 +98,8 @@ class Ssbhesabfa_Webhook
         return true;
     }
 
-    public function ssbhesabfa_business_expired_notice() {
+    public function ssbhesabfa_business_expired_notice()
+    {
         echo '<div class="error"><p>' . __('Cannot connect to Hesabfa. Business expired.', 'ssbhesabfa') . '</p></div>';
     }
 
@@ -284,7 +287,7 @@ class Ssbhesabfa_Webhook
         $hesabfaApi = new Ssbhesabfa_Api();
 
         $warehouse = get_option('ssbhesabfa_item_update_quantity_based_on', "-1");
-        if($warehouse == "-1")
+        if ($warehouse == "-1")
             $result = $hesabfaApi->itemGetItems(array('Take' => 100000, 'Filters' => $filters));
         else
             $result = $hesabfaApi->itemGetQuantity($warehouse, $codeList);

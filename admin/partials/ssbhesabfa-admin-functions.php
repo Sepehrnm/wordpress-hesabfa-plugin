@@ -1279,7 +1279,7 @@ class Ssbhesabfa_Admin_Functions
                 if ($item->SellPrice != $old_price) {
                     $new_price = Ssbhesabfa_Admin_Functions::getPriceInWooCommerceDefaultCurrency($item->SellPrice);
                     $variation->set_regular_price($new_price);
-                    $variation->set_sale_price($new_price);
+                    //$variation->set_sale_price($new_price);
                     HesabfaLogService::log(array("product ID $id_product-$id_attribute Price changed. Old Price: $old_price. New Price: $new_price"));
                     $result["newPrice"] = $new_price;
                 }
@@ -1289,7 +1289,7 @@ class Ssbhesabfa_Admin_Functions
                 if ($item->SellPrice != $old_price) {
                     $new_price = Ssbhesabfa_Admin_Functions::getPriceInWooCommerceDefaultCurrency($item->SellPrice);
                     $product->set_regular_price($new_price);
-                    $product->set_sale_price($new_price);
+                    //$product->set_sale_price($new_price);
                     HesabfaLogService::log(array("product ID $id_product Price changed. Old Price: $old_price. New Price: $new_price"));
                     $result["newPrice"] = $new_price;
                 }
