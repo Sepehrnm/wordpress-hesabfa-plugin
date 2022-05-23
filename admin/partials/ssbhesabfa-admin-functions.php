@@ -1273,13 +1273,20 @@ class Ssbhesabfa_Admin_Functions
 
         //1.set new Price
         if (get_option('ssbhesabfa_item_update_price') == 'yes') {
+            $option_sale_price = get_option('ssbhesabfa_item_update_sale_price', 0);
             if ($variation) {
                 $old_price = $variation->get_regular_price() ? $variation->get_regular_price() : $variation->get_price();
                 $old_price = Ssbhesabfa_Admin_Functions::getPriceInHesabfaDefaultCurrency($old_price);
                 if ($item->SellPrice != $old_price) {
                     $new_price = Ssbhesabfa_Admin_Functions::getPriceInWooCommerceDefaultCurrency($item->SellPrice);
                     $variation->set_regular_price($new_price);
-                    //$variation->set_sale_price($new_price);
+
+                    $sale_price = $variation->get_sale_price();
+                    if($option_sale_price == 1)
+                        $variation->set_sale_price($new_price);
+                    elseif ($option_sale_price == 2)
+                        $variation->set_sale_price(round(($sale_price * $new_price) / $old_price));
+
                     HesabfaLogService::log(array("product ID $id_product-$id_attribute Price changed. Old Price: $old_price. New Price: $new_price"));
                     $result["newPrice"] = $new_price;
                 }
@@ -1289,7 +1296,13 @@ class Ssbhesabfa_Admin_Functions
                 if ($item->SellPrice != $old_price) {
                     $new_price = Ssbhesabfa_Admin_Functions::getPriceInWooCommerceDefaultCurrency($item->SellPrice);
                     $product->set_regular_price($new_price);
-                    //$product->set_sale_price($new_price);
+
+                    $sale_price = $product->get_sale_price();
+                    if($option_sale_price == 1)
+                        $product->set_sale_price($new_price);
+                    elseif ($option_sale_price == 2)
+                        $product->set_sale_price(round(($sale_price * $new_price) / $old_price));
+
                     HesabfaLogService::log(array("product ID $id_product Price changed. Old Price: $old_price. New Price: $new_price"));
                     $result["newPrice"] = $new_price;
                 }

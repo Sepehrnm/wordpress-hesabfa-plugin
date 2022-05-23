@@ -694,6 +694,18 @@ msgstr "خطا: حداکثر ۱۰ سفارش را انتخاب کنید. بدل�
 msgid "Selected orders invoices have been saved. Number of saved invoices: "
 msgstr "فاکتور سفارش های انتخاب شده ثبت شد. تعداد فاکتور های ثبت شده: "
 
+msgid "Update sale price"
+msgstr "بروزرسانی قیمت فروش ویژه"
+
+msgid "The Sale price does not change"
+msgstr "قیمت فروش ویژه تغییر نکند"
+
+msgid "The Sale price gets removed"
+msgstr "قیمت فروش ویژه حذف گردد"
+
+msgid "The sale price get changes in proportion to the regular price"
+msgstr "قیمت فروش ویژه به تناسب قیمت اصلی تغییر یابد"
+
 #~ msgid "Sync completed, All products added/updated."
 #~ msgstr "همسان‌سازی پایان یافت. تمامی محصولات به‌روزرسانی/افزوده شدند."
 

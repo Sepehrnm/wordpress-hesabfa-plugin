@@ -212,6 +212,18 @@ class Ssbhesabfa_Setting
 			'type' => 'checkbox'
 		);
 
+        $options_to_update_sale_price = array();
+        $options_to_update_sale_price[0] = __("The Sale price does not change", 'ssbhesabfa');
+        $options_to_update_sale_price[1] = __("The Sale price gets removed", 'ssbhesabfa');
+        $options_to_update_sale_price[2] = __("The sale price get changes in proportion to the regular price", 'ssbhesabfa');
+
+        $fields[] = array(
+            'title' => __("Update sale price", 'ssbhesabfa'),
+            'id' => 'ssbhesabfa_item_update_sale_price',
+            'type' => 'select',
+            'options' => $options_to_update_sale_price,
+        );
+
 		$fields[] = array('type' => 'sectionend', 'id' => 'catalog_options');
 
 		return $fields;
