@@ -1302,7 +1302,7 @@ class Ssbhesabfa_Admin_Functions
                     $sale_price = $product->get_sale_price();
                     if($option_sale_price == 1)
                         $product->set_sale_price($new_price);
-                    elseif ($option_sale_price == 2)
+                    elseif ($option_sale_price == 2 && is_numeric($sale_price))
                         $product->set_sale_price(round(($sale_price * $new_price) / $old_price));
 
                     HesabfaLogService::log(array("product ID $id_product Price changed. Old Price: $old_price. New Price: $new_price"));
