@@ -257,7 +257,7 @@ class Ssbhesabfa_Admin_Functions
 
     public function getContactCodeByPhoneOrEmail($phone, $email)
     {
-        if(!$email && !$phone)
+        if (!$email && !$phone)
             return null;
 
         $hesabfa = new Ssbhesabfa_Api();
@@ -267,18 +267,18 @@ class Ssbhesabfa_Admin_Functions
             if ($response->Success && $response->Result->TotalCount > 0) {
                 $contact_obj = $response->Result->List;
 
-                if(!$contact_obj[0]->Code || $contact_obj[0]->Code == '0' || $contact_obj[0]->Code == '000000')
+                if (!$contact_obj[0]->Code || $contact_obj[0]->Code == '0' || $contact_obj[0]->Code == '000000')
                     return null;
                 foreach ($contact_obj as $contact) {
-                    if(($contact->phone == $phone || $contact->mobile = $phone) && $contact->email == $email)
+                    if (($contact->phone == $phone || $contact->mobile = $phone) && $contact->email == $email)
                         return (int)$contact->Code;
                 }
                 foreach ($contact_obj as $contact) {
-                    if($phone && $contact->phone == $phone || $contact->mobile = $phone)
+                    if ($phone && $contact->phone == $phone || $contact->mobile = $phone)
                         return (int)$contact->Code;
                 }
                 foreach ($contact_obj as $contact) {
-                    if($email && $contact->email == $email)
+                    if ($email && $contact->email == $email)
                         return (int)$contact->Code;
                 }
                 return null;
@@ -790,9 +790,9 @@ class Ssbhesabfa_Admin_Functions
 
                 $clearedName = preg_replace("/\s+|\/|\\\|\(|\)/", '-', trim($item->Name));
                 $clearedName = preg_replace("/\-+/", '-', $clearedName);
-                $clearedName = trim($clearedName,'-');
+                $clearedName = trim($clearedName, '-');
                 $clearedName = preg_replace(["/۰/", "/۱/", "/۲/", "/۳/", "/۴/", "/۵/", "/۶/", "/۷/", "/۸/", "/۹/"],
-                    ["0","1","2","3","4","5","6","7","8","9"], $clearedName);
+                    ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"], $clearedName);
 
                 // add product to database
                 $wpdb->insert($wpdb->prefix . 'posts', array(
@@ -1273,80 +1273,66 @@ class Ssbhesabfa_Admin_Functions
         $result["newPrice"] = null;
         $result["newQuantity"] = null;
 
-        //1.set new Price
-        if (get_option('ssbhesabfa_item_update_price') == 'yes') {
-            $option_sale_price = get_option('ssbhesabfa_item_update_sale_price', 0);
-            if ($variation) {
-                $old_price = $variation->get_regular_price() ? $variation->get_regular_price() : $variation->get_price();
-                $old_price = Ssbhesabfa_Admin_Functions::getPriceInHesabfaDefaultCurrency($old_price);
-                if ($item->SellPrice != $old_price) {
-                    $new_price = Ssbhesabfa_Admin_Functions::getPriceInWooCommerceDefaultCurrency($item->SellPrice);
-                    $variation->set_regular_price($new_price);
+        $p = $variation ? $variation : $product;
 
-                    $sale_price = $variation->get_sale_price();
-                    if($option_sale_price == 1)
-                        $variation->set_sale_price($new_price);
-                    elseif ($option_sale_price == 2)
-                        $variation->set_sale_price(round(($sale_price * $new_price) / $old_price));
+        if (get_option('ssbhesabfa_item_update_price') == 'yes')
+            $result = self::setItemNewPrice($p, $item, $id_attribute, $id_product, $result);
 
-                    HesabfaLogService::log(array("product ID $id_product-$id_attribute Price changed. Old Price: $old_price. New Price: $new_price"));
-                    $result["newPrice"] = $new_price;
-                }
-            } else {
-                $old_price = $product->get_regular_price() ? $product->get_regular_price() : $product->get_price();
-                $old_price = Ssbhesabfa_Admin_Functions::getPriceInHesabfaDefaultCurrency($old_price);
-                if ($item->SellPrice != $old_price) {
-                    $new_price = Ssbhesabfa_Admin_Functions::getPriceInWooCommerceDefaultCurrency($item->SellPrice);
-                    $product->set_regular_price($new_price);
+        if (get_option('ssbhesabfa_item_update_quantity') == 'yes')
+            $result = self::setItemNewQuantity($p, $item, $id_product, $id_attribute, $result);
 
-                    $sale_price = $product->get_sale_price();
-                    if($option_sale_price == 1)
-                        $product->set_sale_price($new_price);
-                    elseif ($option_sale_price == 2 && is_numeric($sale_price))
-                        $product->set_sale_price(round(($sale_price * $new_price) / $old_price));
-
-                    HesabfaLogService::log(array("product ID $id_product Price changed. Old Price: $old_price. New Price: $new_price"));
-                    $result["newPrice"] = $new_price;
-                }
-            }
-        }
-
-        //2.set new Quantity
-        if (get_option('ssbhesabfa_item_update_quantity') == 'yes') {
-            if ($variation) {
-                if ($item->Stock != $variation->get_stock_quantity()) {
-                    $old_quantity = $variation->get_stock_quantity();
-                    $new_quantity = $item->Stock;
-                    if(!$new_quantity) $new_quantity = 0;
-
-                    $new_stock_status = ($new_quantity > 0) ? "instock" : "outofstock";
-                    $variation->set_stock_quantity($new_quantity);
-                    $variation->set_stock_status($new_stock_status);
-
-                    HesabfaLogService::log(array("product ID $id_product-$id_attribute quantity changed. Old qty: $old_quantity. New qty: $new_quantity"));
-                    $result["newQuantity"] = $new_quantity;
-                }
-            } else {
-                if ($item->Stock != $product->get_stock_quantity()) {
-                    $old_quantity = $product->get_stock_quantity();
-                    $new_quantity = $item->Stock;
-                    if(!$new_quantity) $new_quantity = 0;
-
-                    $new_stock_status = ($new_quantity > 0) ? "instock" : "outofstock";
-                    $product->set_stock_quantity($new_quantity);
-                    $product->set_stock_status($new_stock_status);
-
-                    HesabfaLogService::log(array("product ID $id_product quantity changed. Old qty: $old_quantity. New qty: $new_quantity"));
-                    $result["newQuantity"] = $new_quantity;
-                }
-            }
-        }
-
-        if($variation)
+        if ($variation)
             $variation->save();
         else
-        {
             $product->save();
+
+        return $result;
+    }
+
+    public static function setItemNewPrice($product, $item, $id_attribute, $id_product, array $result): array
+    {
+        $option_sale_price = get_option('ssbhesabfa_item_update_sale_price', 0);
+
+        $old_price = $product->get_regular_price() ? $product->get_regular_price() : $product->get_price();
+        $old_price = Ssbhesabfa_Admin_Functions::getPriceInHesabfaDefaultCurrency($old_price);
+
+        if ($item->SellPrice != $old_price) {
+            $new_price = Ssbhesabfa_Admin_Functions::getPriceInWooCommerceDefaultCurrency($item->SellPrice);
+            update_post_meta($id_product, '_regular_price', $new_price);
+            update_post_meta($id_product, '_price', $new_price);
+
+            $sale_price = $product->get_sale_price();
+            if ($sale_price && is_numeric($sale_price)) {
+                if (+$option_sale_price === 1) {
+                    update_post_meta($id_product, '_sale_price', null);
+                } elseif (+$option_sale_price === 2) {
+                    update_post_meta($id_product, '_sale_price', round(($sale_price * $new_price) / $old_price));
+                    update_post_meta($id_product, '_price', round(($sale_price * $new_price) / $old_price));
+                } else {
+                    update_post_meta($id_product, '_price', $sale_price);
+                }
+            }
+
+            HesabfaLogService::log(array("product ID $id_product-$id_attribute Price changed. Old Price: $old_price. New Price: $new_price"));
+            $result["newPrice"] = $new_price;
+        }
+
+        return $result;
+    }
+
+    public static function setItemNewQuantity($product, $item, $id_product, $id_attribute, array $result): array
+    {
+        if ($item->Stock != $product->get_stock_quantity()) {
+            $old_quantity = $product->get_stock_quantity();
+            $new_quantity = $item->Stock;
+            if (!$new_quantity) $new_quantity = 0;
+
+            $new_stock_status = ($new_quantity > 0) ? "instock" : "outofstock";
+            update_post_meta($id_product, '_stock', $new_quantity);
+            wc_update_product_stock_status($id_product, $new_stock_status);
+
+            HesabfaLogService::log(array("product ID $id_product-$id_attribute quantity changed. Old qty: $old_quantity. New qty: $new_quantity"));
+            $result["newQuantity"] = $new_quantity;
         }
 
         return $result;
