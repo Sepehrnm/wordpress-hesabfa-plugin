@@ -1100,13 +1100,14 @@ class Ssbhesabfa_Admin_Functions
                     HesabfaLogService::log(array("Error while trying to get products for sync. Error Message: (string)$response->ErrorMessage. Error Code: (string)$response->ErrorCode."));
                     $result["error"] = true;
                     return $result;
-                };
+                }
             }
 
             $offset = ($batch - 1) * $rpp;
             $response = $hesabfa->itemGetItems(array('Skip' => $offset, 'Take' => $rpp, 'SortBy' => 'Id', 'Filters' => $filters));
 
             $warehouse = get_option('ssbhesabfa_item_update_quantity_based_on', "-1");
+
             if ($warehouse != "-1") {
                 $products = $response->Result->List;
                 $codes = [];
@@ -1120,7 +1121,6 @@ class Ssbhesabfa_Admin_Functions
                 foreach ($products as $product) {
                     self::setItemChanges($product);
                 }
-                sleep(1);
             } else {
                 HesabfaLogService::log(array("Error while trying to get products for sync. Error Message: (string)$response->ErrorMessage. Error Code: (string)$response->ErrorCode."));
                 $result["error"] = true;
@@ -1281,11 +1281,6 @@ class Ssbhesabfa_Admin_Functions
         if (get_option('ssbhesabfa_item_update_quantity') == 'yes')
             $result = self::setItemNewQuantity($p, $item, $id_product, $id_attribute, $result);
 
-        if ($variation)
-            $variation->save();
-        else
-            $product->save();
-
         return $result;
     }
 
@@ -1322,14 +1317,15 @@ class Ssbhesabfa_Admin_Functions
 
     public static function setItemNewQuantity($product, $item, $id_product, $id_attribute, array $result): array
     {
-        if ($item->Stock != $product->get_stock_quantity()) {
-            $old_quantity = $product->get_stock_quantity();
+        $old_quantity = $product->get_stock_quantity();
+        if ($item->Stock != $old_quantity) {
             $new_quantity = $item->Stock;
             if (!$new_quantity) $new_quantity = 0;
 
             $new_stock_status = ($new_quantity > 0) ? "instock" : "outofstock";
-            update_post_meta($id_product, '_stock', $new_quantity);
-            wc_update_product_stock_status($id_product, $new_stock_status);
+            $post_id = $id_attribute && $id_attribute > 0 ? $id_attribute : $id_product;
+            update_post_meta($post_id, '_stock', $new_quantity);
+            wc_update_product_stock_status($post_id, $new_stock_status);
 
             HesabfaLogService::log(array("product ID $id_product-$id_attribute quantity changed. Old qty: $old_quantity. New qty: $new_quantity"));
             $result["newQuantity"] = $new_quantity;
