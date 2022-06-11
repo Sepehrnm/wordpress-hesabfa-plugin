@@ -4,7 +4,7 @@ Tags: accounting cloud hesabfa
 Requires at least: 5.2
 Tested up to: 5.6
 Requires PHP: 5.6
-Stable tag: 1.93.57
+Stable tag: 1.93.58
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -301,6 +301,9 @@ by clicking update stock and price button in hesabfa tab in product edit page
 * Add options for updating sale price in settings.
 * Clear product name by replacing farsi digits to english digits while importing products to woocommerce.
 * Refactor setItemChanges function to improve performance.
+
+= 1.93.58 - 11.06.2022 =
+* Fix bug: converting sale price considering site currency.
 
 == Upgrade Notice ==
 Automatic updates should work smoothly, but we still recommend you back up your site.
