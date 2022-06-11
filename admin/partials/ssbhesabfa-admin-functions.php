@@ -1298,6 +1298,7 @@ class Ssbhesabfa_Admin_Functions
 
             $sale_price = $product->get_sale_price();
             if ($sale_price && is_numeric($sale_price)) {
+                $sale_price = Ssbhesabfa_Admin_Functions::getPriceInHesabfaDefaultCurrency($sale_price);
                 if (+$option_sale_price === 1) {
                     update_post_meta($id_product, '_sale_price', null);
                 } elseif (+$option_sale_price === 2) {
