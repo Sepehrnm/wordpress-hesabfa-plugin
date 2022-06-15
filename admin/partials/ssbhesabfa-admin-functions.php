@@ -1291,21 +1291,23 @@ class Ssbhesabfa_Admin_Functions
         $old_price = $product->get_regular_price() ? $product->get_regular_price() : $product->get_price();
         $old_price = Ssbhesabfa_Admin_Functions::getPriceInHesabfaDefaultCurrency($old_price);
 
+        $post_id = $id_attribute && $id_attribute > 0 ? $id_attribute : $id_product;
+
         if ($item->SellPrice != $old_price) {
             $new_price = Ssbhesabfa_Admin_Functions::getPriceInWooCommerceDefaultCurrency($item->SellPrice);
-            update_post_meta($id_product, '_regular_price', $new_price);
-            update_post_meta($id_product, '_price', $new_price);
+            update_post_meta($post_id, '_regular_price', $new_price);
+            update_post_meta($post_id, '_price', $new_price);
 
             $sale_price = $product->get_sale_price();
             if ($sale_price && is_numeric($sale_price)) {
                 $sale_price = Ssbhesabfa_Admin_Functions::getPriceInHesabfaDefaultCurrency($sale_price);
                 if (+$option_sale_price === 1) {
-                    update_post_meta($id_product, '_sale_price', null);
+                    update_post_meta($post_id, '_sale_price', null);
                 } elseif (+$option_sale_price === 2) {
-                    update_post_meta($id_product, '_sale_price', round(($sale_price * $new_price) / $old_price));
-                    update_post_meta($id_product, '_price', round(($sale_price * $new_price) / $old_price));
+                    update_post_meta($post_id, '_sale_price', round(($sale_price * $new_price) / $old_price));
+                    update_post_meta($post_id, '_price', round(($sale_price * $new_price) / $old_price));
                 } else {
-                    update_post_meta($id_product, '_price', $sale_price);
+                    update_post_meta($post_id, '_price', $sale_price);
                 }
             }
 
