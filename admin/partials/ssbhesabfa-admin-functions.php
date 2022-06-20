@@ -1190,7 +1190,7 @@ class Ssbhesabfa_Admin_Functions
         return $result;
     }
 
-    public static function setItemNewPrice($product, $item, $id_attribute, $id_product, array $result): array
+    private static function setItemNewPrice($product, $item, $id_attribute, $id_product, array $result): array
     {
         $option_sale_price = get_option('ssbhesabfa_item_update_sale_price', 0);
 
@@ -1224,7 +1224,7 @@ class Ssbhesabfa_Admin_Functions
         return $result;
     }
 
-    public static function setItemNewQuantity($product, $item, $id_product, $id_attribute, array $result): array
+    private static function setItemNewQuantity($product, $item, $id_product, $id_attribute, array $result): array
     {
         $old_quantity = $product->get_stock_quantity();
         if ($item->Stock != $old_quantity) {
