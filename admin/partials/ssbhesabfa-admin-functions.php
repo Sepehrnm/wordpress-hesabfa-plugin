@@ -41,19 +41,6 @@ class Ssbhesabfa_Admin_Functions
         return false;
     }
 
-    public function isDateAfterActivation($date)
-    {
-        $activationDateTimeStamp = strtotime(get_option('ssbhesabfa_activation_date'));
-        $dateTimeStamp = strtotime($date);
-
-        if ($dateTimeStamp >= $activationDateTimeStamp) {
-            return true;
-        } else {
-            return false;
-        }
-
-    }
-
     public function getProductVariations($id_product)
     {
         if (!isset($id_product)) {
@@ -125,38 +112,6 @@ class Ssbhesabfa_Admin_Functions
         } else {
             HesabfaLogService::log(array("Cannot add/update Hesabfa items. Error Code: " . (string)$response->ErrorCode . ". Error Message: $response->ErrorMessage."));
             return false;
-        }
-    }
-
-    public function getCategoryPath($id_category)
-    {
-        if (!isset($id_category))
-            return;
-
-        $path = get_term_parents_list($id_category, 'product_cat', array(
-            'format' => 'name',
-            'separator' => ':',
-            'link' => false,
-            'inclusive' => true,
-        ));
-
-        return substr('products: ' . $path, 0, -1);
-    }
-
-    public function isHesabfaContainItems()
-    {
-        $hesabfa = new Ssbhesabfa_Api();
-        $response = $hesabfa->itemGetItems(array('Take' => 1));
-
-        if ($response->Success) {
-            $products = $response->Result->List;
-            if (isset($products) && count($products) === 1)
-                return true;
-            else
-                return false;
-        } else {
-            HesabfaLogService::log(array("Cannot get Item list. Error Message: (string)$response->ErrorMessage. Error Code: (string)$response->ErrorCode."));
-            return true;
         }
     }
 
@@ -256,23 +211,6 @@ class Ssbhesabfa_Admin_Functions
         }
 
         return null;
-    }
-
-    public function isHesabfaContainContacts()
-    {
-        $hesabfa = new Ssbhesabfa_Api();
-        $response = $hesabfa->contactGetContacts(array('Take' => 1));
-
-        if ($response->Success) {
-            $contacts = $response->Result->List;
-            if (isset($contacts) && count($contacts) === 1)
-                return true;
-            else
-                return false;
-        } else {
-            HesabfaLogService::log(array("Cannot get Contact list. Error Message: (string)$response->ErrorMessage. Error Code: (string)$response->ErrorCode."));
-            return true;
-        }
     }
 
     //Invoice
