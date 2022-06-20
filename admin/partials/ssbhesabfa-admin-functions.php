@@ -82,19 +82,15 @@ class Ssbhesabfa_Admin_Functions
     //Items
     public function setItems($id_product_array)
     {
-        if (!isset($id_product_array) || $id_product_array[0] == null) {
+        if (!isset($id_product_array) || $id_product_array[0] == null)
             return false;
-        }
 
-        if (is_array($id_product_array) && empty($id_product_array)) {
+        if (is_array($id_product_array) && empty($id_product_array))
             return true;
-        }
 
         $items = array();
         foreach ($id_product_array as $id_product) {
             $product = new WC_Product($id_product);
-            $categories = $product->get_category_ids();
-
             if ($product->get_status() === "draft")
                 continue;
 
@@ -103,20 +99,16 @@ class Ssbhesabfa_Admin_Functions
 
             // Set variations
             $variations = $this->getProductVariations($id_product);
-            if ($variations) {
-                foreach ($variations as $variation) {
+            if ($variations)
+                foreach ($variations as $variation)
                     $items[] = ssbhesabfaItemService::mapProductVariation($product, $variation, $id_product, false);
-                }
-            }
         }
 
         if (count($items) === 0)
             return false;
 
-        if (!$this->saveItems($items)) {
+        if (!$this->saveItems($items))
             return false;
-        }
-
         return true;
     }
 
@@ -127,32 +119,8 @@ class Ssbhesabfa_Admin_Functions
 
         $response = $hesabfa->itemBatchSave($items);
         if ($response->Success) {
-            global $wpdb;
-
-            foreach ($response->Result as $item) {
-                $json = json_decode($item->Tag);
-                $wpFa = $wpFaService->getWpFaByHesabfaId('product', $item->Code);
-
-                if (!$wpFa) {
-                    $wpdb->insert($wpdb->prefix . 'ssbhesabfa', array(
-                        'id_hesabfa' => (int)$item->Code,
-                        'obj_type' => 'product',
-                        'id_ps' => (int)$json->id_product,
-                        'id_ps_attribute' => (int)$json->id_attribute,
-                    ));
-
-                    HesabfaLogService::log(array("Item successfully added. Item code: " . (string)$item->Code . ". Product ID: $json->id_product-$json->id_attribute"));
-                } else {
-                    $wpdb->update($wpdb->prefix . 'ssbhesabfa', array(
-                        'id_hesabfa' => (int)$item->Code,
-                        'obj_type' => 'product',
-                        'id_ps' => $wpFa->idWp,
-                        'id_ps_attribute' => $wpFa->idWpAttribute,
-                    ), array('id' => $wpFa->id));
-
-                    HesabfaLogService::log(array("Item successfully updated. Item code: " . (string)$item->Code . ". Product ID: $json->id_product-$json->id_attribute"));
-                }
-            }
+            foreach ($response->Result as $item)
+                $wpFaService->saveProduct($item);
             return true;
         } else {
             HesabfaLogService::log(array("Cannot add/update Hesabfa items. Error Code: " . (string)$response->ErrorCode . ". Error Message: $response->ErrorMessage."));
