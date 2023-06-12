@@ -1,42 +1,27 @@
 <?php
 /*
  * @class      Ssbhesabfa_Html_output
- * @version    1.93.59
+ * @version    2.0.67
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin/output
  * @author     Saeed Sattar Beglou <saeed.sb@gmail.com>
  * @author     HamidReza Gharahzadeh <hamidprime@gmail.com>
+ * @author     Sepehr Najafi <sepehrn249@gmail.com>
  */
 
 class Ssbhesabfa_Html_output {
     public static function init($options = array()) {
         if (!empty($options)) {
             foreach ($options as $value) {
-                if (!isset($value['type'])) {
-                    continue;
-                }
-                if (!isset($value['id'])) {
-                    $value['id'] = '';
-                }
-                if (!isset($value['title'])) {
-                    $value['title'] = isset($value['name']) ? $value['name'] : '';
-                }
-                if (!isset($value['class'])) {
-                    $value['class'] = '';
-                }
-                if (!isset($value['css'])) {
-                    $value['css'] = '';
-                }
-                if (!isset($value['default'])) {
-                    $value['default'] = '';
-                }
-                if (!isset($value['desc'])) {
-                    $value['desc'] = '';
-                }
-                if (!isset($value['desc_tip'])) {
-                    $value['desc_tip'] = false;
-                }
+                if (!isset($value['type'])) continue;
+                if (!isset($value['id'])) $value['id'] = '';
+                if (!isset($value['title'])) $value['title'] = isset($value['name']) ? $value['name'] : '';
+                if (!isset($value['class'])) $value['class'] = '';
+                if (!isset($value['css'])) $value['css'] = '';
+                if (!isset($value['default'])) $value['default'] = '';
+                if (!isset($value['desc'])) $value['desc'] = '';
+                if (!isset($value['desc_tip'])) $value['desc_tip'] = false;
                 $custom_attributes = array();
                 if (!empty($value['custom_attributes']) && is_array($value['custom_attributes'])) {
                     foreach ($value['custom_attributes'] as $attribute => $attribute_value) {
@@ -97,7 +82,7 @@ class Ssbhesabfa_Html_output {
                             $value['class'] .= 'colorpick';
                             $description .= '<div id="colorPickerDiv_' . esc_attr($value['id']) . '" class="colorpickdiv" style="z-index: 100;background:#eee;border:1px solid #ccc;position:absolute;display:none;"></div>';
                         }
-                        ?><tr valign="top">
+                        ?><tr style="vertical-align: top">
                             <th scope="row" class="titledesc">
                                 <label for="<?php echo esc_attr($value['id']); ?>"><?php echo esc_html($value['title']); ?></label>
                                 <?php echo $tip; ?>
@@ -118,7 +103,7 @@ class Ssbhesabfa_Html_output {
                         break;
                     case 'textarea':
                         $option_value = self::get_option($value['id'], $value['default']);
-                        ?><tr valign="top">
+                        ?><tr style="vertical-align: top">
                             <th scope="row" class="titledesc">
                                 <label for="<?php echo esc_attr($value['id']); ?>"><?php echo esc_html($value['title']); ?></label>
                                 <?php echo $tip; ?>
@@ -145,7 +130,7 @@ class Ssbhesabfa_Html_output {
                     case 'select' :
                     case 'multiselect' :
                         $option_value = self::get_option($value['id'], $value['default']);
-                        ?><tr valign="top">
+                        ?><tr style="vertical-align: top">
                             <th scope="row" class="titledesc">
                                 <label for="<?php echo esc_attr($value['id']); ?>"><?php echo esc_html($value['title']); ?></label>
                                 <?php echo $tip; ?>
@@ -178,7 +163,7 @@ class Ssbhesabfa_Html_output {
                         break;
                     case 'radio' :
                         $option_value = self::get_option($value['id'], $value['default']);
-                        ?><tr valign="top">
+                        ?><tr style="vertical-align: top">
                             <th scope="row" class="titledesc">
                                 <label for="<?php echo esc_attr($value['id']); ?>"><?php echo esc_html($value['title']); ?></label>
                                 <?php echo $tip; ?>
@@ -229,7 +214,7 @@ class Ssbhesabfa_Html_output {
                         }
                         if (!isset($value['checkboxgroup']) || 'start' == $value['checkboxgroup']) {
                             ?>
-                            <tr valign="top" class="<?php echo esc_attr(implode(' ', $visbility_class)); ?>">
+                            <tr style="vertical-align: top" class="<?php echo esc_attr(implode(' ', $visbility_class)); ?>">
                                 <th scope="row" class="titledesc"><?php echo esc_html($value['title']) ?></th>
                                 <td class="forminp forminp-checkbox">
                                     <fieldset>
@@ -282,7 +267,7 @@ class Ssbhesabfa_Html_output {
                         if (isset($value['args'])) {
                             $args = wp_parse_args($value['args'], $args);
                         }
-                        ?><tr valign="top" class="single_select_page">
+                        ?><tr style="vertical-align: top" class="single_select_page">
                             <th scope="row" class="titledesc"><?php echo esc_html($value['title']) ?> <?php echo $tip; ?></th>
                             <td class="forminp">
                                 <?php echo str_replace(' id=', " data-placeholder='" . __('Select a page&hellip;', 'Option') . "' style='" . $value['css'] . "' class='" . $value['class'] . "' id=", wp_dropdown_pages($args)); ?> <?php echo $description; ?>
@@ -295,8 +280,9 @@ class Ssbhesabfa_Html_output {
             }
         }
     }
-
+//=====================================================================================================
     public static function get_option($option_name, $default = '') {
+
         if (strstr($option_name, '[')) {
             parse_str($option_name, $option_array);
             $option_name = current(array_keys($option_array));
@@ -320,16 +306,16 @@ class Ssbhesabfa_Html_output {
         }
         return $option_value === null ? $default : $option_value;
     }
-
+//=====================================================================================================
     public static function save_fields($options) {
-        if (empty($_POST)) {
-            return false;
-        }
+        if (empty($_POST)) return false;
+
         $update_options = array();
         foreach ($options as $value) {
             if (!isset($value['id']) || !isset($value['type'])) {
                 continue;
             }
+
             if (strstr($value['id'], '[')) {
                 parse_str($value['id'], $option_name_array);
                 $option_name = current(array_keys($option_name_array));
@@ -379,6 +365,7 @@ class Ssbhesabfa_Html_output {
         echo '<div class="updated"><p class="hesabfa-p">' . __( 'Settings were saved successfully.', 'ssbhesabfa' ) . '</p></div>';
         return true;
     }
+//=====================================================================================================
 }
 
 Ssbhesabfa_Html_output::init();

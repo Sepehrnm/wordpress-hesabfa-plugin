@@ -4,27 +4,27 @@ include_once(plugin_dir_path(__DIR__) . 'admin/services/HesabfaLogService.php');
 
 /**
  * @class      Ssbhesabfa_Api
- * @version    1.93.59
+ * @version    2.0.67
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/api
  * @author     Saeed Sattar Beglou <saeed.sb@gmail.com>
  * @author     HamidReza Gharahzadeh <hamidprime@gmail.com>
+ * @author     Sepehr Najafi <sepehrn249@gmail.com>
  */
 
 class Ssbhesabfa_Api
 {
+//================================================================================================
     public function apiRequest($method, $data = array())
     {
-        if ($method == null) {
-            return false;
-        }
+        if ($method == null) return false;
 
         $endpoint = 'https://api.hesabfa.com/v1/' . $method;
 
         $apiAddress = get_option('ssbhesabfa_api_address', 0);
-        if($apiAddress == 1)
-            $endpoint = 'http://api.hesabfa.ir/v1/' . $method;
+
+        if($apiAddress == 1) $endpoint = 'http://api.hesabfa.ir/v1/' . $method;
 
         $body = array_merge(array(
             'apiKey' => get_option('ssbhesabfa_account_api'),
@@ -35,7 +35,8 @@ class Ssbhesabfa_Api
 
         //Debug mode
         if (get_option('ssbhesabfa_debug_mode')) {
-            HesabfaLogService::log(array("Debug Mode - Method: $method. Data: " . print_r($data, true)));
+            //LOG into the log file
+            HesabfaLogService::log(array("دیباگ مود - متد: $method. تاریخ: " . print_r($data, true) . "\n" . "Debug Mode - Data: " . print_r($data, true)));
         }
 
         $options = array(
@@ -58,7 +59,8 @@ class Ssbhesabfa_Api
 
         //Debug mode
         if (get_option('ssbhesabfa_debug_mode')) {
-            HesabfaLogService::log(array("Debug Mode - Result: " . print_r($result, true)));
+            //LOG into the log file
+            HesabfaLogService::log(array("دیباگ مود - نتیجه: " . print_r($result, true) . "\n" . "Debug Mode - Result: " . print_r($result, true)));
         }
 
         //fix API limit request - Maximum request per minutes is 60 times,
@@ -104,7 +106,7 @@ class Ssbhesabfa_Api
         }
         return false;
     }
-
+//================================================================================================
     //Contact functions
     public function contactGet($code)
     {
@@ -115,7 +117,7 @@ class Ssbhesabfa_Api
 
         return $this->apiRequest($method, $data);
     }
-
+//================================================================================================
     public function contactGetById($idList)
     {
         $method = 'contact/getById';
@@ -125,7 +127,7 @@ class Ssbhesabfa_Api
 
         return $this->apiRequest($method, $data);
     }
-
+//================================================================================================
     public function contactGetContacts($queryInfo)
     {
         $method = 'contact/getcontacts';
@@ -135,7 +137,7 @@ class Ssbhesabfa_Api
 
         return $this->apiRequest($method, $data);
     }
-
+//================================================================================================
     public function contactSave($contact)
     {
         $method = 'contact/save';
@@ -145,7 +147,7 @@ class Ssbhesabfa_Api
 
         return $this->apiRequest($method, $data);
     }
-
+//================================================================================================
     public function contactBatchSave($contacts)
     {
         $method = 'contact/batchsave';
@@ -155,7 +157,7 @@ class Ssbhesabfa_Api
 
         return $this->apiRequest($method, $data);
     }
-
+//================================================================================================
     public function contactDelete($code)
     {
         $method = 'contact/delete';
@@ -165,7 +167,7 @@ class Ssbhesabfa_Api
 
         return $this->apiRequest($method, $data);
     }
-
+//================================================================================================
     public function contactGetByPhoneOrEmail($phone, $email) {
         $method = 'contact/findByPhoneOrEmail';
         $data = array(
@@ -176,7 +178,7 @@ class Ssbhesabfa_Api
 
         return $this->apiRequest($method, $data);
     }
-
+//================================================================================================
     //Items functions
     public function itemGet($code)
     {
@@ -187,7 +189,7 @@ class Ssbhesabfa_Api
 
         return $this->apiRequest($method, $data);
     }
-
+//================================================================================================
     public function itemGetByBarcode($barcode)
     {
         $method = 'item/getByBarcode';
@@ -197,7 +199,7 @@ class Ssbhesabfa_Api
 
         return $this->apiRequest($method, $data);
     }
-
+//================================================================================================
     public function itemGetById($idList)
     {
         $method = 'item/getById';
@@ -207,7 +209,7 @@ class Ssbhesabfa_Api
 
         return $this->apiRequest($method, $data);
     }
-
+//================================================================================================
     public function itemGetItems($queryInfo = null)
     {
         $method = 'item/getitems';
@@ -217,7 +219,7 @@ class Ssbhesabfa_Api
 
         return $this->apiRequest($method, $data);
     }
-
+//================================================================================================
     public function itemSave($item)
     {
         $method = 'item/save';
@@ -227,7 +229,7 @@ class Ssbhesabfa_Api
 
         return $this->apiRequest($method, $data);
     }
-
+//================================================================================================
     public function itemBatchSave($items)
     {
         $method = 'item/batchsave';
@@ -237,7 +239,7 @@ class Ssbhesabfa_Api
 
         return $this->apiRequest($method, $data);
     }
-
+//================================================================================================
     public function itemDelete($code)
     {
         $method = 'item/delete';
@@ -247,7 +249,7 @@ class Ssbhesabfa_Api
 
         return $this->apiRequest($method, $data);
     }
-
+//================================================================================================
     public function itemGetQuantity($warehouseCode, $codes)
     {
         $method = 'item/GetQuantity';
@@ -258,7 +260,7 @@ class Ssbhesabfa_Api
 
         return $this->apiRequest($method, $data);
     }
-
+//================================================================================================
     //Invoice functions
     public function invoiceGet($number, $type = 0)
     {
@@ -270,7 +272,7 @@ class Ssbhesabfa_Api
 
         return $this->apiRequest($method, $data);
     }
-
+//================================================================================================
     public function invoiceGetById($id)
     {
         $method = 'invoice/getById';
@@ -280,7 +282,7 @@ class Ssbhesabfa_Api
 
         return $this->apiRequest($method, $data);
     }
-
+//================================================================================================
     public function invoiceGetByIdList($idList)
     {
         $method = 'invoice/getById';
@@ -290,7 +292,7 @@ class Ssbhesabfa_Api
 
         return $this->apiRequest($method, $data);
     }
-
+//================================================================================================
     public function invoiceGetInvoices($queryinfo, $type = 0)
     {
         $method = 'invoice/getinvoices';
@@ -301,7 +303,7 @@ class Ssbhesabfa_Api
 
         return $this->apiRequest($method, $data);
     }
-
+//================================================================================================
     public function invoiceSave($invoice)
     {
         $method = 'invoice/save';
@@ -311,7 +313,7 @@ class Ssbhesabfa_Api
 
         return $this->apiRequest($method, $data);
     }
-
+//================================================================================================
     public function invoiceDelete($number, $type = 0)
     {
         $method = 'invoice/delete';
@@ -322,7 +324,7 @@ class Ssbhesabfa_Api
 
         return $this->apiRequest($method, $data);
     }
-
+//================================================================================================
     public function invoiceSavePayment($number, $bankCode, $date, $amount, $transactionNumber = null, $description = null, $transactionFee = 0)
     {
         $method = 'invoice/savepayment';
@@ -338,7 +340,7 @@ class Ssbhesabfa_Api
 
         return $this->apiRequest($method, $data);
     }
-
+//================================================================================================
     public function invoiceGetOnlineInvoiceURL($number, $type = 0)
     {
         $method = 'invoice/getonlineinvoiceurl';
@@ -349,7 +351,7 @@ class Ssbhesabfa_Api
 
         return $this->apiRequest($method, $data);
     }
-
+//================================================================================================
     public function itemUpdateOpeningQuantity($items)
     {
         $method = 'item/UpdateOpeningQuantity';
@@ -359,7 +361,7 @@ class Ssbhesabfa_Api
 
         return $this->apiRequest($method, $data);
     }
-
+//================================================================================================
     public function saveWarehouseReceipt($receipt) {
         $method = 'invoice/SaveWarehouseReceipt';
         $data = array(
@@ -369,7 +371,7 @@ class Ssbhesabfa_Api
 
         return $this->apiRequest($method, $data);
     }
-
+//================================================================================================
     public function warehouseReceiptGetByIdList($idList)
     {
         $method = 'invoice/getWarehouseReceipt';
@@ -379,7 +381,7 @@ class Ssbhesabfa_Api
 
         return $this->apiRequest($method, $data);
     }
-
+//================================================================================================
     //Settings functions
     public function settingSetChangeHook($url, $hookPassword)
     {
@@ -391,7 +393,7 @@ class Ssbhesabfa_Api
 
         return $this->apiRequest($method, $data);
     }
-
+//================================================================================================
     public function settingGetChanges($start = 0)
     {
         $method = 'setting/GetChanges';
@@ -400,55 +402,55 @@ class Ssbhesabfa_Api
         );
         return $this->apiRequest($method, $data);
     }
-
+//================================================================================================
     public function settingGetBanks()
     {
         $method = 'setting/getBanks';
         return $this->apiRequest($method);
     }
-
+//================================================================================================
 	public function settingGetProjects()
 	{
 		$method = 'setting/getProjects';
 		return $this->apiRequest($method);
 	}
-
+//================================================================================================
 	public function settingGetSalesmen()
 	{
 		$method = 'setting/getSalesmen';
 		return $this->apiRequest($method);
 	}
-
+//================================================================================================
 	public function settingGetCurrency()
     {
         $method = 'setting/getCurrency';
 
         return $this->apiRequest($method);
     }
-
+//================================================================================================
     public function settingGetFiscalYear()
     {
         $method = 'setting/GetFiscalYear';
 
         return $this->apiRequest($method);
     }
-
+//================================================================================================
     public function settingGetWarehouses()
     {
         $method = 'setting/GetWarehouses';
         return $this->apiRequest($method);
     }
-
+//================================================================================================
     public function fixClearTags()
     {
         $method = 'fix/clearTag';
         return $this->apiRequest($method);
     }
-
+//================================================================================================
     public function settingGetSubscriptionInfo()
     {
         $method = 'setting/getBusinessInfo';
         return $this->apiRequest($method);
     }
-
+//================================================================================================
 }

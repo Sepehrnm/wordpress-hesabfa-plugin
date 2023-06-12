@@ -10,12 +10,13 @@
  * version of the plugin.
  *
  * @class      Ssbhesabfa
- * @version    1.93.59
+ * @version    2.0.67
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/includes
  * @author     Saeed Sattar Beglou <saeed.sb@gmail.com>
  * @author     HamidReza Gharahzadeh <hamidprime@gmail.com>
+ * @author     Sepehr Najafi <sepehrn249@gmail.com>
  */
 
 class Ssbhesabfa
@@ -48,7 +49,7 @@ class Ssbhesabfa
      * @var      string $version The current version of the plugin.
      */
     protected $version;
-
+//==========================================================================================================
     /**
      * Define the core functionality of the plugin.
      *
@@ -63,7 +64,7 @@ class Ssbhesabfa
         if (defined('SSBHESABFA_VERSION')) {
             $this->version = SSBHESABFA_VERSION;
         } else {
-            $this->version = '1.93.59';
+            $this->version = '2.0.64';
         }
         $this->plugin_name = 'ssbhesabfa';
 
@@ -71,7 +72,7 @@ class Ssbhesabfa
         $this->set_locale();
         $this->define_admin_hooks();
     }
-
+//==========================================================================================================
     /**
      * Load the required dependencies for this plugin.
      *
@@ -123,7 +124,7 @@ class Ssbhesabfa
         $this->loader = new Ssbhesabfa_Loader();
 
     }
-
+//=====================================================================================
     /**
      * Define the locale for this plugin for internationalization.
      *
@@ -135,13 +136,11 @@ class Ssbhesabfa
      */
     private function set_locale()
     {
-
         $plugin_i18n = new Ssbhesabfa_i18n();
 
         $this->loader->add_action('plugins_loaded', $plugin_i18n, 'load_plugin_textdomain');
-
     }
-
+//=====================================================================================
     /**
      * Register all of the hooks related to the admin area functionality
      * of the plugin.
@@ -173,13 +172,26 @@ class Ssbhesabfa
                     $this->loader->add_action('admin_notices', $plugin_admin, 'ssbhesabfa_currency_notice');
                 }
 
-                $this->loader->add_action('admin_notices', $plugin_admin, 'ssbhesabfa_general_notices');
+                // these lines add hesabfa id to the all products list page and make it sortable as well
+                ///////////////////////////////////////////////////////////////////////////////////////////////////////
+                $this->loader->add_filter( 'manage_edit-product_columns', $plugin_admin,'admin_products_hesabfaId_column', 9999 );
+                $this->loader->add_action( 'manage_product_posts_custom_column', $plugin_admin, 'admin_products_hesabfaId_column_content', 10, 2 );
+                $this->loader->add_filter( 'manage_edit-product_sortable_columns', $plugin_admin,'admin_products_hesabfaId_column');
+
+                $this->loader->add_action('custom_product_tabs', $plugin_admin, 'ssbhesabfa_general_notices');
 
                 // add filter and action for woocommerce order list
                 $this->loader->add_filter('manage_edit-shop_order_columns', $plugin_admin, 'custom_hesabfa_column_order_list', 20);
                 $this->loader->add_action('manage_shop_order_posts_custom_column', $plugin_admin, 'custom_orders_list_column_content', 20, 2);
                 $this->loader->add_filter('bulk_actions-edit-shop_order', $plugin_admin, 'custom_orders_list_bulk_action', 20, 1);
                 $this->loader->add_filter('handle_bulk_actions-edit-shop_order', $plugin_admin, 'custom_orders_list_bulk_action_run', 10, 3);
+	            // check add fields to checkout page by hesabfa plugin
+				if(get_option('ssbhesabfa_contact_add_additional_checkout_fields_hesabfa') == 1)
+					$this->loader->add_filter('woocommerce_checkout_fields', $plugin_admin, 'add_additional_fields_to_checkout', 10, 3);
+
+				// show checkout additional fields in order detail
+	            if(get_option('ssbhesabfa_contact_add_additional_checkout_fields_hesabfa') == 1)
+	                $this->loader->add_action('woocommerce_admin_order_data_after_billing_address', $plugin_admin, 'show_additional_fields_in_order_detail', 10, 3);
 
                 //Runs when a new order added.
                 $this->loader->add_action('woocommerce_order_status_changed', $plugin_admin, 'ssbhesabfa_hook_order_status_change', 10, 3);
@@ -222,7 +234,6 @@ class Ssbhesabfa
 
                 $this->loader->add_filter('woocommerce_product_data_tabs', $plugin_admin, 'add_hesabfa_product_data_tab');
                 $this->loader->add_action('woocommerce_product_data_panels', $plugin_admin, 'add_hesabfa_product_data_fields');
-
 
             } elseif (!get_option('ssbhesabfa_live_mode')) {
                 if (get_option('ssbhesabfa_business_expired'))
@@ -271,17 +282,14 @@ class Ssbhesabfa
             $this->loader->add_action('admin_notices', $plugin_admin, 'ssbhesabfa_missing_notice');
         }
     }
-
+//=====================================================================================
     /**
      * Run the loader to execute all of the hooks with WordPress.
      *
      * @since    1.0.0
      */
-    public function run()
-    {
-        $this->loader->run();
-    }
-
+    public function run() {$this->loader->run();}
+//=====================================================================================
     /**
      * The name of the plugin used to uniquely identify it within the context of
      * WordPress and to define internationalization functionality.
@@ -289,30 +297,22 @@ class Ssbhesabfa
      * @return    string    The name of the plugin.
      * @since     1.0.0
      */
-    public function get_plugin_name()
-    {
-        return $this->plugin_name;
-    }
-
+    public function get_plugin_name() {return $this->plugin_name;}
+//=====================================================================================
     /**
      * The reference to the class that orchestrates the hooks with the plugin.
      *
      * @return    Ssbhesabfa_Loader    Orchestrates the hooks of the plugin.
      * @since     1.0.0
      */
-    public function get_loader()
-    {
-        return $this->loader;
-    }
-
+    public function get_loader() {return $this->loader;}
+//=====================================================================================
     /**
      * Retrieve the version number of the plugin.
      *
      * @return    string    The version number of the plugin.
      * @since     1.0.0
      */
-    public function get_version()
-    {
-        return $this->version;
-    }
+    public function get_version() {return $this->version;}
+//=====================================================================================
 }

@@ -6,57 +6,72 @@ include_once(plugin_dir_path(__DIR__) . 'services/HesabfaWpFaService.php');
 
 /**
  * @class      Ssbhesabfa_Admin_Functions
- * @version    1.93.59
+ * @version    2.0.67
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin/functions
  * @author     Saeed Sattar Beglou <saeed.sb@gmail.com>
  * @author     HamidReza Gharahzadeh <hamidprime@gmail.com>
+ * @author     Sepehr Najafi <sepehrn249@gmail.com>
  */
 class Ssbhesabfa_Admin_Functions
 {
     public static function isDateInFiscalYear($date)
     {
+        //calling the hesabfa API
         $hesabfaApi = new Ssbhesabfa_Api();
+
+        //getting fiscal year from the method settingGetFiscalYear()
         $fiscalYear = $hesabfaApi->settingGetFiscalYear();
 
+        //first check if fiscal year is object
         if (is_object($fiscalYear)) {
+            //if the success of the object is true
             if ($fiscalYear->Success) {
                 $fiscalYearStartTimeStamp = strtotime($fiscalYear->Result->StartDate);
                 $fiscalYearEndTimeStamp = strtotime($fiscalYear->Result->EndDate);
                 $dateTimeStamp = strtotime($date);
 
+                //check if the fiscal year is valid - today's date has to be between start and end stamp time
                 if ($dateTimeStamp >= $fiscalYearStartTimeStamp && $dateTimeStamp <= $fiscalYearEndTimeStamp) {
+                    //return true
                     return 1;
                 } else {
+                    //return false
                     return 0;
                 }
             } else {
-                HesabfaLogService::log(array("Cannot get FiscalDate. Error Code: $fiscalYear->ErrroCode. Error Message: $fiscalYear->ErrorMessage"));
+                //fiscal year success property is false
+                HesabfaLogService::log(array("نمی توان سال مالی را دریافت کرد. کد خطا: $fiscalYear->ErrroCode. متن خطا: $fiscalYear->ErrorMessage" . "\n" .
+                "Cannot get FiscalDate. Error Code: $fiscalYear->ErrroCode. Error Message: $fiscalYear->ErrorMessage"));
                 return false;
             }
         }
-
-        HesabfaLogService::log(array("Cannot connect to Hesabfa for get FiscalDate."));
+        //if none of the conditions above worked
+        HesabfaLogService::log(array("نمی توان ارتباط با حسابفا برای گرفتن سال مالی برقرار کرد." . "\n" . "Cannot connect to Hesabfa for get FiscalDate."));
         return false;
     }
-
+//====================================================================================================================
     public function getProductVariations($id_product)
     {
+        //check the existence of the product via id
         if (!isset($id_product)) {
             return false;
         }
-
+        //set product into product
         $product = wc_get_product($id_product);
 
-        if (is_bool($product))
-            return false;
-
+        //check if the product is not a boolean
+        if (is_bool($product)) return false;
+        //check the product type with is_type function - here we need it to be type variable
         if ($product->is_type('variable')) {
+            //get children the post parent ID
             $children = $product->get_children($args = '', $output = OBJECT);
+            //put changes into the variations array
             $variations = array();
             foreach ($children as $value) {
                 $product_variatons = new WC_Product_Variation($value);
+                //check if variations exist form wordpress class then they will be stored into variations array
                 if ($product_variatons->exists()) {
                     $variations[] = $product_variatons;
                 }
@@ -65,21 +80,20 @@ class Ssbhesabfa_Admin_Functions
         }
         return false;
     }
-
+//========================================================================================================
     //Items
     public function setItems($id_product_array)
     {
-        if (!isset($id_product_array) || $id_product_array[0] == null)
-            return false;
-
-        if (is_array($id_product_array) && empty($id_product_array))
-            return true;
+        //check the array of the product id not set or the first item must not be a NULL
+        if (!isset($id_product_array) || $id_product_array[0] == null) return false;
+        //check if product array id is an array and empty
+        if (is_array($id_product_array) && empty($id_product_array)) return true;
 
         $items = array();
         foreach ($id_product_array as $id_product) {
             $product = new WC_Product($id_product);
-            if ($product->get_status() === "draft")
-                continue;
+            //if the status of the product is draft then continue
+            if ($product->get_status() === "draft") continue;
 
             // Set base product
             $items[] = ssbhesabfaItemService::mapProduct($product, $id_product, false);
@@ -91,57 +105,66 @@ class Ssbhesabfa_Admin_Functions
                     $items[] = ssbhesabfaItemService::mapProductVariation($product, $variation, $id_product, false);
         }
 
-        if (count($items) === 0)
-            return false;
-
-        if (!$this->saveItems($items))
-            return false;
+        //if items array is empty
+        if (count($items) === 0) return false;
+        //if save Items returns false
+        if (!$this->saveItems($items)) return false;
+        //at the end
         return true;
     }
-
+//====================================================================================================================
     public function saveItems($items)
     {
+        //creat a variable(object) from ssbhesabfa API class
         $hesabfa = new Ssbhesabfa_Api();
+        //creat a variable(object) from hesabfa wpfa service class
         $wpFaService = new HesabfaWpFaService();
 
         $response = $hesabfa->itemBatchSave($items);
         if ($response->Success) {
             foreach ($response->Result as $item)
+                //save product if response success is true
                 $wpFaService->saveProduct($item);
             return true;
         } else {
-            HesabfaLogService::log(array("Cannot add/update Hesabfa items. Error Code: " . (string)$response->ErrorCode . ". Error Message: $response->ErrorMessage."));
+            //LOG into the log file and return false in case of failure
+            HesabfaLogService::log(array("نمی توان آیتم های حسابفا را اضافه/بروزرسانی کرد. کد خطا: " . (string)$response->ErrorCode . ". متن خطا: $response->ErrorMessage." . "\n" .
+            "Cannot add/update Hesabfa items. Error Code: " . (string)$response->ErrorCode . ". Error Message: $response->ErrorMessage."));
             return false;
         }
     }
-
+//====================================================================================================================
     //Contact
     public function getContactCodeByCustomerId($id_customer)
     {
+        //first check if customer id exists
         if (!isset($id_customer)) {
             return false;
         }
 
         global $wpdb;
+        //SQL CODE
         $row = $wpdb->get_row("SELECT `id_hesabfa` FROM " . $wpdb->prefix . "ssbhesabfa WHERE `id_ps` = $id_customer AND `obj_type` = 'customer'");
 
+        //check if result named row is an object or not
         if (is_object($row)) {
+            //success
             return $row->id_hesabfa;
         } else {
+            //failure
             return null;
         }
     }
-
-    public function setContact($id_customer, $type = 'first')
+//====================================================================================================================
+    public function setContact($id_customer, $type = 'first', $id_order = '')
     {
-        if (!isset($id_customer)) {
-            return false;
-        }
+        if (!isset($id_customer)) return false;
 
         $code = $this->getContactCodeByCustomerId($id_customer);
 
-        $hesabfaCustomer = ssbhesabfaCustomerService::mapCustomer($code, $id_customer, $type);
+        $hesabfaCustomer = ssbhesabfaCustomerService::mapCustomer($code, $id_customer, $type, $id_order);
 
+        //call API
         $hesabfa = new Ssbhesabfa_Api();
         $response = $hesabfa->contactSave($hesabfaCustomer);
 
@@ -150,21 +173,23 @@ class Ssbhesabfa_Admin_Functions
             $wpFaService->saveCustomer($response->Result);
             return $response->Result->Code;
         } else {
-            HesabfaLogService::log(array("Cannot add/update customer. Error Code: " . (string)$response->ErrroCode . ". Error Message: " . (string)$response->ErrorMessage . ". Customer ID: $id_customer"));
+            //LOG into the log file
+            HesabfaLogService::log(array("نمی توان مشتری را اضافه/بروزرسانی کرد. کد خطا: " . (string)$response->ErrroCode . ". متن خطا: " . (string)$response->ErrorMessage . ". شناسه کاربر: $id_customer" . "\n" .
+            "Cannot add/update customer. Error Code: " . (string)$response->ErrroCode . ". Error Message: " . (string)$response->ErrorMessage . ". Customer ID: $id_customer"));
             return false;
         }
     }
-
+//====================================================================================================================
     public function setGuestCustomer($id_order)
     {
-        if (!isset($id_order))
-            return false;
+        if (!isset($id_order)) return false;
 
         $order = new WC_Order($id_order);
         $contactCode = $this->getContactCodeByPhoneOrEmail($order->get_billing_phone(), $order->get_billing_email());
 
         $hesabfaCustomer = ssbhesabfaCustomerService::mapGuestCustomer($contactCode, $id_order);
 
+        //Call API
         $hesabfa = new Ssbhesabfa_Api();
         $response = $hesabfa->contactSave($hesabfaCustomer);
 
@@ -173,25 +198,33 @@ class Ssbhesabfa_Admin_Functions
             $wpFaService->saveCustomer($response->Result);
             return (int)$response->Result->Code;
         } else {
-            HesabfaLogService::log(array("Cannot add/update contact. Error Code: " . (string)$response->ErrroCode . ". Error Message: " . (string)$response->ErrorMessage . ". Customer ID: Guest Customer"));
+            //LOG into the log file
+            HesabfaLogService::log(array("نمی توان مخاطب را اضافه/بروزرسانی کرد. کد خطا: " . (string)$response->ErrroCode . ". متن خطا: " . (string)$response->ErrorMessage . ". شناسه کاربر: کاربر مهمان" . "\n" .
+            "Cannot add/update contact. Error Code: " . (string)$response->ErrroCode . ". Error Message: " . (string)$response->ErrorMessage . ". Customer ID: Guest Customer"));
             return false;
         }
     }
-
+//====================================================================================================================
     public function getContactCodeByPhoneOrEmail($phone, $email)
     {
-        if (!$email && !$phone)
-            return null;
+        // check email and phone
+        if (!$email && !$phone) return null;
 
+        // call API
         $hesabfa = new Ssbhesabfa_Api();
+        // store the result
         $response = $hesabfa->contactGetByPhoneOrEmail($phone, $email);
 
+        // if response is an object
         if (is_object($response)) {
+            // if response is successful and count is more than 0
             if ($response->Success && $response->Result->TotalCount > 0) {
+                //store response result list into contact object array
                 $contact_obj = $response->Result->List;
 
-                if (!$contact_obj[0]->Code || $contact_obj[0]->Code == '0' || $contact_obj[0]->Code == '000000')
-                    return null;
+                //if in any way first item of contact object is 0 or false, return null
+                if (!$contact_obj[0]->Code || $contact_obj[0]->Code == '0' || $contact_obj[0]->Code == '000000') return null;
+
                 foreach ($contact_obj as $contact) {
                     if (($contact->phone == $phone || $contact->mobile = $phone) && $contact->email == $email)
                         return (int)$contact->Code;
@@ -207,12 +240,14 @@ class Ssbhesabfa_Admin_Functions
                 return null;
             }
         } else {
-            HesabfaLogService::log(array("Cannot get Contact list. Error Message: (string)$response->ErrorMessage. Error Code: (string)$response->ErrorCode."));
+            //LOG into log file in case of any failure
+            HesabfaLogService::log(array("نمی توان لیست مخاطبین را دریافت کرد. متن خطا: (string)$response->ErrorMessage. کد خطا: (string)$response->ErrorCode." . "\n" .
+            "Cannot get Contact list. Error Message: (string)$response->ErrorMessage. Error Code: (string)$response->ErrorCode."));
         }
 
         return null;
     }
-
+//====================================================================================================================
     //Invoice
     public function setOrder($id_order, $orderType = 0, $reference = null)
     {
@@ -223,6 +258,7 @@ class Ssbhesabfa_Admin_Functions
         $wpFaService = new HesabfaWpFaService();
 
         $number = $this->getInvoiceNumberByOrderId($id_order);
+        //if number is null -> condition become true / if number is not null -> condition become false
         if (!$number) {
             $number = null;
             if ($orderType == 2) //return if saleInvoice not set before
@@ -231,37 +267,45 @@ class Ssbhesabfa_Admin_Functions
             }
         }
 
+        //WC_Order -> finds an order with the given order id
         $order = new WC_Order($id_order);
+
+        $dokanOption = get_option("ssbhesabfa_invoice_dokan", 0);
+
+        if ($dokanOption && is_plugin_active("dokan-lite/dokan.php")) {
+            $orderCreated = $order->get_created_via();
+            if ($dokanOption == 1 && $orderCreated !== 'checkout')
+                return false;
+            else if ($dokanOption == 2 && $orderCreated === 'checkout')
+                return false;
+        }
 
         $id_customer = $order->get_customer_id();
         if ($id_customer !== 0) {
-            //set registered customer
-            $contactCode = $this->getContactCodeByCustomerId($id_customer);
 
-            // set customer if not exists
+            $contactCode = $this->setContact($id_customer, 'first', $id_order);
+
             if ($contactCode == null) {
-                $contactCode = $this->setContact($id_customer, 'first');
-
                 if (!$contactCode) {
-                    // return false if cannot set customer
                     return false;
                 }
             }
-
+            //LOG into the log file
+            HesabfaLogService::writeLogStr("شناسه سفارش: " . $id_order . "\n" . "order ID " . $id_order);
             if (get_option('ssbhesabfa_contact_address_status') == 2) {
-                $this->setContact($id_customer, 'billing');
+                $this->setContact($id_customer, 'billing', $id_order);
             } elseif (get_option('ssbhesabfa_contact_address_status') == 3) {
-                $this->setContact($id_customer, 'shipping');
+                $this->setContact($id_customer, 'shipping', $id_order);
             }
         } else {
             // set guest customer
             $contactCode = $this->setGuestCustomer($id_order);
             if (!$contactCode) {
-                // return false if cannot set guest customer
                 return false;
             }
         }
 
+        global $notDefinedProductID;
         // add product before insert invoice
         $notDefinedItems = array();
         $products = $order->get_items();
@@ -274,8 +318,11 @@ class Ssbhesabfa_Admin_Functions
         }
 
         if (!empty($notDefinedItems)) {
+            // setItems should return false - either some problems occur with setItems or items array is empty
             if (!$this->setItems($notDefinedItems)) {
-                HesabfaLogService::writeLogStr("Cannot add/update Invoice. Failed to set products. Order ID: $id_order");
+                //LOG into the log file
+                HesabfaLogService::writeLogStr("نمی توان فاکتور را اضافه/به روز کرد. محصولات تنظیم نشد. شناسه سفارش: $id_order" . "\n" .
+                "Cannot add/update Invoice. Failed to set products. Order ID: $id_order");
                 return false;
             }
         }
@@ -289,7 +336,8 @@ class Ssbhesabfa_Admin_Functions
             if ($itemCode == null) {
                 $pId = $product['product_id'];
                 $vId = $product['variation_id'];
-                HesabfaLogService::writeLogStr("Item not found. productId: $pId, variationId: $vId, Order ID: $id_order");
+                HesabfaLogService::writeLogStr("آیتم یافت نشد. شناسه محصول: $pId, شناسه تنوع: $vId, شناسه سفارش: $id_order" . "\n" .
+                "Item not found. productId: $pId, variationId: $vId, Order ID: $id_order");
 
                 $failed = true;
                 break;
@@ -302,20 +350,24 @@ class Ssbhesabfa_Admin_Functions
                 'Quantity' => (int)$product['quantity'],
                 'UnitPrice' => (float)$this->getPriceInHesabfaDefaultCurrency($product['subtotal'] / $product['quantity']),
                 'Discount' => (float)$this->getPriceInHesabfaDefaultCurrency($product['subtotal'] - $product['total']),
-                'Tax' => (float)$this->getPriceInHesabfaDefaultCurrency($product['subtotal_tax']),
+                'Tax' => (float)$this->getPriceInHesabfaDefaultCurrency($product['total_tax']),
             );
 
-            array_push($invoiceItems, $item);
+            $invoiceItems[] = $item;
             $i++;
         }
 
         if ($failed) {
-            HesabfaLogService::writeLogStr("Cannot add/update Invoice. Item code is NULL. Check your invoice products and relations with Hesabfa. Order ID: $id_order");
+            //LOG into the log file
+            HesabfaLogService::writeLogStr("نمی توان فاکتور را اضافه/بروزرسانی کرد. کد مورد NULL است. محصولات فاکتور و روابط خود را با حسابفا بررسی کنید. شناسه سفارش: $id_order" . "\n" .
+            "Cannot add/update Invoice. Item code is NULL. Check your invoice products and relations with Hesabfa. Order ID: $id_order");
             return false;
         }
 
         if (empty($invoiceItems)) {
-            HesabfaLogService::log(array("Cannot add/update Invoice. At least one item required."));
+            //LOG into the log file
+            HesabfaLogService::log(array("نمی توان فاکتور را اضافه/به روز کرد. حداقل یک مورد مورد نیاز است." . "\n" .
+            "Cannot add/update Invoice. At least one item required."));
             return false;
         }
 
@@ -356,18 +408,22 @@ class Ssbhesabfa_Admin_Functions
             'Note' => $note
         );
 
+        $invoice_draft_save = get_option('ssbhesabfa_invoice_draft_save_in_hesabfa', 'no');
+        if ($invoice_draft_save != 'no')
+            $data['Status'] = 0;
+
         $invoice_project = get_option('ssbhesabfa_invoice_project', -1);
         $invoice_salesman = get_option('ssbhesabfa_invoice_salesman', -1);
-        if ($invoice_project != -1)
-            $data['Project'] = $invoice_project;
-        if ($invoice_salesman != -1)
-            $data['SalesmanCode'] = $invoice_salesman;
+        if ($invoice_project != -1) $data['Project'] = $invoice_project;
+        if ($invoice_salesman != -1) $data['SalesmanCode'] = $invoice_salesman;
 
+        //call API
         $hesabfa = new Ssbhesabfa_Api();
         $response = $hesabfa->invoiceSave($data);
 
         if ($response->Success) {
             global $wpdb;
+
             switch ($orderType) {
                 case 0:
                     $obj_type = 'order';
@@ -383,7 +439,9 @@ class Ssbhesabfa_Admin_Functions
                     'obj_type' => $obj_type,
                     'id_ps' => $id_order,
                 ));
-                HesabfaLogService::log(array("Invoice successfully added. Invoice number: " . (string)$response->Result->Number . ". Order ID: $id_order"));
+                //LOG into the log file
+                HesabfaLogService::log(array("صورتحساب(فاکتور) با موفقیت اضافه گردید. شماره صورتحساب(فاکتور): " . (string)$response->Result->Number . ". شناسه سفارش: $id_order" . "\n" .
+                "Invoice successfully added. Invoice number: " . (string)$response->Result->Number . ". Order ID: $id_order"));
             } else {
                 $wpFaId = $wpFaService->getWpFaId($obj_type, $id_order);
 
@@ -392,7 +450,9 @@ class Ssbhesabfa_Admin_Functions
                     'obj_type' => $obj_type,
                     'id_ps' => $id_order,
                 ), array('id' => $wpFaId));
-                HesabfaLogService::log(array("Invoice successfully updated. Invoice number: " . (string)$response->Result->Number . ". Order ID: $id_order"));
+                //LOG into log file
+                HesabfaLogService::log(array("صورتحساب(فاکتور) با موفقیت بروزرسانی شد. شماره صورتحساب(فاکتور): " . (string)$response->Result->Number . ". شناسه سفارش: $id_order" . "\n" .
+                "Invoice successfully updated. Invoice number: " . (string)$response->Result->Number . ". Order ID: $id_order"));
             }
 
             // set warehouse receipt
@@ -402,11 +462,17 @@ class Ssbhesabfa_Admin_Functions
 
             return true;
         } else {
-            HesabfaLogService::log(array("Cannot add/update Invoice. Error Code: " . (string)$response->ErrorCode . ". Error Message: " . (string)$response->ErrorMessage . ". Order ID: $id_order"));
+            //LOG into the log file
+            foreach ($invoiceItems as $item) {
+                HesabfaLogService::log(array("نمی توان فاکتور را اضافه/بروزرسانی کرد. کد خطا: " . (string)$response->ErrorCode . ". متن خطا: " . (string)$response->ErrorMessage . ". شناسه سفارش: $id_order" . "\n" .
+                "Cannot add/update Invoice. Error Code: " . (string)$response->ErrorCode . ". Error Message: " . (string)$response->ErrorMessage . ". Order ID: $id_order" . "\n"
+              . "Hesabfa Id:" . $item['ItemCode']
+            ));
+            }
             return false;
         }
     }
-
+//========================================================================================================================
     public function setWarehouseReceipt($items, $invoiceNumber, $warehouseCode, $date, $project)
     {
         $data = array(
@@ -424,15 +490,20 @@ class Ssbhesabfa_Admin_Functions
         $response = $hesabfa->saveWarehouseReceipt($data);
 
         if ($response->Success)
-            HesabfaLogService::log(array("Warehouse receipt successfully saved/updated. warehouse receipt number: " . (string)$response->Result->Number . ". Invoice number: $invoiceNumber"));
+            //LOG into the log file
+            HesabfaLogService::log(array("رسید انبار با موفقیت ذخیره/به روز شد. شماره رسید انبار: " . (string)$response->Result->Number . ". شماره صورتحساب(فاکتور): $invoiceNumber" . "\n" .
+            "Warehouse receipt successfully saved/updated. warehouse receipt number: " . (string)$response->Result->Number . ". Invoice number: $invoiceNumber"));
         else
-            HesabfaLogService::log(array("Cannot save/update Warehouse receipt. Error Code: " . (string)$response->ErrorCode . ". Error Message: " . (string)$response->ErrorMessage . ". Invoice number: $invoiceNumber"));
+            //LOG into the log file
+            HesabfaLogService::log(array("نمی توان رسید انبار را اضافه/بروزرسانی کرد. کدخطا: " . (string)$response->ErrorCode . ". متن خطا: " . (string)$response->ErrorMessage . ". شماره صورتحساب(فاکتور): $invoiceNumber" . "\n" .
+            "Cannot save/update Warehouse receipt. Error Code: " . (string)$response->ErrorCode . ". Error Message: " . (string)$response->ErrorMessage . ". Invoice number: $invoiceNumber"));
     }
-
+//========================================================================================================================
     public static function getPriceInHesabfaDefaultCurrency($price)
     {
-        if (!isset($price))
-            return false;
+        //this function simply handle the currency difference between hesabfa and woocommerce
+
+        if (!isset($price)) return false;
 
         $woocommerce_currency = get_woocommerce_currency();
         $hesabfa_currency = get_option('ssbhesabfa_hesabfa_default_currency');
@@ -448,11 +519,12 @@ class Ssbhesabfa_Admin_Functions
 
         return $price;
     }
-
+//========================================================================================================================
     public static function getPriceInWooCommerceDefaultCurrency($price)
     {
-        if (!isset($price))
-            return false;
+        //this function simply handle the currency difference between hesabfa and woocommerce
+
+        if (!isset($price)) return false;
 
         $woocommerce_currency = get_woocommerce_currency();
         $hesabfa_currency = get_option('ssbhesabfa_hesabfa_default_currency');
@@ -468,19 +540,21 @@ class Ssbhesabfa_Admin_Functions
 
         return $price;
     }
-
+//========================================================================================================================
     public function setOrderPayment($id_order)
     {
         if (!isset($id_order)) {
             return false;
         }
 
+        //call API
         $hesabfa = new Ssbhesabfa_Api();
         $number = $this->getInvoiceCodeByOrderId($id_order);
         if (!$number) {
             return false;
         }
 
+        //call WC_Order class
         $order = new WC_Order($id_order);
 
         //Skip free order payment
@@ -511,31 +585,37 @@ class Ssbhesabfa_Admin_Functions
                     $response = $hesabfa->invoiceSavePayment($number, $bank_code, $date_obj->date('Y-m-d H:i:s'), $this->getPriceInHesabfaDefaultCurrency($order->get_total()), $transaction_id);
 
                     if ($response->Success) {
-                        HesabfaLogService::log(array("Hesabfa invoice payment added. Order ID: $id_order"));
+                        //LOG into the log file
+                        HesabfaLogService::log(array("پرداخت فاکتور حسابفا اضافه شد. شناسه سفارش: $id_order" . "\n" . "Hesabfa invoice payment added. Order ID: $id_order"));
                         return true;
                     } else {
-                        HesabfaLogService::log(array("Cannot add Hesabfa Invoice payment. Order ID: $id_order. Error Code: " . (string)$response->ErrorCode . ". Error Message: " . (string)$response->ErrorMessage . "."));
+                        //LOG into the log file
+                        HesabfaLogService::log(array("پرداخت فاکتور حسابفا اضافه نمی شود. شناسه سفارش: $id_order. کد خطا: " . (string)$response->ErrorCode . ". متن خطا: " . (string)$response->ErrorMessage . "." . "\n" .
+                        "Cannot add Hesabfa Invoice payment. Order ID: $id_order. Error Code: " . (string)$response->ErrorCode . ". Error Message: " . (string)$response->ErrorMessage . "."));
                         return false;
                     }
                 }
                 return true;
             } else {
-                HesabfaLogService::log(array("Error while trying to get invoice. Invoice Number: $number. Error Code: " . (string)$response->ErrorCode . ". Error Message: " . (string)$response->ErrorMessage . "."));
+                //LOG into the log file
+                HesabfaLogService::log(array("خطا هنگام تلاش برای دریافت فاکتور. شماره صورتحساب(فاکتور): $number. کد خطا: " . (string)$response->ErrorCode . ". متن خطا: " . (string)$response->ErrorMessage . "." . "\n" .
+                "Error while trying to get invoice. Invoice Number: $number. Error Code: " . (string)$response->ErrorCode . ". Error Message: " . (string)$response->ErrorMessage . "."));
                 return false;
             }
         } else {
-            HesabfaLogService::log(array("Cannot add Hesabfa Invoice payment - Bank Code not defined. Order ID: $id_order"));
+            //LOG into the log file
+            HesabfaLogService::log(array("نمی توان پرداخت فاکتور حسابفا را اضافه کرد - کد بانکی تعریف نشده است. شناسه سفارش: $id_order" . "\n" .
+            "Cannot add Hesabfa Invoice payment - Bank Code not defined. Order ID: $id_order"));
             return false;
         }
     }
-
+//========================================================================================================================
     public function getInvoiceNumberByOrderId($id_order)
     {
-        if (!isset($id_order)) {
-            return false;
-        }
+        if (!isset($id_order)) return false;
 
         global $wpdb;
+        //SQL code
         $row = $wpdb->get_row("SELECT `id_hesabfa` FROM " . $wpdb->prefix . "ssbhesabfa WHERE `id_ps` = $id_order AND `obj_type` = 'order'");
 
         if (is_object($row)) {
@@ -544,7 +624,7 @@ class Ssbhesabfa_Admin_Functions
             return false;
         }
     }
-
+//========================================================================================================================
     public function getBankCodeByPaymentMethod($payment_method)
     {
         $code = get_option('ssbhesabfa_payment_method_' . $payment_method);
@@ -554,12 +634,10 @@ class Ssbhesabfa_Admin_Functions
         else
             return false;
     }
-
+//========================================================================================================================
     public function getInvoiceCodeByOrderId($id_order)
     {
-        if (!isset($id_order)) {
-            return false;
-        }
+        if (!isset($id_order)) return false;
 
         global $wpdb;
         $row = $wpdb->get_row("SELECT `id_hesabfa` FROM " . $wpdb->prefix . "ssbhesabfa WHERE `id_ps` = $id_order AND `obj_type` = 'order'");
@@ -570,11 +648,12 @@ class Ssbhesabfa_Admin_Functions
             return false;
         }
     }
-
+//========================================================================================================================
     //Export
     public function exportProducts($batch, $totalBatch, $total, $updateCount)
     {
-        HesabfaLogService::writeLogStr("===== Export Products =====");
+        //Log into the log file
+        HesabfaLogService::writeLogStr("===== استخراج محصولات =====" . "\n" . "===== Export Products =====");
         $wpFaService = new HesabfaWpFaService();
 
         $result = array();
@@ -596,6 +675,7 @@ class Ssbhesabfa_Admin_Functions
 
         foreach ($products as $item) {
             $id_product = $item->ID;
+            //call class WC_Product
             $product = new WC_Product($id_product);
 
             // Set base product
@@ -625,6 +705,7 @@ class Ssbhesabfa_Admin_Functions
 
         if (!empty($items)) {
             $count = 0;
+            //call API
             $hesabfa = new Ssbhesabfa_Api();
             $response = $hesabfa->itemBatchSave($items);
             if ($response->Success) {
@@ -638,11 +719,13 @@ class Ssbhesabfa_Admin_Functions
                         'id_ps' => (int)$json->id_product,
                         'id_ps_attribute' => (int)$json->id_attribute,
                     ));
-                    HesabfaLogService::log(array("Item successfully added. Item Code: " . (string)$item->Code . ". Product ID: $json->id_product - $json->id_attribute"));
+                    HesabfaLogService::log(array("آیتم با موفقیت اضافه گردید. کد آیتم: " . (string)$item->Code . ". شناسه محصول: $json->id_product - $json->id_attribute" . "\n" .
+                    "Item successfully added. Item Code: " . (string)$item->Code . ". Product ID: $json->id_product - $json->id_attribute"));
                 }
                 $count += count($response->Result);
             } else {
-                HesabfaLogService::log(array("Cannot add bulk item. Error Message: " . (string)$response->ErrorMessage . ". Error Code: " . (string)$response->ErrorCode . "."));
+                HesabfaLogService::log(array("نمی توان مورد انبوه را اضافه کرد. متن خطا: " . (string)$response->ErrorMessage . ". کد خطا: " . (string)$response->ErrorCode . "." . "\n" .
+                "Cannot add bulk item. Error Message: " . (string)$response->ErrorMessage . ". Error Code: " . (string)$response->ErrorCode . "."));
             }
             sleep(2);
         }
@@ -653,16 +736,18 @@ class Ssbhesabfa_Admin_Functions
         $result["updateCount"] = $updateCount;
         return $result;
     }
-
+//========================================================================================================================
     public function importProducts($batch, $totalBatch, $total, $updateCount)
     {
-        HesabfaLogService::writeLogStr("===== Import Products =====");
+        //LOG into the log file
+        HesabfaLogService::writeLogStr("===== ورود محصولات =====" . "\n" . "===== Import Products =====");
         $wpFaService = new HesabfaWpFaService();
 
         $result = array();
         $result["error"] = false;
-        $rpp = 500;
+        $rpp = 100;
         global $wpdb;
+        //call API
         $hesabfa = new Ssbhesabfa_Api();
         $filters = array(array("Property" => "ItemType", "Operator" => "=", "Value" => 0));
 
@@ -673,7 +758,9 @@ class Ssbhesabfa_Admin_Functions
                 $total = $response->Result->FilteredCount;
                 $totalBatch = ceil($total / $rpp);
             } else {
-                HesabfaLogService::log(array("Error while trying to get products for import. Error Message: $response->ErrorMessage. Error Code: $response->ErrorCode."));
+                //LOG into the log file
+                HesabfaLogService::log(array("خطا هنگام تلاش برای دریافت محصولات برای وارد کردن. متن خطا: $response->ErrorMessage. کد خطا: $response->ErrorCode." . "\n" .
+                "Error while trying to get products for import. Error Message: $response->ErrorMessage. Error Code: $response->ErrorCode."));
                 $result["error"] = true;
                 return $result;
             };
@@ -691,8 +778,7 @@ class Ssbhesabfa_Admin_Functions
 
             foreach ($items as $item) {
                 $wpFa = $wpFaService->getWpFaByHesabfaId('product', $item->Code);
-                if ($wpFa)
-                    continue;
+                if ($wpFa) continue;
 
                 $clearedName = preg_replace("/\s+|\/|\\\|\(|\)/", '-', trim($item->Name));
                 $clearedName = preg_replace("/\-+/", '-', $clearedName);
@@ -750,6 +836,7 @@ class Ssbhesabfa_Admin_Functions
             }
 
         } else {
+            //LOG into the log file
             HesabfaLogService::log(array("Error while trying to get products for import. Error Message: (string)$response->ErrorMessage. Error Code: (string)$response->ErrorCode."));
             $result["error"] = true;
             return $result;
@@ -762,7 +849,7 @@ class Ssbhesabfa_Admin_Functions
         $result["updateCount"] = $updateCount;
         return $result;
     }
-
+//========================================================================================================================
     public function exportOpeningQuantity($batch, $totalBatch, $total)
     {
         $wpFaService = new HesabfaWpFaService();
@@ -852,10 +939,11 @@ class Ssbhesabfa_Admin_Functions
         $result["done"] = $batch == $totalBatch;
         return $result;
     }
-
+//========================================================================================================================
     public function exportCustomers($batch, $totalBatch, $total, $updateCount)
     {
-        HesabfaLogService::writeLogStr("===== Export Customers =====");
+        //LOG into the log file
+        HesabfaLogService::writeLogStr("===== استخراج مشتریان =====" . "\n" . "==== Export Customers ====");
         $wpFaService = new HesabfaWpFaService();
 
         $result = array();
@@ -896,10 +984,14 @@ class Ssbhesabfa_Admin_Functions
                         'id_ps' => (int)$json->id_customer,
                     ));
 
-                    HesabfaLogService::log(array("Contact successfully added. Contact Code: " . $item->Code . ". Customer ID: " . (int)$json->id_customer));
+                    //LOG into the log service
+                    HesabfaLogService::log(array("مخاطب با موفقیت اضافه گردید. کد مخاطب: " . $item->Code . ". شناسه مخاطب: " . (int)$json->id_customer . "\n" .
+                    "Contact successfully added. Contact Code: " . $item->Code . ". Customer ID: " . (int)$json->id_customer));
                 }
             } else {
-                HesabfaLogService::log(array("Cannot add bulk contacts. Error Message: $response->ErrorMessage. Error Code: $response->ErrorCode."));
+                //LOG into the log service
+                HesabfaLogService::log(array("نمی توان عده زیادی از مخاطبان را ذخیره کرد. متن خطا: $response->ErrorMessage. کد خطا: $response->ErrorCode." . "\n" .
+                "Cannot add bulk contacts. Error Message: $response->ErrorMessage. Error Code: $response->ErrorCode."));
             }
         }
 
@@ -910,10 +1002,12 @@ class Ssbhesabfa_Admin_Functions
 
         return $result;
     }
-
+//========================================================================================================================
     public function syncOrders($from_date, $batch, $totalBatch, $total, $updateCount)
     {
-        HesabfaLogService::writeLogStr("===== Sync Orders =====");
+
+        //LOG into the log file
+        HesabfaLogService::writeLogStr("===== همگام سازی سفارشات =====" . "\n" . "===== Sync Orders =====");
         $wpFaService = new HesabfaWpFaService();
 
         $result = array();
@@ -941,8 +1035,8 @@ class Ssbhesabfa_Admin_Functions
         $orders = $wpdb->get_results("SELECT ID FROM `" . $wpdb->prefix . "posts`
                                 WHERE post_type = 'shop_order' AND post_date >= '" . $from_date . "'
                                 ORDER BY ID ASC LIMIT $offset,$rpp");
-
-        HesabfaLogService::writeLogStr("Orders count: " . count($orders));
+        //LOG into the log file
+        HesabfaLogService::writeLogStr("تعداد سفارشات: " . count($orders) . "\n" . "Orders count: " . count($orders));
 
         $statusesToSubmitInvoice = get_option('ssbhesabfa_invoice_status');
         $statusesToSubmitInvoice = implode(',', $statusesToSubmitInvoice);
@@ -953,6 +1047,7 @@ class Ssbhesabfa_Admin_Functions
 
         $id_orders = array();
         foreach ($orders as $order) {
+            //class WC_Order
             $order = new WC_Order($order->ID);
 
             $id_order = $order->get_id();
@@ -984,26 +1079,30 @@ class Ssbhesabfa_Admin_Functions
         $result["updateCount"] = $updateCount;
         return $result;
     }
-
+//========================================================================================================================
     public function syncProducts($batch, $totalBatch, $total)
     {
         try {
-            HesabfaLogService::writeLogStr("===== Sync products price and quantity from hesabfa to store: part $batch =====");
+            //LOG into the log file
+            HesabfaLogService::writeLogStr("===== همگام سازی قیمت و مقدار محصولات از حسابفا به فروشگاه: پارت $batch =====" . "\n" .
+            "===== Sync products price and quantity from hesabfa to store: part $batch =====");
             $result = array();
             $result["error"] = false;
 
+            //Call API
             $hesabfa = new Ssbhesabfa_Api();
             $filters = array(array("Property" => "ItemType", "Operator" => "=", "Value" => 0));
-            $rpp = 500;
+            $rpp = 200;
 
             if ($batch == 1) {
-                $total = 0;
                 $response = $hesabfa->itemGetItems(array('Take' => 1, 'Filters' => $filters));
                 if ($response->Success) {
                     $total = $response->Result->FilteredCount;
                     $totalBatch = ceil($total / $rpp);
                 } else {
-                    HesabfaLogService::log(array("Error while trying to get products for sync. Error Message: (string)$response->ErrorMessage. Error Code: (string)$response->ErrorCode."));
+                    //LOG into the log file
+                    HesabfaLogService::log(array("خطا در هنگام گرفتن محصولات برای همگام سازی. متن خطا: $response->ErrorMessage. کد خطا: $response->ErrorCode." . "\n" .
+                    "Error while trying to get products for sync. Error Message: $response->ErrorMessage. Error Code: $response->ErrorCode."));
                     $result["error"] = true;
                     return $result;
                 }
@@ -1028,7 +1127,9 @@ class Ssbhesabfa_Admin_Functions
                     self::setItemChanges($product);
                 }
             } else {
-                HesabfaLogService::log(array("Error while trying to get products for sync. Error Message: (string)$response->ErrorMessage. Error Code: (string)$response->ErrorCode."));
+                //LOG into the log file
+                HesabfaLogService::log(array("خطا در هنگام گرفتن محصولات برای همگام سازی. متن خطا: $response->ErrorMessage. کد خطا: $response->ErrorCode." . "\n" .
+                "Error while trying to get products for sync. Error Message: $response->ErrorMessage. Error Code: $response->ErrorCode."));
                 $result["error"] = true;
                 return $result;
             }
@@ -1038,13 +1139,15 @@ class Ssbhesabfa_Admin_Functions
             $result["total"] = $total;
             return $result;
         } catch (Error $error) {
-            HesabfaLogService::writeLogStr("Error in sync products: " . $error->getMessage());
+            //LOG into the log file
+            HesabfaLogService::writeLogStr("خطا در همگام سازی محصولات: " . $error->getMessage() . "\n" . "Error in sync products: " . $error->getMessage());
         }
     }
-
+//========================================================================================================================
     public function syncProductsManually($data)
     {
-        HesabfaLogService::writeLogStr('===== Sync Products Manually =====');
+        //LOG into the log file
+        HesabfaLogService::writeLogStr('===== همگام سازی دستی محصولات =====' . "\n" . '===== Sync Products Manually =====');
 
         // check if entered hesabfa codes exist in hesabfa
         $hesabfa_item_codes = array();
@@ -1053,7 +1156,10 @@ class Ssbhesabfa_Admin_Functions
                 $hesabfa_item_codes[] = str_pad($d["hesabfa_id"], 6, "0", STR_PAD_LEFT);
             }
         }
+
+        //Call API
         $hesabfa = new Ssbhesabfa_Api();
+
         $filters = array(array("Property" => "Code", "Operator" => "in", "Value" => $hesabfa_item_codes));
         $response = $hesabfa->itemGetItems(array('Take' => 100, 'Filters' => $filters));
 
@@ -1106,10 +1212,11 @@ class Ssbhesabfa_Admin_Functions
         $this->setItems($id_product_array);
         return array("result" => true, "data" => null);
     }
-
+//========================================================================================================================
     public function updateProductsInHesabfaBasedOnStore($batch, $totalBatch, $total)
     {
-        HesabfaLogService::writeLogStr("===== Update Products In Hesabfa Based On Store =====");
+        //LOG into the log file
+        HesabfaLogService::writeLogStr("===== بروزرسانی محصولات در حسابفا بر اساس فروشگاه =====" . "\n" . "===== Update Products In Hesabfa Based On Store =====");
         $result = array();
         $result["error"] = false;
         $rpp = 500;
@@ -1136,13 +1243,14 @@ class Ssbhesabfa_Admin_Functions
         $result["total"] = $total;
         return $result;
     }
-
+//========================================================================================================================
+    //This function clean all logs from the log file
     public function cleanLogFile()
     {
         HesabfaLogService::clearLog();
         return true;
     }
-
+//========================================================================================================================
     public static function setItemChanges($item)
     {
         if (!is_object($item)) return false;
@@ -1161,14 +1269,17 @@ class Ssbhesabfa_Admin_Functions
 
         //check if Tag not set in hesabfa
         if ($id_product == 0) {
-            HesabfaLogService::log(array("Item with code: $item->Code is not defined in Online store"));
+            //LOG into the log file
+            HesabfaLogService::log(array("آیتم با کد: $item->Code در فروشگاه آنلاین تعریف نشده است" . "\n" . "Item with code: $item->Code is not defined in Online store"));
             return false;
         }
 
         $found = $wpdb->get_var("SELECT COUNT(*) FROM `" . $wpdb->prefix . "posts` WHERE ID = $id_product");
 
         if (!$found) {
-            HesabfaLogService::writeLogStr("product not found in woocommerce.code: $item->Code, product id: $id_product, variation id: $id_attribute");
+            //LOG into the log file
+            HesabfaLogService::writeLogStr("محصول در ووکامرس یافت نشد.کد: $item->Code, شناسه محصول: $id_product, شناسه تنوع: $id_attribute" . "\n" .
+            "product not found in woocommerce.code: $item->Code, product id: $id_product, variation id: $id_attribute");
             return false;
         }
 
@@ -1189,7 +1300,7 @@ class Ssbhesabfa_Admin_Functions
 
         return $result;
     }
-
+//========================================================================================================================
     private static function setItemNewPrice($product, $item, $id_attribute, $id_product, array $result): array
     {
         $option_sale_price = get_option('ssbhesabfa_item_update_sale_price', 0);
@@ -1217,13 +1328,15 @@ class Ssbhesabfa_Admin_Functions
                 }
             }
 
-            HesabfaLogService::log(array("product ID $id_product-$id_attribute Price changed. Old Price: $old_price. New Price: $new_price"));
+            //LOG into the log file
+            HesabfaLogService::log(array("شناسه محصول $id_product-$id_attribute قیمت تغییر یافت. قیمت قدیم: $old_price. قیمت جدید: $new_price" . "\n" .
+            "product ID $id_product-$id_attribute Price changed. Old Price: $old_price. New Price: $new_price"));
             $result["newPrice"] = $new_price;
         }
 
         return $result;
     }
-
+//========================================================================================================================
     private static function setItemNewQuantity($product, $item, $id_product, $id_attribute, array $result): array
     {
         $old_quantity = $product->get_stock_quantity();
@@ -1231,12 +1344,17 @@ class Ssbhesabfa_Admin_Functions
             $new_quantity = $item->Stock;
             if (!$new_quantity) $new_quantity = 0;
 
+            //check the status of the product -> available or unavailable
             $new_stock_status = ($new_quantity > 0) ? "instock" : "outofstock";
-            $post_id = $id_attribute && $id_attribute > 0 ? $id_attribute : $id_product;
+
+            $post_id = ($id_attribute && $id_attribute > 0) ? $id_attribute : $id_product;
+
             update_post_meta($post_id, '_stock', $new_quantity);
             wc_update_product_stock_status($post_id, $new_stock_status);
 
-            HesabfaLogService::log(array("product ID $id_product-$id_attribute quantity changed. Old qty: $old_quantity. New qty: $new_quantity"));
+            //Log into the log file
+            HesabfaLogService::log(array("شناسه محصول $id_product-$id_attribute تعداد تغییر یافت. مقدار قبلی: $old_quantity. مقدار جدید: $new_quantity" . "\n" .
+            "product ID $id_product-$id_attribute quantity changed. Old quantity: $old_quantity. New quantity: $new_quantity"));
             $result["newQuantity"] = $new_quantity;
         }
 

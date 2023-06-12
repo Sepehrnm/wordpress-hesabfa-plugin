@@ -7,12 +7,13 @@ include_once(plugin_dir_path(__DIR__) . 'admin/services/HesabfaWpFaService.php')
  * The admin-specific functionality of the plugin.
  *
  * @class      Ssbhesabfa_Admin
- * @version    1.93.59
+ * @version    2.0.67
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin
  * @author     Saeed Sattar Beglou <saeed.sb@gmail.com>
  * @author     HamidReza Gharahzadeh <hamidprime@gmail.com>
+ * @author     Sepehr Najafi <sepehrn249@gmail.com>
  */
 class Ssbhesabfa_Admin
 {
@@ -34,7 +35,7 @@ class Ssbhesabfa_Admin
      * @var      string $version The current version of this plugin.
      */
     private $version;
-
+//=========================================================================================================================
     /**
      * Initialize the class and set its properties.
      *
@@ -54,6 +55,7 @@ class Ssbhesabfa_Admin
      *
      * @since    1.0.7
      */
+//=========================================================================================================================
     public function ssbhesabfa_update_db_check()
     {
         $current_db_ver = get_site_option('ssbhesabfa_db_version');
@@ -65,14 +67,16 @@ class Ssbhesabfa_Admin
                     ADD `id_ps_attribute` INT(11) UNSIGNED NOT NULL DEFAULT 0 AFTER `id_ps`;";
 
             if (!$wpdb->query($sql)) {
+                //LOG into the log file
                 HesabfaLogService::log(array("Cannot alter table $table_name. Current DB Version: $current_db_ver"));
             } else {
                 update_option('ssbhesabfa_db_version', 1.1);
+                //LOG into the log file
                 HesabfaLogService::log(array("Alter table $table_name. Current DB Version: $current_db_ver"));
             }
         }
     }
-
+//=========================================================================================================================
     /**
      * Register the stylesheets for the admin area.
      *
@@ -91,12 +95,13 @@ class Ssbhesabfa_Admin
          * between the defined hooks and the functions defined in this
          * class.
          */
-
-        wp_enqueue_style('fontiran_css', plugin_dir_url(__FILE__) . 'css/fontiran.css', array(), $this->version, 'all');
-        wp_enqueue_style($this->plugin_name, plugin_dir_url(__FILE__) . 'css/ssbhesabfa-admin.css?v=1', array(), $this->version, 'all');
-        wp_enqueue_style('bootstrap_css', plugin_dir_url(__FILE__) . 'css/bootstrap.css', array(), $this->version, 'all');
+        if( isset($_GET['page']) && str_contains($_GET['page'], "hesabfa") ){
+            wp_enqueue_style('fontiran_css', plugin_dir_url(__FILE__) . 'css/fontiran.css', array(), $this->version, 'all');
+            wp_enqueue_style($this->plugin_name, plugin_dir_url(__FILE__) . 'css/ssbhesabfa-admin.css?v=1', array(), $this->version, 'all');
+            wp_enqueue_style('bootstrap_css', plugin_dir_url(__FILE__) . 'css/bootstrap.css', array(), $this->version, 'all');
+        }
     }
-
+//=========================================================================================================================
     /**
      * Register the JavaScript for the admin area.
      *
@@ -117,9 +122,10 @@ class Ssbhesabfa_Admin
          */
 
         wp_enqueue_script($this->plugin_name, plugin_dir_url(__FILE__) . 'js/ssbhesabfa-admin.js', array('jquery'), $this->version, false);
-        wp_enqueue_script('bootstrap_js', plugin_dir_url(__FILE__) . 'js/bootstrap.bundle.min.js', array('jquery'), $this->version, false);
+        if( isset($_GET['page']) && str_contains($_GET['page'], "hesabfa") )
+            wp_enqueue_script('bootstrap_js', plugin_dir_url(__FILE__) . 'js/bootstrap.bundle.min.js', array('jquery'), $this->version, false);
     }
-
+//=========================================================================================================================
     private function load_dependencies()
     {
         /**
@@ -148,6 +154,7 @@ class Ssbhesabfa_Admin
      *
      * @since    1.0.0
      */
+//=========================================================================================================================
     public function ssbhesabfa_missing_notice()
     {
         echo '<div class="error"><p>' . sprintf(__('Hesabfa Plugin requires the %s to work!', 'ssbhesabfa'), '<a href="https://wordpress.org/plugins/woocommerce/" target="_blank">' . __('WooCommerce', 'ssbhesabfa') . '</a>') . '</p></div>';
@@ -158,11 +165,12 @@ class Ssbhesabfa_Admin
      *
      * @since    1.0.0
      */
+//=========================================================================================================================
     public function ssbhesabfa_live_mode_notice()
     {
         echo '<div class="error"><p>' . __('Hesabfa Plugin need to connect to Hesabfa Accounting, Please check the API credential!', 'ssbhesabfa') . '</p></div>';
     }
-
+//=========================================================================================================================
     public function ssbhesabfa_business_expired_notice()
     {
         echo '<div class="error"><p>' . __('Cannot connect to Hesabfa. Business expired.', 'ssbhesabfa') . '</p></div>';
@@ -173,11 +181,12 @@ class Ssbhesabfa_Admin
      *
      * @since    1.0.0
      */
+//=========================================================================================================================
     public function ssbhesabfa_currency_notice()
     {
         echo '<div class="error"><p>' . __('Hesabfa Plugin cannot works! because WooCommerce currency in not match with Hesabfa.', 'ssbhesabfa') . '</p></div>';
     }
-
+//=========================================================================================================================
     public function ssbhesabfa_general_notices() {
         if (!empty( $_REQUEST['submit_selected_orders_invoice_in_hesabfa'])) {
             if(!empty($_REQUEST['error_msg']) && $_REQUEST['error_msg'] == "select_max_10_items") {
@@ -190,6 +199,7 @@ class Ssbhesabfa_Admin
         }
     }
 
+//=========================================================================================================================
     /*
      * Action - Ajax 'export products' from Hesabfa/Export tab
      * @since	1.0.0
@@ -220,7 +230,7 @@ class Ssbhesabfa_Admin
             die(); // this is required to return a proper result
         }
     }
-
+//=========================================================================================================================
     public function adminImportProductsCallback()
     {
         if (is_admin() && (defined('DOING_AJAX') || DOING_AJAX)) {
@@ -248,7 +258,7 @@ class Ssbhesabfa_Admin
             die(); // this is required to return a proper result
         }
     }
-
+//=========================================================================================================================
     /*
      * Action - Ajax 'export products Opening Quantity' from Hesabfa/Export tab
      * @since	1.0.6
@@ -281,7 +291,7 @@ class Ssbhesabfa_Admin
             die(); // this is required to return a proper result
         }
     }
-
+//=========================================================================================================================
     /*
      * Action - Ajax 'export customers' from Hesabfa/Export tab
      * @since	1.0.0
@@ -308,7 +318,7 @@ class Ssbhesabfa_Admin
             die(); // this is required to return a proper result
         }
     }
-
+//=========================================================================================================================
     /*
      * Action - Ajax 'Sync Changes' from Hesabfa/Sync tab
      * @since	1.0.0
@@ -317,6 +327,7 @@ class Ssbhesabfa_Admin
     {
         if (is_admin() && (defined('DOING_AJAX') || DOING_AJAX)) {
             include(plugin_dir_path(__DIR__) . 'includes/class-ssbhesabfa-webhook.php');
+            //Call Webhook
             new Ssbhesabfa_Webhook();
 
             $redirect_url = admin_url('admin.php?page=ssbhesabfa-option&tab=sync&changesSyncResult=true');
@@ -325,7 +336,7 @@ class Ssbhesabfa_Admin
             die(); // this is required to return a proper result
         }
     }
-
+//=========================================================================================================================
     /*
      * Action - Ajax 'Sync Products' from Hesabfa/Sync tab
      * @since	1.0.0
@@ -350,7 +361,7 @@ class Ssbhesabfa_Admin
             die(); // this is required to return a proper result
         }
     }
-
+//=========================================================================================================================
     /*
      * Action - Ajax 'Sync Orders from Hesabfa/Sync tab
      * @since	1.0.0
@@ -387,7 +398,7 @@ class Ssbhesabfa_Admin
             die(); // this is required to return a proper result
         }
     }
-
+//=========================================================================================================================
     /*
     * Action - Ajax 'Update Products' from Hesabfa/Sync tab
     * @since	1.0.0
@@ -412,7 +423,7 @@ class Ssbhesabfa_Admin
             die(); // this is required to return a proper result
         }
     }
-
+//==========================================================================================================================
     public function adminSubmitInvoiceCallback()
     {
         if (is_admin() && (defined('DOING_AJAX') || DOING_AJAX)) {
@@ -428,11 +439,12 @@ class Ssbhesabfa_Admin
             die(); // this is required to return a proper result
         }
     }
-
-
+//=========================================================================================================================
     public function adminSyncProductsManuallyCallback()
     {
-        HesabfaLogService::writeLogStr('===== Sync Products Manually =====');
+        //LOG into the log file
+        HesabfaLogService::writeLogStr('===== همگام سازی دستی محصولات =====' . "\n" .
+        '===== Sync Products Manually =====');
 
         if (is_admin() && (defined('DOING_AJAX') || DOING_AJAX)) {
 
@@ -462,15 +474,19 @@ class Ssbhesabfa_Admin
             die(); // this is required to return a proper result
         }
     }
-
+//=========================================================================================================================
     public function adminClearPluginDataCallback()
     {
-        HesabfaLogService::writeLogStr('===== Clear Plugin Data =====');
+        //LOG into the log file
+        HesabfaLogService::writeLogStr('===== پاک کردن دیتای افزونه =====' . "\n" .
+        '===== Clear Plugin Data =====');
         if (is_admin() && (defined('DOING_AJAX') || DOING_AJAX)) {
 
+            //Call API
             $hesabfaApi = new Ssbhesabfa_Api();
             $result = $hesabfaApi->fixClearTags();
             if (!$result->Success) {
+                //LOG into the log file
                 HesabfaLogService::log(array("ssbhesabfa - Cannot clear tags. Error Message: " . (string)$changes->ErrorMessage . ". Error Code: " . (string)$changes->ErrorCode));
             }
 
@@ -485,10 +501,12 @@ class Ssbhesabfa_Admin
             die();
         }
     }
-
+//=========================================================================================================================
     public function adminInstallPluginDataCallback()
     {
-        HesabfaLogService::writeLogStr('===== Install Plugin Data =====');
+        //LOG into the log file
+        HesabfaLogService::writeLogStr('===== نصب دیتای افزونه =====' . "\n" .
+        '===== Install Plugin Data =====');
         if (is_admin() && (defined('DOING_AJAX') || DOING_AJAX)) {
 
             // create table and settings
@@ -498,14 +516,14 @@ class Ssbhesabfa_Admin
             die();
         }
     }
-
-    //This functions related to set webhook
+//=========================================================================================================================
+    //This functions are related to set webhook
     public function ssbhesabfa_init_internal()
     {
         add_rewrite_rule('ssbhesabfa-webhook.php$', 'index.php?ssbhesabfa_webhook=1', 'top');
         $this->checkForSyncChanges();
     }
-
+//=========================================================================================================================
     private function checkForSyncChanges()
     {
         $syncChangesLastDate = get_option('ssbhesabfa_sync_changes_last_date');
@@ -518,19 +536,22 @@ class Ssbhesabfa_Admin
         $diff = $nowDateTime->diff($syncChangesLastDate);
 
         if ($diff->i >= 3) {
-            HesabfaLogService::writeLogStr('===== Sync Changes Automatically =====');
+            //LOG into the log file
+            HesabfaLogService::writeLogStr('===== همگام سازی اتوماتیک تغییرات =====' . "\n" .
+            '===== Sync Changes Automatically =====');
             update_option('ssbhesabfa_sync_changes_last_date', new DateTime());
             require_once plugin_dir_path(dirname(__FILE__)) . 'includes/class-ssbhesabfa-webhook.php';
+            //calling the webhook
             new Ssbhesabfa_Webhook();
         }
     }
-
+//=========================================================================================================================
     public function ssbhesabfa_query_vars($query_vars)
     {
         $query_vars[] = 'ssbhesabfa_webhook';
         return $query_vars;
     }
-
+//=========================================================================================================================
     public function custom_hesabfa_column_order_list($columns)
     {
         $reordered_columns = array();
@@ -546,7 +567,7 @@ class Ssbhesabfa_Admin
         }
         return $reordered_columns;
     }
-
+//=========================================================================================================================
     public function custom_orders_list_column_content($column, $post_id)
     {
         global $wpdb;
@@ -571,7 +592,7 @@ class Ssbhesabfa_Admin
                 break;
         }
     }
-
+//=========================================================================================================================
     public function ssbhesabfa_parse_request(&$wp)
     {
         if (array_key_exists('ssbhesabfa_webhook', $wp->query_vars)) {
@@ -580,16 +601,19 @@ class Ssbhesabfa_Admin
         }
         return;
     }
-
+//=========================================================================================================================
     public function custom_orders_list_bulk_action($actions) {
         $actions['submit_invoice_in_hesabfa'] = __('Submit Invoice in Hesabfa', 'ssbhesabfa');
         return $actions;
     }
-
+//=========================================================================================================================
     public function custom_orders_list_bulk_action_run($redirect_to, $action, $post_ids) {
         if ( $action !== 'submit_invoice_in_hesabfa' )
             return $redirect_to; // Exit
-        HesabfaLogService::writeLogStr("===== Submit selected orders invoice =====");
+
+        //LOG into the log file
+        HesabfaLogService::writeLogStr("===== ثبت فاکتور سفارشات انتخاب شده =====" . "\n" .
+        "===== Submit selected orders invoice =====");
 
         if(count($post_ids) > 10)
             return $redirect_to = add_query_arg( array(
@@ -613,7 +637,7 @@ class Ssbhesabfa_Admin
             'error_msg' => '0'
         ), $redirect_to );
     }
-
+//=========================================================================================================================
     //Hooks
     //Contact
     public function ssbhesabfa_hook_edit_user(WP_User $user)
@@ -644,10 +668,12 @@ class Ssbhesabfa_Admin
         <hr>
         <?php
     }
-
+//=========================================================================================================================
     public function ssbhesabfa_hook_user_register($id_customer)
     {
+
         $user_hesabfa_code = $_REQUEST['user_hesabfa_code'];
+
         if (isset($user_hesabfa_code) && $user_hesabfa_code !== "") {
             $wpFaService = new HesabfaWpFaService();
             $wpFaOld = $wpFaService->getWpFaByHesabfaId('customer', $user_hesabfa_code);
@@ -671,9 +697,11 @@ class Ssbhesabfa_Admin
         }
 
         $function = new Ssbhesabfa_Admin_Functions();
-        $function->setContact($id_customer);
-    }
 
+        if(get_option('ssbhesabfa_contact_automatically_save_in_hesabfa') == 'yes')
+            $function->setContact($id_customer);
+    }
+//=========================================================================================================================
     public function ssbhesabfa_hook_delete_user($id_customer)
     {
         $wpFaService = new HesabfaWpFaService();
@@ -683,6 +711,7 @@ class Ssbhesabfa_Admin
             $row = $wpdb->get_row("SELECT `id_hesabfa` FROM `" . $wpdb->prefix . "ssbhesabfa` WHERE `id` = $id_obj AND `obj_type` = 'customer'");
 
             if (is_object($row)) {
+                //Call API
                 $hesabfaApi = new Ssbhesabfa_Api();
                 $hesabfaApi->contactDelete($row->id_hesabfa);
             }
@@ -690,18 +719,21 @@ class Ssbhesabfa_Admin
             global $wpdb;
             $wpdb->delete($wpdb->prefix . 'ssbhesabfa', array('id_ps' => $id_customer));
 
-            HesabfaLogService::log(array("Customer deleted. Customer ID: $id_customer"));
+            //LOG into the log file
+            HesabfaLogService::log(array(" مشتری حذف گردید. شناسه مشتری: $id_customer" . "\n" . "Customer deleted. Customer ID: $id_customer"));
         }
     }
-
+//=========================================================================================================================
     //Invoice
     public function ssbhesabfa_hook_order_status_change($id_order, $from, $to)
     {
-        HesabfaLogService::writeLogStr("===== Order Status Hook =====");
+        //LOG into the log file
+        HesabfaLogService::writeLogStr("===== هوک وضعیت سفارش =====" . "\n" . "===== Order Status Hook =====");
         $function = new Ssbhesabfa_Admin_Functions();
 
         foreach (get_option('ssbhesabfa_invoice_status') as $status) {
-            HesabfaLogService::writeLogStr("status: $status");
+            //LOG into the log file
+            HesabfaLogService::writeLogStr(" وضعیت : $status" . "\n" . "status: $status");
 
             if ($status == $to) {
                 $orderResult = $function->setOrder($id_order);
@@ -715,12 +747,15 @@ class Ssbhesabfa_Admin
             }
         }
 
-        foreach (get_option('ssbhesabfa_invoice_return_status') as $status) {
-            if ($status == $to)
-                $function->setOrder($id_order, 2, $function->getInvoiceCodeByOrderId($id_order));
+        $values = get_option('ssbhesabfa_invoice_return_status');
+        if(is_array($values) || is_object($values)) {
+            foreach ($values as $status) {
+                if ($status == $to)
+                    $function->setOrder($id_order, 2, $function->getInvoiceCodeByOrderId($id_order));
+            }
         }
     }
-
+//=========================================================================================================================
     public function ssbhesabfa_hook_payment_confirmation($id_order, $from, $to)
     {
         foreach (get_option('ssbhesabfa_payment_status') as $status) {
@@ -733,7 +768,7 @@ class Ssbhesabfa_Admin
 
     //Item
     private $call_time = 1;
-
+//=========================================================================================================================
     public function ssbhesabfa_hook_new_product($id_product)
     {
         if (get_option("ssbhesabfa_inside_product_edit", 0) === 1)
@@ -746,15 +781,15 @@ class Ssbhesabfa_Admin
             $this->call_time = 1;
         }
 
-        if (get_option("ssbhesabfa_do_not_submit_product_automatically", "no") === "yes")
-            return;
+        if (get_option("ssbhesabfa_do_not_submit_product_automatically", "no") === "yes") return;
         $function = new Ssbhesabfa_Admin_Functions();
         $function->setItems(array($id_product));
     }
-
+//=========================================================================================================================
     public function ssbhesabfa_hook_save_product_variation($id_attribute)
     {
-        HesabfaLogService::writeLogStr("=== ssbhesabfa_hook_save_product_variation ===");
+        //LOG into the log file
+        HesabfaLogService::writeLogStr("=== هوک ثبت تغییرات محصول حسابفا ===" . "\n" . "=== ssbhesabfa_hook_save_product_variation ===");
 
         //change hesabfa item code
         $variable_field_id = "ssbhesabfa_hesabfa_item_code_" . $id_attribute;
@@ -774,7 +809,9 @@ class Ssbhesabfa_Admin
                 }
 
                 echo '<div class="error"><p>' . __('The new Item code already used for another Item', 'ssbhesabfa') . '</p></div>';
-                HesabfaLogService::log(array("The new Item code already used for another Item. Product ID: $id_product"));
+                //LOG into the log file
+                HesabfaLogService::log(array("کد آیتم جدید قبلاً برای آیتم دیگری استفاده شده است. شناسه محصول: $id_product" . "\n" .
+                "The new Item code already used for another Item. Product ID: $id_product"));
             } else {
                 $row2 = $wpdb->get_row("SELECT * FROM `" . $wpdb->prefix . "ssbhesabfa` WHERE `id_ps` = $id_product AND `obj_type` = 'product' AND `id_ps_attribute` = $id_attribute");
 
@@ -805,14 +842,16 @@ class Ssbhesabfa_Admin
             $func->setItems(array($id_product));
         }
     }
-
-    //ToDo: check why base product not deleted
+//=========================================================================================================================
+    //ToDo: check why base product is not deleted
     public function ssbhesabfa_hook_delete_product($id_product)
     {
-        HesabfaLogService::writeLogStr("===== Product Delete Hook =====");
+        //LOG into the log file
+        HesabfaLogService::writeLogStr("===== هوک حذف محصول =====" . "\n" . "===== Product Delete Hook =====");
 
         $func = new Ssbhesabfa_Admin_Functions();
         $wpFaService = new HesabfaWpFaService();
+        //Call API
         $hesabfaApi = new Ssbhesabfa_Api();
         global $wpdb;
 
@@ -824,7 +863,8 @@ class Ssbhesabfa_Admin
                 if ($code != false) {
                     $hesabfaApi->itemDelete($code);
                     $wpdb->delete($wpdb->prefix . 'ssbhesabfa', array('id_hesabfa' => $code, 'obj_type' => 'product'));
-                    HesabfaLogService::log(array("Product variation deleted. Product ID: $id_product-$id_attribute"));
+                    //LOG into the log file
+                    HesabfaLogService::log(array("تنوع محصول پاک شد. شناسه محصول: $id_product-$id_attribute" . "\n" . "Product variation deleted. Product ID: $id_product-$id_attribute"));
                 }
             }
         }
@@ -833,13 +873,15 @@ class Ssbhesabfa_Admin
         if ($code != false) {
             $hesabfaApi->itemDelete($code);
             $wpdb->delete($wpdb->prefix . 'ssbhesabfa', array('id_hesabfa' => $code, 'obj_type' => 'product'));
-            HesabfaLogService::log(array("Product deleted. Product ID: $id_product"));
+            //LOG into the log file
+            HesabfaLogService::log(array(" محصول حذف گردید. شناسه محصول: $id_product" . "\n" . "Product deleted. Product ID: $id_product"));
         }
     }
-
+//=========================================================================================================================
     public function ssbhesabfa_hook_delete_product_variation($id_attribute)
     {
 //        $func = new Ssbhesabfa_Admin_Functions();
+        //Call API
         $hesabfaApi = new Ssbhesabfa_Api();
         global $wpdb;
         $row = $wpdb->get_row("SELECT * FROM `" . $wpdb->prefix . "ssbhesabfa` WHERE `id_ps_attribute` = $id_attribute AND `obj_type` = 'product'");
@@ -848,10 +890,11 @@ class Ssbhesabfa_Admin
             $hesabfaApi->itemDelete($row->id_hesabfa);
 
             $wpdb->delete($wpdb->prefix . 'ssbhesabfa', array('id' => $row->id));
-            HesabfaLogService::log(array("Product variation deleted. Product ID: $row->id_ps-$id_attribute"));
+            //LOG into the log file
+            HesabfaLogService::log(array("تنوع محصول پاک شد. شناسه محصول: $row->id_ps-$id_attribute" . "\n" . "Product variation deleted. Product ID: $row->id_ps-$id_attribute"));
         }
     }
-
+//=========================================================================================================================
     public function ssbhesabfa_hook_product_options_general_product_data()
     {
         $wpFaService = new HesabfaWpFaService();
@@ -866,7 +909,7 @@ class Ssbhesabfa_Admin
         );
         woocommerce_wp_text_input($args);
     }
-
+//=========================================================================================================================
     public function ssbhesabfa_hook_process_product_meta($post_id)
     {
         $itemCode = isset($_POST['ssbhesabfa_hesabfa_item_code_0']) ? $_POST['ssbhesabfa_hesabfa_item_code_0'] : '';
@@ -881,7 +924,8 @@ class Ssbhesabfa_Admin
             if (is_object($row)) {
                 //ToDo: show error to customer in BO
                 echo '<div class="error"><p>' . __('The new Item code already used for another Item', 'ssbhesabfa') . '</p></div>';
-                HesabfaLogService::log(array("The new Item code already used for another Item. Product ID: $post_id"));
+                //LOG into the log file
+                HesabfaLogService::log(array("کد آیتم جدید قبلاً برای آیتم دیگری استفاده شده است. شناسه محصول: $post_id" . "\n" . "The new Item code already used for another Item. Product ID: $post_id"));
             } else {
                 $row2 = $wpdb->get_row("SELECT * FROM `" . $wpdb->prefix . "ssbhesabfa` WHERE `id_ps` = $post_id AND `obj_type` = 'product' AND `id_ps_attribute` = 0");
                 if (is_object($row2)) {
@@ -903,7 +947,7 @@ class Ssbhesabfa_Admin
             }
         }
     }
-
+//=========================================================================================================================
     public function ssbhesabfa_hook_product_after_variable_attributes($loop, $variation_data, $variation)
     {
         $wpFaService = new HesabfaWpFaService();
@@ -917,7 +961,7 @@ class Ssbhesabfa_Admin
         );
         woocommerce_wp_text_input($args);
     }
-
+//=========================================================================================================================
     /*
     * Action - Ajax 'clean log file' from Hesabfa/Log tab
     * @since	1.0.0
@@ -938,7 +982,7 @@ class Ssbhesabfa_Admin
             die(); // this is required to return a proper result
         }
     }
-
+//=========================================================================================================================
     // custom data tab in edit product page in admin panel
     function add_hesabfa_product_data_tab($product_data_tabs)
     {
@@ -948,7 +992,7 @@ class Ssbhesabfa_Admin
         );
         return $product_data_tabs;
     }
-
+//=========================================================================================================================
     function add_hesabfa_product_data_fields()
     {
         global $woocommerce, $post;
@@ -1027,9 +1071,52 @@ class Ssbhesabfa_Admin
 
         </div>
         <?php
-
     }
+//=========================================================================================================================
+    function admin_products_hesabfaId_column( $columns ){
+        echo '<style>
+        #hesabfaID {
+            width: 5vw;
+            color: #2271b1;
+        }
+        </style>';
 
+        return array_slice( $columns, 0, 3, true ) + array( 'hesabfaID' => 'کد حسابفا' ) + array_slice( $columns, 3, count( $columns ) - 3, true );
+    }
+//======
+    function admin_products_hesabfaId_column_content( $column ){
+        global $woocommerce, $post;
+        $funcs = new Ssbhesabfa_Admin_Functions();
+        $items = array();
+        $id_product = $post->ID;
+        $product = new WC_Product($id_product);
+
+        $items[] = ssbhesabfaItemService::mapProduct($product, $id_product, false);
+        $items[0]["Quantity"] = $product->get_stock_quantity();
+        $items[0]["Id"] = $id_product;
+        $i = 1;
+
+        $variations = $funcs->getProductVariations($id_product);
+        if ($variations) {
+            foreach ($variations as $variation) {
+                $items[] = ssbhesabfaItemService::mapProductVariation($product, $variation, $id_product, false);
+                $items[$i]["Quantity"] = $variation->get_stock_quantity();
+                $items[$i]["Id"] = $variation->get_id();
+                $i++;
+            }
+        }
+
+        $action = "#";
+        echo '<div><form action="' .  $action . '">';
+        foreach ($items as $item) {
+            if ( $column == 'hesabfaID' ) {
+                $hesabfaId = $item["Code"];
+                echo "<span class='sortable' style='background: #f6f7f7;color: #2271b1;padding: 0.2rem;border-radius: 3px;'>" . $hesabfaId . " " . "</span>";
+            }
+        }
+        echo '</div></form>';
+    }
+//=========================================================================================================================
     function adminChangeProductCodeCallback()
     {
         if (is_admin() && (defined('DOING_AJAX') || DOING_AJAX)) {
@@ -1085,7 +1172,7 @@ class Ssbhesabfa_Admin
             die(); // this is required to return a proper result
         }
     }
-
+//=========================================================================================================================
     function adminDeleteProductLinkCallback()
     {
         if (is_admin() && (defined('DOING_AJAX') || DOING_AJAX)) {
@@ -1105,7 +1192,7 @@ class Ssbhesabfa_Admin
             die(); // this is required to return a proper result
         }
     }
-
+//=========================================================================================================================
     function adminUpdateProductCallback()
     {
         if (is_admin() && (defined('DOING_AJAX') || DOING_AJAX)) {
@@ -1130,6 +1217,7 @@ class Ssbhesabfa_Admin
             $wpFaService = new HesabfaWpFaService();
             $wpFa = $wpFaService->getWpFa('product', $productId, $attributeId);
             if ($wpFa) {
+                //Call API
                 $api = new Ssbhesabfa_Api();
                 $warehouse = get_option('ssbhesabfa_item_update_quantity_based_on', "-1");
                 if ($warehouse == "-1")
@@ -1153,7 +1241,7 @@ class Ssbhesabfa_Admin
             die();
         }
     }
-
+//=========================================================================================================================
     function adminChangeProductsCodeCallback()
     {
         if (is_admin() && (defined('DOING_AJAX') || DOING_AJAX)) {
@@ -1189,6 +1277,7 @@ class Ssbhesabfa_Admin
                 }
             }
 
+            //Call API
             $api = new Ssbhesabfa_Api();
             $filters = array(array("Property" => "Code", "Operator" => "in", "Value" => $codes));
             $response = $api->itemGetItems(array('Filters' => $filters));
@@ -1241,7 +1330,7 @@ class Ssbhesabfa_Admin
             die();
         }
     }
-
+//=========================================================================================================================
     function adminDeleteProductsLinkCallback()
     {
         if (is_admin() && (defined('DOING_AJAX') || DOING_AJAX)) {
@@ -1257,7 +1346,7 @@ class Ssbhesabfa_Admin
             die(); // this is required to return a proper result
         }
     }
-
+//=========================================================================================================================
     function adminUpdateProductAndVariationsCallback()
     {
         if (is_admin() && (defined('DOING_AJAX') || DOING_AJAX)) {
@@ -1270,6 +1359,7 @@ class Ssbhesabfa_Admin
                 die();
             }
 
+            //Call API
             $api = new Ssbhesabfa_Api();
             $wpFaService = new HesabfaWpFaService();
 
@@ -1322,5 +1412,147 @@ class Ssbhesabfa_Admin
             die();
         }
     }
+//=========================================================================================================================
+    function add_additional_fields_to_checkout( $fields ) {
+        //this function is used to add fields to the checkout page
+        // check if checkbox is checked
+        $NationalCode_isActive = get_option('ssbhesabfa_contact_NationalCode_checkbox_hesabfa');
+        $EconomicCode_isActive = get_option('ssbhesabfa_contact_EconomicCode_checkbox_hesabfa');
+        $RegistrationNumber_isActive = get_option('ssbhesabfa_contact_RegistrationNumber_checkbox_hesabfa');
+        $Website_isActive = get_option('ssbhesabfa_contact_Website_checkbox_hesabfa');
 
+        // check if field is required
+	    $NationalCode_isRequired = get_option('ssbhesabfa_contact_NationalCode_isRequired_hesabfa');
+	    $EconomicCode_isRequired = get_option('ssbhesabfa_contact_EconomicCode_isRequired_hesabfa');
+	    $RegistrationNumber_isRequired = get_option('ssbhesabfa_contact_RegistrationNumber_isRequired_hesabfa');
+	    $Website_isRequired = get_option('ssbhesabfa_contact_Website_isRequired_hesabfa');
+
+        // add fields
+
+        //NationalCode
+	    if($NationalCode_isActive == 'yes'){
+		    $fields['billing']['billing_hesabfa_nationalcode'] = array(
+               'label'     => __('National code', 'ssbhesabfa'),
+               'placeholder'   => __('please enter your National code', 'ssbhesabfa'),
+               'priority' => 30,
+               'required'  => (bool) $NationalCode_isRequired,
+               'clear'     => true,
+               'maxlength' => 10,
+            );
+        }
+        //Economic code
+	    if($EconomicCode_isActive == 'yes'){
+            $fields['billing']['billing_hesabfa_economiccode'] = array(
+               'label'     => __('Economic code', 'ssbhesabfa'),
+               'placeholder'   => __('please enter your Economic code', 'ssbhesabfa'),
+               'priority' => 31,
+               'required'  => (bool) $EconomicCode_isRequired,
+               'clear'     => true
+               );
+	    }
+        //Registration Number
+	    if($RegistrationNumber_isActive == 'yes'){
+		    $fields['billing']['billing_hesabfa_registerationnumber'] = array(
+               'label'     => __('Registration number', 'ssbhesabfa'),
+               'placeholder'   => __('please enter your Registration number', 'ssbhesabfa'),
+               'priority' => 32,
+               'required'  => (bool) $RegistrationNumber_isRequired,
+               'clear'     => true
+               );
+	    }
+        //Website
+	    if($Website_isActive == 'yes'){
+		    $fields['billing']['billing_hesabfa_website'] = array(
+               'type' => 'url',
+               'label'     => __('Website', 'ssbhesabfa'),
+               'placeholder'   => __('please enter your Website address', 'ssbhesabfa'),
+               'priority' => 33,
+               'required'  => (bool) $Website_isRequired,
+               'clear'     => true,
+               'pattern'    => "[Hh][Tt][Tt][Pp][Ss]?:\/\/(?:(?:[a-zA-Z\u00a1-\uffff0-9]+-?)*[a-zA-Z\u00a1-\uffff0-9]+)(?:\.(?:[a-zA-Z\u00a1-\uffff0-9]+-?)*[a-zA-Z\u00a1-\uffff0-9]+)*(?:\.(?:[a-zA-Z\u00a1-\uffff]{2,}))(?::\d{2,5})?(?:\/[^\s]*)?",
+             );
+	    }
+        if(isset($_POST['billing_hesabfa_nationalcode']) || isset($_POST['billing_hesabfa_website'])) {
+            $NationalCode = $_POST['billing_hesabfa_nationalcode'];
+            $Website = $_POST['billing_hesabfa_website'];
+            if($NationalCode_isRequired) {
+                $this->CheckNationalCode($NationalCode);
+            }
+
+            if($Website_isRequired) {
+                $this->CheckWebsite($Website);
+            }
+        }
+	        return $fields;
+    }
+
+//=========================================================================================================================
+    function CheckNationalCode($NationalCode): void
+    {
+        $identicalDigits = ['1111111111', '2222222222', '3333333333', '4444444444', '5555555555', '6666666666', '7777777777', '8888888888', '9999999999'];
+
+        if(strlen($NationalCode) === 10) {
+            $summation = 0;
+            $j = 10;
+            for($i = 0 ; $i < 9 ; $i++) {
+                $digit = substr($NationalCode, $i, 1);
+                $temp = $digit * $j;
+                $j -= 1;
+                $summation += $temp;
+            }
+            $controlDigit = substr($NationalCode, 9, 1);
+            $retrieve = $summation % 11;
+
+            if(in_array($NationalCode, $identicalDigits) === false) {
+                if($retrieve < 2) {
+                    if($controlDigit != $retrieve) {
+                        wc_add_notice(__('please enter a valid national code', 'ssbhesabfa'), 'error');
+                    }
+                } else {
+                    if($controlDigit != (11 - $retrieve)) {
+                        wc_add_notice(__('please enter a valid national code', 'ssbhesabfa'), 'error');
+                    }
+                }
+            }
+        } else {
+            wc_add_notice(__('please enter a valid national code', 'ssbhesabfa'), 'error');
+        }
+    }
+//=========================================================================================================================
+    function CheckWebsite($Website): void
+    {
+        if (filter_var($Website, FILTER_VALIDATE_URL)) {
+            //
+        } else {
+            wc_add_notice(__('please enter a valid Website URL', 'ssbhesabfa'), 'error');
+        }
+    }
+//=========================================================================================================================
+    function show_additional_fields_in_order_detail($order) {
+        //this function is used to show codes and website in woocommerce orders detail
+        $orderId = $order->get_id();
+	    $NationalCode = '_billing_hesabfa_nationalcode';
+        $EconomicCode = '_billing_hesabfa_economiccode';
+	    $RegistrationNumber = '_billing_hesabfa_registerationnumber';
+	    $Website = '_billing_hesabfa_website';
+
+	    $NationalCode_isActive = get_option('ssbhesabfa_contact_NationalCode_checkbox_hesabfa');
+	    $EconomicCode_isActive = get_option('ssbhesabfa_contact_EconomicCode_checkbox_hesabfa');
+	    $RegistrationNumber_isActive = get_option('ssbhesabfa_contact_RegistrationNumber_checkbox_hesabfa');
+	    $Website_isActive = get_option('ssbhesabfa_contact_Website_checkbox_hesabfa');
+
+	    if($NationalCode_isActive == 'yes') {
+		    echo '<p><strong>' . __('National code', 'ssbhesabfa')  . ': </strong> ' .'<br>'. '<strong>' . get_post_meta( $orderId, $NationalCode, true ) . '</strong></p>';
+        }
+
+	    if($EconomicCode_isActive == 'yes')
+		    echo '<p><strong>' . __('Economic code', 'ssbhesabfa')  . ': </strong> ' .'<br>'. '<strong>' . get_post_meta( $orderId, $EconomicCode, true ) . '</strong></p>';
+
+	    if($RegistrationNumber_isActive == 'yes')
+		    echo '<p><strong>' . __('Registration number', 'ssbhesabfa')  . ': </strong> ' .'<br>'. '<strong>' . get_post_meta( $orderId, $RegistrationNumber, true ) . '</strong></p>';
+
+	    if($Website_isActive == 'yes')
+		    echo '<p><strong>' . __('Website', 'ssbhesabfa')  . ': </strong> ' .'<br>'. '<a target="_blank" href="https://'.get_post_meta( $orderId, $Website, true ) .'">' . get_post_meta( $orderId, $Website, true ) . '</a></p>';
+    }
+//=========================================================================================================================
 }

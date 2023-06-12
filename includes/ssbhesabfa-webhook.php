@@ -3,6 +3,7 @@
 /*
  * @author     Saeed Sattar Beglou <saeed.sb@gmail.com>
  * @author     HamidReza Gharahzadeh <hamidprime@gmail.com>
+ * @author     Sepehr Najafi <sepehrn249@gmail.com>
  */
 
 /* Check security token */
@@ -25,4 +26,5 @@ if ($result->Password != get_option('ssbhesabfa_webhook_password')) {
 }
 
 include(dirname(__FILE__) . '/class-ssbhesabfa-webhook.php');
+//calling the class ssbhesabfa webhook
 new Ssbhesabfa_Webhook();

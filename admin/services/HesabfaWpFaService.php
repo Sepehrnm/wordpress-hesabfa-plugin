@@ -10,9 +10,7 @@ class WpFa
     public $idWp;
     public $idWpAttribute;
 
-    public function __construct()
-    {
-    }
+    public function __construct() {}
 
     public static function newWpFa($id, $type, $idHesabfa, $idWp, $idWpAttribute): WpFa
     {
@@ -28,27 +26,25 @@ class WpFa
 
 class HesabfaWpFaService
 {
-    public function __construct()
-    {
-    }
+    public function __construct() {}
 
     public function getWpFa($objType, $idWp, $idWpAttribute = 0)
     {
-        if (!isset($objType) || !isset($idWp))
-            return false;
+        //validation
+        if (!isset($objType) || !isset($idWp)) return false;
 
         global $wpdb;
         $row = $wpdb->get_row("SELECT * FROM " . $wpdb->prefix . "ssbhesabfa WHERE `id_ps` = $idWp AND `id_ps_attribute` = $idWpAttribute AND `obj_type` = '$objType'");
 
-        if (isset($row))
-            return $this->mapWpFa($row);
+        if (isset($row)) return $this->mapWpFa($row);
+
         return null;
     }
-
+//=========================================================================================================
     public function getWpFaByHesabfaId($objType, $hesabfaId)
     {
-        if (!isset($objType) || !isset($hesabfaId))
-            return false;
+        //validation
+        if (!isset($objType) || !isset($hesabfaId)) return false;
 
         global $wpdb;
         $row = $wpdb->get_row("SELECT * FROM " . $wpdb->prefix . "ssbhesabfa WHERE `id_hesabfa` = $hesabfaId AND `obj_type` = '$objType'");
@@ -57,7 +53,7 @@ class HesabfaWpFaService
             return $this->mapWpFa($row);
         return null;
     }
-
+//=========================================================================================================
     public function getWpFaId($objType, $idWp, $idWpAttribute = 0)
     {
         if (!isset($objType) || !isset($idWp))
@@ -71,7 +67,7 @@ class HesabfaWpFaService
         else
             return false;
     }
-
+//=========================================================================================================
     public function getWpFaIdByHesabfaId($objType, $hesabfaId)
     {
         if (!isset($objType) || !isset($hesabfaId))
@@ -84,32 +80,34 @@ class HesabfaWpFaService
             return (int)$row->id;
         return null;
     }
-
+//=========================================================================================================
     public function getProductCodeByWpId($id_product, $id_attribute = 0)
     {
         $obj = $this->getWpFa('product', $id_product, $id_attribute);
-        if ($obj != null)
-            return $obj->idHesabfa;
+
+        if ($obj != null) return $obj->idHesabfa;
+
         return null;
     }
-
+//=========================================================================================================
     public function getCustomerCodeByWpId($id_customer)
     {
         $obj = $this->getWpFa('customer', $id_customer);
-        if ($obj != null)
-            return $obj->idHesabfa;
+
+        if ($obj != null) return $obj->idHesabfa;
+
         return null;
     }
-
+//=========================================================================================================
     public function getInvoiceCodeByWpId($id_order)
     {
         $obj = $this->getWpFa('order', $id_order);
-        if ($obj != null)
-            return $obj->idHesabfa;
+
+        if ($obj != null) return $obj->idHesabfa;
+
         return null;
     }
-
-
+//=========================================================================================================
     public function getProductAndCombinations($idWp)
     {
         global $wpdb;
@@ -125,41 +123,48 @@ class HesabfaWpFaService
         }
         return null;
     }
-
+//=========================================================================================================
     public function mapWpFa($sqlObj): WpFa
     {
         $wpFa = new WpFa();
+
         $wpFa->id = $sqlObj->id;
         $wpFa->idHesabfa = $sqlObj->id_hesabfa;
         $wpFa->idWp = $sqlObj->id_ps;
         $wpFa->idWpAttribute = $sqlObj->id_ps_attribute;
         $wpFa->objType = $sqlObj->obj_type;
+
         return $wpFa;
     }
-
+//=========================================================================================================
     public function saveProduct($item): bool
     {
         $json = json_decode($item->Tag);
         $wpFaService = new HesabfaWpFaService();
+        //get hesabfa id
         $wpFa = $wpFaService->getWpFaByHesabfaId('product', $item->Code);
 
         if (!$wpFa) {
             $wpFa = WpFa::newWpFa(0, 'product', (int)$item->Code, (int)$json->id_product, (int)$json->id_attribute);
             $wpFaService->save($wpFa);
-            HesabfaLogService::log(array("Item successfully added. Item code: " . (string)$item->Code . ". Product ID: $json->id_product-$json->id_attribute"));
+            //LOG into the log file
+            HesabfaLogService::log(array("آیتم با موفقیت اضافه گردید. کد آیتم: " . (string)$item->Code . ". شناسه محصول: $json->id_product-$json->id_attribute" . "\n" .
+            "Item successfully added. Item code: " . (string)$item->Code . ". Product ID: $json->id_product-$json->id_attribute"));
         } else {
             $wpFa->idHesabfa = (int)$item->Code;
             $wpFaService->update($wpFa);
-            HesabfaLogService::log(array("Item successfully updated. Item code: " . (string)$item->Code . ". Product ID: $json->id_product-$json->id_attribute"));
+            //LOG into the log file
+            HesabfaLogService::log(array("آیتم با موفقیت بروزرسانی شد. کد آیتم: " . (string)$item->Code . ". شناسه محصول: $json->id_product-$json->id_attribute" . "\n" .
+            "Item successfully updated. Item code: " . (string)$item->Code . ". Product ID: $json->id_product-$json->id_attribute"));
         }
         return true;
     }
-
+//=========================================================================================================
     public function saveCustomer($customer): bool
     {
         $json = json_decode($customer->Tag);
-        if ((int)$json->id_customer == 0)
-            return true;
+        //if customer id is 0 return true
+        if ((int)$json->id_customer == 0) return true;
 
         $id = $this->getWpFaId('customer', (int)$json->id_customer);
         global $wpdb;
@@ -170,18 +175,22 @@ class HesabfaWpFaService
                 'obj_type' => 'customer',
                 'id_ps' => (int)$json->id_customer
             ));
-            HesabfaLogService::writeLogStr("Customer successfully added. Customer code: " . (string)$customer->Code . ". Customer ID: $json->id_customer");
+            //LOG into the log file
+            HesabfaLogService::writeLogStr("مشتری با موفقیت اضافه گردید. کد مشتری: " . (string)$customer->Code . ". شناسه مشتری: $json->id_customer" . "\n" .
+            "Customer successfully added. Customer code: " . (string)$customer->Code . ". Customer ID: $json->id_customer");
         } else {
             $wpdb->update($wpdb->prefix . 'ssbhesabfa', array(
                 'id_hesabfa' => (int)$customer->Code,
                 'obj_type' => 'customer',
                 'id_ps' => (int)$json->id_customer,
             ), array('id' => $id));
-            HesabfaLogService::writeLogStr("Customer successfully updated. Customer code: " . (string)$customer->Code . ". Customer ID: $json->id_customer");
+            //LOG into the log file
+            HesabfaLogService::writeLogStr("مشتری با موفقیت بروزرسانی شد. کد مشتری: " . (string)$customer->Code . ". شناسه مشتری: $json->id_customer" . "\n" .
+            "Customer successfully updated. Customer code: " . (string)$customer->Code . ". Customer ID: $json->id_customer");
         }
         return true;
     }
-
+//=========================================================================================================
     public function saveInvoice($invoice, $orderType)
     {
         $json = json_decode($invoice->Tag);
@@ -190,31 +199,42 @@ class HesabfaWpFaService
         $invoiceNumber = (int)$invoice->Number;
         $objType = $orderType == 0 ? 'order' : 'returnOrder';
 
-        if ($id == false) {
+        //previous code -> if ($id == false)
+        if (!$id) {
             Db::getInstance()->insert('ps_hesabfa', array(
                 'id_hesabfa' => $invoiceNumber,
                 'obj_type' => $objType,
                 'id_ps' => (int)$json->id_order,
             ));
+            //check if it is order or return order
             if ($objType == 'order')
-                LogService::writeLogStr("Invoice successfully added. invoice number: " . (string)$invoice->Number . ", order id: " . $json->id_order);
+                //LOG into the log file
+                LogService::writeLogStr("صورتحساب با موفقیت اضافه گردید. شماره صورتحساب: " . (string)$invoice->Number . ", شناسه سفارش: " . $json->id_order . "\n" .
+                "Invoice successfully added. invoice number: " . (string)$invoice->Number . ", order id: " . $json->id_order);
             else
-                LogService::writeLogStr("Return Invoice successfully added. Customer code: " . (string)$invoice->Number . ", order id: " . $json->id_order);
+                //LOG into the log file
+                LogService::writeLogStr("صورتحساب بازگشتی اضافه گردید. کد مشتری: " . (string)$invoice->Number . ", شناسه سفارش: " . $json->id_order . "\n" .
+                "Return Invoice successfully added. Customer code: " . (string)$invoice->Number . ", order id: " . $json->id_order);
         } else {
             Db::getInstance()->update('ps_hesabfa', array(
                 'id_hesabfa' => $invoiceNumber,
                 'obj_type' => $objType,
                 'id_ps' => (int)$json->id_order,
             ), array('id' => $id), 0, true, true);
+            //check if it is order or return order
             if ($objType == 'order')
-                LogService::writeLogStr("Invoice successfully updated. invoice number: " . (string)$invoice->Number . ", order id: " . $json->id_order);
+                //LOG into the log file
+                LogService::writeLogStr("صورتحساب با موفقیت بروزرسانی شد. شماره صورتحساب: " . (string)$invoice->Number . ", شناسه سفارش: " . $json->id_order . "\n" .
+                "Invoice successfully updated. invoice number: " . (string)$invoice->Number . ", order id: " . $json->id_order);
             else
-                LogService::writeLogStr("Return Invoice successfully updated. Customer code: " . (string)$invoice->Number . ", order id: " . $json->id_order);
+                //LOG into the log file
+                LogService::writeLogStr("صورتحساب بازگشتی با موفقیت بروزرسانی شد. کد مشتری: " . (string)$invoice->Number . ", شناسه سفارش: " . $json->id_order . "\n" .
+                "Return Invoice successfully updated. Customer code: " . (string)$invoice->Number . ", order id: " . $json->id_order);
         }
 
         return true;
     }
-
+//=========================================================================================================
     public function save(WpFa $wpFa)
     {
         global $wpdb;
@@ -225,7 +245,7 @@ class HesabfaWpFaService
             'id_ps_attribute' => (int)$wpFa->idWpAttribute,
         ));
     }
-
+//=========================================================================================================
     public function update(WpFa $wpFa)
     {
         global $wpdb;
@@ -236,16 +256,17 @@ class HesabfaWpFaService
             'id_ps_attribute' => (int)$wpFa->idWpAttribute,
         ), array('id' => $wpFa->id));
     }
-
+//=========================================================================================================
     public function delete(WpFa $wpFa)
     {
         global $wpdb;
         $wpdb->delete($wpdb->prefix . 'ssbhesabfa', array('id' => $wpFa->id));
     }
-
+//=========================================================================================================
     public function deleteAll($productId)
     {
         global $wpdb;
         $wpdb->delete($wpdb->prefix . 'ssbhesabfa', array('id_ps' => $productId));
     }
+//=========================================================================================================
 }

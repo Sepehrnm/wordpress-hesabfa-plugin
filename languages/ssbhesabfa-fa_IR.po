@@ -239,6 +239,82 @@ msgstr "دسته‌بندی مشتریان"
 msgid "Enter a Customer's Group in Hesabfa"
 msgstr "نام دسته‌بندی مشتریان در حسابفا را وارد کنید"
 
+
+
+#: admin/partials/ssbhesabfa-admin-setting.php:110
+msgid "Save Customer's group"
+msgstr "ذخیره دسته بندی مشتریان"
+
+
+#: admin/partials/ssbhesabfa-admin-setting.php:110
+msgid "Automatically save Customer's group in hesabfa"
+msgstr "به صورت خودکار دسته بندی مشتریان را در حسابفا ذخیره کن"
+
+
+
+#: admin/partials/ssbhesabfa-admin-setting.php:111
+msgid "Customer's detail auto save and update"
+msgstr "ذخیره خودکار مشتریان"
+
+
+#: admin/partials/ssbhesabfa-admin-setting.php:111
+msgid "Save and update Customer's detail automatically in hesabfa"
+msgstr "ثبت و ذخیره خودرکار اطلاعات مشتریان در حسابفا"
+
+msgid "Add additional fields to checkout page"
+msgstr "افزودن فیلد های دلخواه به صفحه پرداخت"
+
+
+msgid "Customer add field to checkout by hesabfa"
+msgstr "افزودن فیلد ها توسط افزونه حسابفا"
+
+
+msgid "Customer add field to checkout by postmeta"
+msgstr "استفاده از فیلد های موجود در جدول متا (که توسط اافزونه های دیگر اضافه شده است)"
+
+
+msgid "Show"
+msgstr "نمایش"
+
+msgid "Title"
+msgstr "عنوان"
+
+msgid "Meta code in Postmeta"
+msgstr "کد متا در جدول پست متا"
+
+msgid "National code"
+msgstr "کد ملی"
+
+msgid "Economic code"
+msgstr "کد اقتصادی"
+
+msgid "Registration number"
+msgstr "شماره ثبت"
+
+msgid "Website"
+msgstr "وب سایت"
+
+msgid "Required"
+msgstr "اجباری"
+
+msgid "please enter your National code"
+msgstr "لطفا کد ملی خود را وارد کتید"
+
+msgid "please enter a valid national code"
+msgstr "لطفا کد ملی معتبر وارد نمایید"
+
+msgid "please enter your Economic code"
+msgstr "لطفا کد اقتصادی خود را وارد کتید"
+
+msgid "please enter your Registration number"
+msgstr "لطفا شماره ثبت خود را وارد کتید"
+
+msgid "please enter your Website address"
+msgstr "لطفا آدرس سایت خود را وارد کتید"
+
+msgid "please enter a valid Website URL"
+msgstr "لطفا آدرس سایت معتبر وارد نمایید"
+
 #: admin/partials/ssbhesabfa-admin-setting.php:144
 msgid "Invoice Settings"
 msgstr "تنظیمات فاکتور"
@@ -246,6 +322,10 @@ msgstr "تنظیمات فاکتور"
 #: admin/partials/ssbhesabfa-admin-setting.php:147
 msgid "Add invoice in which status"
 msgstr "افزودن فاکتور در وضعیت:"
+
+#: admin/partials/ssbhesabfa-admin-setting.php:380
+msgid "Save invoice in draft mode in Hesabfa"
+msgstr "ثبت فاکتور بصورت پیش نویس در حسابفا"
 
 #: admin/partials/ssbhesabfa-admin-setting.php:151
 #: admin/partials/ssbhesabfa-admin-setting.php:167
@@ -544,6 +624,10 @@ msgstr "اتصال به حسابفا برقرار نیست، لطفا اتصال
 msgid "No need to set!"
 msgstr "عدم نیاز به تعریف!"
 
+#: admin/partials/ssbhesabfa-admin-setting.php:630
+msgid "Choose"
+msgstr "انتخاب کنید"
+
 #: admin/partials/ssbhesabfa-admin-setting.php:638
 msgid "Define at least one bank in Hesabfa"
 msgstr "حداقل یک حساب بانکی در حسابفا تعریف کنید."
@@ -648,6 +732,9 @@ msgstr "با ذخیره محصول در ووکامرس، بارکد محصول �
 msgid "Do not update product category in Hesabfa by saving product in woocommerce"
 msgstr "با ذخیره محصول در ووکامرس، دسته بندی محصول را در حسابفا بروز نکن"
 
+msgid "Do not update product code in Hesabfa by saving product in woocommerce"
+msgstr "با ذخیره محصول در ووکامرس، کد محصول را در حسابفا بروز نکن"
+
 msgid "Shipping method"
 msgstr "روش حمل و نقل"
 
@@ -705,6 +792,18 @@ msgstr "قیمت فروش ویژه حذف گردد"
 
 msgid "The sale price get changes in proportion to the regular price"
 msgstr "قیمت فروش ویژه به تناسب قیمت اصلی تغییر یابد"
+
+msgid "Submit invoice base on Dokan orders"
+msgstr "ثبت فاکتور بر اساس سفارشات افزونه دکان"
+
+msgid "Submit parent order"
+msgstr "ثبت سفارش مادر"
+
+msgid "Submit children orders"
+msgstr "ثبت زیر سفارش ها"
+
+msgid "Inactive"
+msgstr "غیر فعال"
 
 #~ msgid "Sync completed, All products added/updated."
 #~ msgstr "همسان‌سازی پایان یافت. تمامی محصولات به‌روزرسانی/افزوده شدند."

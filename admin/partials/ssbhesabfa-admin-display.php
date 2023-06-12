@@ -2,12 +2,13 @@
 
 /**
  * @class      Ssbhesabfa_Admin_Display
- * @version    1.93.59
+ * @version    2.0.67
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin/display
  * @author     Saeed Sattar Beglou <saeed.sb@gmail.com>
  * @author     HamidReza Gharahzadeh <hamidprime@gmail.com>
+ * @author     Sepehr Najafi <sepehrn249@gmail.com>
  */
 
 class Ssbhesabfa_Admin_Display
@@ -47,7 +48,7 @@ class Ssbhesabfa_Admin_Display
         $iconUrl = plugins_url('/hesabfa-accounting/admin/img/menu-icon.png');
         add_menu_page("حسابفا", "حسابفا", "manage_options", "ssbhesabfa-option", array(__CLASS__, 'hesabfa_plugin_page'), $iconUrl, null);
         add_submenu_page("ssbhesabfa-option", "تنظیمات حسابفا", "تنظیمات حسابفا", "manage_options", 'ssbhesabfa-option', array(__CLASS__, 'hesabfa_plugin_page'));
-        //add_submenu_page("ssbhesabfa-option", "همسان سازی دستی کالاها", "همسان سازی دستی کالاها", "manage_options", 'hesabfa-sync-products-manually', array(__CLASS__, 'hesabfa_plugin_sync_products_manually'));
+//        add_submenu_page("ssbhesabfa-option", "همسان سازی دستی کالاها", "همسان سازی دستی کالاها", "manage_options", 'hesabfa-sync-products-manually', array(__CLASS__, 'hesabfa_plugin_sync_products_manually'));
         //add_submenu_page("ssbhesabfa-option", "کدهای تکراری", "کدهای تکراری", "manage_options", 'hesabfa-repeated-products', array(__CLASS__, 'hesabfa_plugin_repeated_products'));
         //add_submenu_page("ssbhesabfa-option", "ابزارها", "ابزارها", "manage_options", 'hesabfa-tools', array(__CLASS__, 'hesabfa_plugin_tools'));
     }
@@ -60,8 +61,10 @@ class Ssbhesabfa_Admin_Display
             $data = $_GET["data"];
             $codesNotFoundInHesabfa = explode(",", $data);
         }
+        //set default values to page and rpp
         if (!$page) $page = 1;
         if (!$rpp) $rpp = 10;
+
         $result = self::getProductsAndRelations($page, $rpp);
         $pageCount = ceil($result["totalCount"] / $rpp);
         $i = ($page - 1) * $rpp;
@@ -184,7 +187,7 @@ class Ssbhesabfa_Admin_Display
         </div>
         <?php
     }
-
+//========================================================================================================================================
     function hesabfa_plugin_repeated_products()
     {
         global $wpdb;
@@ -228,7 +231,7 @@ class Ssbhesabfa_Admin_Display
         </div>
         <?php
     }
-
+//========================================================================================================================================
     function hesabfa_plugin_tools() {
         self::hesabfa_plugin_header();
         ?>
@@ -243,7 +246,7 @@ class Ssbhesabfa_Admin_Display
         </div>
         <?php
     }
-
+//========================================================================================================================================
     public static function getProductsAndRelations($page, $rpp)
     {
         $offset = ($page - 1) * $rpp;
@@ -280,7 +283,7 @@ class Ssbhesabfa_Admin_Display
 
         return array("data" => $rows, "totalCount" => $totalCount);
     }
-
+//========================================================================================================================================
     /**
      * @since    1.0.0
      * @access   public
@@ -326,7 +329,7 @@ class Ssbhesabfa_Admin_Display
             echo '<div class="wrap">' . __('Hesabfa Plugin requires the WooCommerce to work!, Please install/activate woocommerce and try again', 'ssbhesabfa') . '</div>';
         }
     }
-
+//========================================================================================================================================
     public static function hesabfa_plugin_header()
     {
         $logoUrl = plugins_url('/hesabfa-accounting/admin/img/hesabfa-logo.fa.png');
@@ -348,6 +351,7 @@ class Ssbhesabfa_Admin_Display
         </div>
         <?php
     }
+//========================================================================================================================================
 }
 
 //Ssbhesabfa_Admin_Display::init();

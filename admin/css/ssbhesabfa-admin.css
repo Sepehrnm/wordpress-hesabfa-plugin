@@ -1,3 +1,8 @@
+* {
+    font-family: IRANYekan, Tahoma;
+    font-family: IRANYekan !important;
+}
+
 .hand {
     cursor: pointer;
 }
@@ -9,14 +14,12 @@
 }
 
 a.nav-tab {
-    font-family: IRANYekan, Tahoma;
     padding: 5px 10px;
     font-weight: normal;
     border-radius: 7px 7px 0px 0px;
 }
 
 .hesabfa-tab-page-title {
-    font-family: IRANYekan !important;
     color: dimgray;
 }
 
@@ -66,3 +69,4 @@ a.nav-tab {
     color: dodgerblue;
     cursor: pointer;
 }
+

@@ -1,7 +1,7 @@
 jQuery(function ($) {
     $('.progress').hide();
-
     'use strict';
+//=====================================================================================================================
     $(function () {
         // AJAX - Export Products
         $('#ssbhesabfa_export_products').submit(function () {
@@ -12,14 +12,14 @@ jQuery(function ($) {
             $('#ssbhesabfa-export-product-submit i.spinner').show();
 
             $('#exportProductsProgress').show();
-            $('#exportProductsProgressBar').css('width', 0 + '%').attr('aria-valuenow', 0);
+            $('#exp  ortProductsProgressBar').css('width', 0 + '%').attr('aria-valuenow', 0);
 
             exportProducts(1, 1, 1, 0);
 
             return false;
         });
     });
-
+//=====================================================================================================================
     function exportProducts(batch, totalBatch, total, updateCount) {
         const data = {
             'action': 'adminExportProducts',
@@ -46,12 +46,12 @@ jQuery(function ($) {
                     return false;
                 }
             } else {
-                alert('Error exporting products.');
+                alert('خطا در استخراج محصولات');
                 return false;
             }
         });
     }
-
+//=====================================================================================================================
     $(function () {
         // AJAX - Import Products
         $('#ssbhesabfa_import_products').submit(function () {
@@ -69,7 +69,7 @@ jQuery(function ($) {
             return false;
         });
     });
-
+//=====================================================================================================================
     function importProducts(batch, totalBatch, total, updateCount) {
         var data = {
             'action': 'adminImportProducts',
@@ -97,12 +97,12 @@ jQuery(function ($) {
                     return false;
                 }
             } else {
-                alert('Error importing products.');
+                alert('خطا در وارد کردن محصولات');
                 return false;
             }
         });
     }
-
+//=====================================================================================================================
     $(function () {
         // AJAX - Export Products opening quantity
         $('#ssbhesabfa_export_products_opening_quantity').submit(function () {
@@ -146,12 +146,12 @@ jQuery(function ($) {
                     return false;
                 }
             } else {
-                alert('Error exporting products opening quantity.');
+                alert('خطا در استخراج موجودی اول دوره');
                 return false;
             }
         });
     }
-
+//=====================================================================================================================
     $(function () {
         // AJAX - Export Customers
         $('#ssbhesabfa_export_customers').submit(function () {
@@ -196,12 +196,12 @@ jQuery(function ($) {
                     return false;
                 }
             } else {
-                alert('Error exporting customers.');
+                alert('خطا در استخراج مشتریان');
                 return false;
             }
         });
     }
-
+//=====================================================================================================================
     $(function () {
         // AJAX - Sync Changes
         $('#ssbhesabfa_sync_changes').submit(function () {
@@ -227,7 +227,7 @@ jQuery(function ($) {
                     top.location.replace(redirectUrl);
                     return false;
                 } else {
-                    alert('Error syncing changes.');
+                    alert('خطا در همگام سازی تغییرات');
                     return false;
                 }
             });
@@ -235,7 +235,7 @@ jQuery(function ($) {
             return false;
         });
     });
-
+//=====================================================================================================================
     $(function () {
         // AJAX - Sync Products
         $('#ssbhesabfa_sync_products').submit(function () {
@@ -254,7 +254,7 @@ jQuery(function ($) {
             return false;
         });
     });
-
+//=====================================================================================================================
     function syncProducts(batch, totalBatch, total) {
         const data = {
             'action': 'adminSyncProducts',
@@ -262,6 +262,7 @@ jQuery(function ($) {
             'totalBatch': totalBatch,
             'total': total
         };
+        //$.post(URL, DATA, CALLBACK)
         $.post(ajaxurl, data, function (response) {
             if (response !== 'failed') {
                 const res = JSON.parse(response);
@@ -281,12 +282,12 @@ jQuery(function ($) {
                     return false;
                 }
             } else {
-                alert('Error syncing products.');
+                alert('خطا در همگام سازی محصولات');
                 return false;
             }
         });
     }
-
+//=====================================================================================================================
     $(function () {
         // AJAX - Sync Orders
         $('#ssbhesabfa_sync_orders').submit(function () {
@@ -334,12 +335,12 @@ jQuery(function ($) {
                     return false;
                 }
             } else {
-                alert('Error syncing orders.');
+                alert('خطا در همگام سازی سفارشات');
                 return false;
             }
         });
     }
-
+//=====================================================================================================================
     $(function () {
         // AJAX - Sync Products
         $('#ssbhesabfa_update_products').submit(function () {
@@ -357,7 +358,7 @@ jQuery(function ($) {
             return false;
         });
     });
-
+//=====================================================================================================================
     function updateProducts(batch, totalBatch, total) {
         var data = {
             'action': 'adminUpdateProducts',
@@ -383,12 +384,12 @@ jQuery(function ($) {
                     return false;
                 }
             } else {
-                alert('Error updating products.');
+                alert('خطا در بروزرسانی محصولات');
                 return false;
             }
         });
     }
-
+//=====================================================================================================================
     $(function () {
         // AJAX - Clean log
         $('#ssbhesabfa_clean_log').submit(function () {
@@ -414,7 +415,7 @@ jQuery(function ($) {
                     top.location.replace(redirectUrl);
                     return false;
                 } else {
-                    alert('Error cleaning log file.');
+                    alert('خطا در پاکسازی فایل لاگ');
                     return false;
                 }
             });
@@ -422,7 +423,7 @@ jQuery(function ($) {
             return false;
         });
     });
-
+//=====================================================================================================================
     $(function () {
         // AJAX - Sync Products Manually
         $('#ssbhesabfa_sync_products_manually').submit(function () {
@@ -468,7 +469,7 @@ jQuery(function ($) {
                     top.location.replace(redirectUrl);
                     return false;
                 } else {
-                    alert('Error saving data.');
+                    alert('خطا در ذخیره اطلاعات');
                     return false;
                 }
             });
@@ -505,7 +506,7 @@ jQuery(function ($) {
 
         submitInvoice(orderId);
     });
-
+//=====================================================================================================================
     function submitInvoice(orderId) {
         var data = {
             'action': 'adminSubmitInvoice',
@@ -517,7 +518,7 @@ jQuery(function ($) {
                 // refresh page
                 location.reload();
             } else {
-                alert('Error submiting invoice.');
+                alert('خطا در ثبت فاکتور');
                 return false;
             }
         });
@@ -536,8 +537,7 @@ jQuery(function ($) {
             $("#changeBusinessWarning").show();
         }
     });
-
-
+//=====================================================================================================================
     $(function () {
         // AJAX - clear all plugin data
         $('#hesabfa-clear-plugin-data').click(function () {
@@ -591,8 +591,9 @@ jQuery(function ($) {
             return false;
         });
     });
-
+//=====================================================================================================================
     $(function () {
+        //SAVE
         $(".hesabfa-item-save").on('click', function (){
             const productId = $("#panel_product_data_hesabfa").data('product-id');
             const attributeId = $(this).data('id');
@@ -621,6 +622,7 @@ jQuery(function ($) {
                 }
             });
         });
+        //DELETE LINK
         $(".hesabfa-item-delete-link").on('click', function (){
             const productId = $("#panel_product_data_hesabfa").data('product-id');
             const attributeId = $(this).data('id');
@@ -641,15 +643,16 @@ jQuery(function ($) {
                     else
                         $("#ssbhesabfa_hesabfa_item_code_" + attributeId).val('');
                     setTimeout(function (){
-                        alert(res.error ? res.message : 'ارتباط محصول با موفقیت حذف شد.');
+                        alert(res.error ? res.message : 'ارتباط محصول با موفقیت حذف شد');
                     }, 100);
                     return false;
                 } else {
-                    alert('خطا در هنگام حذف ارتباط.');
+                    alert('خطا در هنگام حذف ارتباط');
                     return false;
                 }
             });
         });
+        //UPDATE
         $(".hesabfa-item-update").on('click', function (){
             const productId = $("#panel_product_data_hesabfa").data('product-id');
             const attributeId = $(this).data('id');
@@ -672,12 +675,12 @@ jQuery(function ($) {
                         alert(res.message);
                     return false;
                 } else {
-                    alert('خطا در هنگام بروزرسانی محصول.');
+                    alert('خطا در هنگام بروزرسانی محصول');
                     return false;
                 }
             });
         });
-
+        //SAVE ALL
         $("#hesabfa-item-save-all").on('click', function (){
             const productId = $("#panel_product_data_hesabfa").data('product-id');
             const itemsCode = $(".hesabfa-item-code");
@@ -704,11 +707,12 @@ jQuery(function ($) {
                     location.reload();
                     return false;
                 } else {
-                    alert('خطا در هنگام تغییر کد کالاهای متصل.');
+                    alert('خطا در هنگام تغییر کد کالاهای متصل');
                     return false;
                 }
             });
         });
+        //DELETE
         $("#hesabfa-item-delete-link-all").on('click', function (){
             const productId = $("#panel_product_data_hesabfa").data('product-id');
             var data = {
@@ -732,11 +736,12 @@ jQuery(function ($) {
                     }, 100);
                     return false;
                 } else {
-                    alert('خطا در هنگام حذف ارتباط.');
+                    alert('خطا در هنگام حذف ارتباط');
                     return false;
                 }
             });
         });
+        //UPDATE ALL
         $("#hesabfa-item-update-all").on('click', function (){
             const productId = $("#panel_product_data_hesabfa").data('product-id');
             var data = {
@@ -762,15 +767,35 @@ jQuery(function ($) {
                     }
                     return false;
                 } else {
-                    alert('خطا در هنگام بروزرسانی محصول.');
+                    alert('خطا در هنگام بروزرسانی محصول');
                     return false;
                 }
             });
         });
     });
+//=====================================================================================================================
+    $(function (){
+        let radio           = $('input:radio[name="addFieldsRadio"]');
+        let radioChecked    = $('input:radio[name="addFieldsRadio"]:checked');
+        let textInput       = $('.contact_text_input');
 
+        if(radioChecked.val() === '2'){
+            textInput.prop( "disabled", false );
+        }else {
+            textInput.prop( "disabled", true );
+        }
+        $(radio).on('click',function (){
+            if($(this).val() === '2'){
+                textInput.prop( "disabled", false );
+            }else {
+                textInput.prop( "disabled", true );
+            }
+        });
+
+    });
 });
-
+//=====================================================================================================================
+//this function is used in the first page of the plugin in video to jump into the specific section of the video
 function hesabfaTutorialJumpTo(time) {
     let vidEl = document.getElementById('hesabfa-tutorial-video');
     vidEl.play();
@@ -778,4 +803,3 @@ function hesabfaTutorialJumpTo(time) {
     vidEl.currentTime = time;
     vidEl.play();
 }
-

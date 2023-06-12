@@ -8,6 +8,7 @@ include_once(plugin_dir_path(__DIR__) . 'admin/services/HesabfaWpFaService.php')
  * @subpackage ssbhesabfa/includes
  * @author     Saeed Sattar Beglou <saeed.sb@gmail.com>
  * @author     HamidReza Gharahzadeh <hamidprime@gmail.com>
+ * @author     Sepehr Najafi <sepehrn249@gmail.com>
  */
 
 class Ssbhesabfa_Webhook
@@ -20,10 +21,13 @@ class Ssbhesabfa_Webhook
 
     public function __construct()
     {
-        HesabfaLogService::writeLogStr("===== Webhook Called =====");
+        //LOG into the log file
+        HesabfaLogService::writeLogStr("=====  صدا زدن وب هوک =====" . "\n" . "==== Calling Webhook ====");
         $wpFaService = new HesabfaWpFaService();
 
+        //Call API
         $hesabfaApi = new Ssbhesabfa_Api();
+
         $lastChange = get_option('ssbhesabfa_last_log_check_id');
         $changes = $hesabfaApi->settingGetChanges($lastChange + 1);
 
@@ -34,6 +38,15 @@ class Ssbhesabfa_Webhook
                 if (!$item->API) {
                     switch ($item->ObjectType) {
                         case 'Invoice':
+                            if ($item->Action == 123) {
+                                $wpFa1 = $wpFaService->getWpFaByHesabfaId('order', $item->Extra2);
+                                if($wpFa1) {
+                                    $wpFaService->delete($wpFa1);
+                                    //LOG into the log file
+                                    HesabfaLogService::writeLogStr("لینک صورتحساب به همراه سفارش پاک شد. شماره صورتحساب: " . $item->Extra2 . ", شناسه سفارش: " . $wpFa1->idWp . "\n" .
+                                        "The invoice link with the order deleted. Invoice number: " . $item->Extra2 . ", Order id: " . $wpFa1->idWp);
+                                }
+                            }
                             $this->invoicesObjectId[] = $item->ObjectId;
                             foreach (explode(',', $item->Extra) as $invoiceItem) {
                                 if ($invoiceItem != '') {
@@ -87,7 +100,9 @@ class Ssbhesabfa_Webhook
                 update_option('ssbhesabfa_last_log_check_id', $changes->LastId);
 
         } else {
-            HesabfaLogService::log(array("ssbhesabfa - Cannot check last changes. Error Message: " . (string)$changes->ErrorMessage . ". Error Code: " . (string)$changes->ErrorCode));
+            //LOG into the log file
+            HesabfaLogService::log(array("حسابفا - نمی توان آخرین تغییرات را چک کرد. متن خطا: " . (string)$changes->ErrorMessage . ". کدخطا: " . (string)$changes->ErrorCode . "\n" .
+                "ssbhesabfa - Cannot check last changes. Error Message: " . (string)$changes->ErrorMessage . ". Error Code: " . (string)$changes->ErrorCode));
             if ($changes->ErrorCode == 108) {
                 update_option('ssbhesabfa_business_expired', 1);
                 add_action('admin_notices', array(__CLASS__, 'ssbhesabfa_business_expired_notice'));
@@ -97,34 +112,14 @@ class Ssbhesabfa_Webhook
 
         return true;
     }
-
+//=================================================================================================================================
     public function ssbhesabfa_business_expired_notice()
     {
         echo '<div class="error"><p>' . __('Cannot connect to Hesabfa. Business expired.', 'ssbhesabfa') . '</p></div>';
     }
-
+//=================================================================================================================================
     public function setChanges()
     {
-        //Invoices
-        if (!empty($this->invoicesObjectId)) {
-            $invoices = $this->getObjectsByIdList($this->invoicesObjectId, 'invoice');
-            if ($invoices != false) {
-                foreach ($invoices as $invoice) {
-                    $this->setInvoiceChanges($invoice);
-                }
-            }
-        }
-
-        //Contacts
-//        if (!empty($this->contactsObjectId)) {
-//            $contacts = $this->getObjectsByIdList(array_unique($this->contactsObjectId), 'contact');
-//            if ($contacts != false) {
-//                foreach ($contacts as $contact) {
-//                    $this->setContactChanges($contact);
-//                }
-//            }
-//        }
-
         //Items
         $items = array();
 
@@ -171,12 +166,11 @@ class Ssbhesabfa_Webhook
 
         return true;
     }
-
+//=================================================================================================================================
     // use in webhook call when invoice change
     public function setInvoiceChanges($invoice)
     {
-        if (!is_object($invoice))
-            return false;
+        if (!is_object($invoice)) return false;
 
         $wpFaService = new HesabfaWpFaService();
 
@@ -192,7 +186,9 @@ class Ssbhesabfa_Webhook
         if ($invoice->InvoiceType == 0) {
             //check if Tag not set in hesabfa
             if ($id_order == 0) {
-                HesabfaLogService::log(array("This invoice is not defined in OnlineStore. Invoice Number: " . $number));
+                //LOG into the log file
+                HesabfaLogService::log(array("این صورتحساب(فاکتور) در فروشگاه آنلاین تعریف نشده است. شماره صورتحساب(فاکتور): " . $number . "\n" .
+                    "This invoice is not defined in OnlineStore. Invoice Number: " . $number));
             } else {
                 //check if order exist in wooCommerce
                 $id_obj = $wpFaService->getWpFaId('order', $id_order);
@@ -201,21 +197,21 @@ class Ssbhesabfa_Webhook
                     $row = $wpdb->get_row("SELECT `id_hesabfa` FROM `" . $wpdb->prefix . "ssbhesabfa` WHERE `id` = $id_obj");
                     if (is_object($row) && $row->id_hesabfa != $number) {
                         $id_hesabfa_old = $row->id_hesabfa;
-                        //ToDo: number must int in hesabfa, what can i do
+                        //ToDo: number must be int in hesabfa, what can I do
                         $wpdb->update($wpdb->prefix . 'ssbhesabfa', array('id_hesabfa' => $number), array('id' => $id_obj));
-                        HesabfaLogService::log(array("Invoice Number changed. Old Number: $id_hesabfa_old. New ID: $number"));
+                        //LOG into the log file
+                        HesabfaLogService::log(array("شماره صورتحساب تغییر یافت. شماره قدیم: $id_hesabfa_old. شناسه جدید: $number" .
+                        "Invoice Number changed. Old Number: $id_hesabfa_old. New ID: $number"));
                     }
                 }
             }
         }
     }
-
+//=================================================================================================================================
     // use in webhook call when contact change
     public function setContactChanges($contact)
     {
-        if (!is_object($contact)) {
-            return false;
-        }
+        if (!is_object($contact)) return false;
 
         //1.set new Hesabfa Contact Code if changes
         $code = $contact->Code;
@@ -229,8 +225,9 @@ class Ssbhesabfa_Webhook
 
         //check if Tag not set in hesabfa
         if ($id_customer == 0) {
-            HesabfaLogService::log(array("This Customer is not define in OnlineStore. Customer code: $code"));
-
+            //LOG into the log file
+            HesabfaLogService::log(array("این مشتری در فروشگاه آنلاین تعریف نشده است. کد مشتری: $code" . "\n" .
+            "This Customer is not define in OnlineStore. Customer code: $code"));
             return false;
         }
 
@@ -246,15 +243,18 @@ class Ssbhesabfa_Webhook
                 $id_hesabfa_old = $row->id_hesabfa;
                 $wpdb->update($wpdb->prefix . 'ssbhesabfa', array('id_hesabfa' => (int)$code), array('id' => $id_obj));
 
-                HesabfaLogService::log(array("Contact Code changed. Old ID: $id_hesabfa_old. New ID: $code"));
+                //LOG into the log file
+                HesabfaLogService::log(array("کد مخاطب تغییر یافت. شناسه قدیم: $id_hesabfa_old. شناسه جدید: $code" . "\n" .
+                "Contact Code changed. Old ID: $id_hesabfa_old. New ID: $code"));
             }
         }
 
         return true;
     }
-
+//=================================================================================================================================
     public function getObjectsByIdList($idList, $type)
     {
+        //call API
         $hesabfaApi = new Ssbhesabfa_Api();
         switch ($type) {
             case 'item':
@@ -264,7 +264,7 @@ class Ssbhesabfa_Webhook
                 $result = $hesabfaApi->contactGetById($idList);
                 break;
             case 'invoice':
-                $result = $hesabfaApi->invoiceGetByIdList($idList);
+                $result = $hesabfaApi->invoiceGetInvoices(array("Filters" => array("Property" => "Id", "Operator" => "in", "Value" => $idList)));
                 break;
             case 'WarehouseReceipt':
                 $result = $hesabfaApi->warehouseReceiptGetByIdList($idList);
@@ -273,17 +273,15 @@ class Ssbhesabfa_Webhook
                 return false;
         }
 
-        if (is_object($result) && $result->Success) {
-            return $result->Result;
-        }
+        if (is_object($result) && $result->Success) return $result->Result;
 
         return false;
     }
-
+//=================================================================================================================================
     public function getObjectsByCodeList($codeList)
     {
-
         $filters = array(array("Property" => "Code", "Operator" => "in", "Value" => $codeList));
+        //Call API
         $hesabfaApi = new Ssbhesabfa_Api();
 
         $warehouse = get_option('ssbhesabfa_item_update_quantity_based_on', "-1");

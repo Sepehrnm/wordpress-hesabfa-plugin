@@ -1,10 +1,10 @@
 === Hesabfa Accounting ===
-Contributors: saeedsb
+Contributors: saeedsb, hamidprime
 Tags: accounting cloud hesabfa
 Requires at least: 5.2
-Tested up to: 5.6
+Tested up to: 6.2.2
 Requires PHP: 5.6
-Stable tag: 1.93.59
+Stable tag: 2.0.67
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -308,5 +308,31 @@ by clicking update stock and price button in hesabfa tab in product edit page
 = 1.93.59 - 15.06.2022 =
 * Fix bug: updating new prices from Hesabfa for varieties.
 
-== Upgrade Notice ==
-Automatic updates should work smoothly, but we still recommend you back up your site.
+= 2.0.60 - 23.07.2022 =
+* adding an option in settings to able user to select whether plugin changes product code in Hesabfa or not
+* adding an option in settings to able user to select whether plugin changes contact category in Hesabfa or not
+* adding an option in settings to able user to select whether plugin saves contact automatically in Hesabfa or not
+* adding an option in settings to able user to select whether plugin saves invoice as draft in Hesabfa or not
+* fix bug: remove Invoice-Order link by deleting invoice from Hesabfa
+* adding an option to add additional fields to checkout page for customer
+* adding an option for Dokan plugin to able user to select which orders save into Hesabfa
+
+= 2.0.61 - 31.07.2022 =
+* adding an option to inactive options related to Dokan plugin
+
+= 2.0.63 - 23.10.2022 =
+* ux improvement: install plugin fonts only in plugin settings page.
+* bug fix: There is no need to update the invoice number, And this method caused an internal error in the Hesabfa.
+
+= 2.0.64 - 12.11.2022 =
+* bug fix: fix invoice tax bug.
+
+= 2.0.66 - 21.05.2023 =
+* Add hesabfa id to admin product list page
+* Add national code validation
+* Add website validation
+* Add persian log to the log file
+
+=2.0.67 - 12.06.2023
+* national code validation bug fixed
+* website validation bug fixed
