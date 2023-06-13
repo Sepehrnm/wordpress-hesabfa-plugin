@@ -325,18 +325,18 @@ class Ssbhesabfa_Api
         return $this->apiRequest($method, $data);
     }
 //================================================================================================
-    public function invoiceSavePayment($number, $bankCode, $date, $amount, $transactionNumber = null, $description = null, $transactionFee = 0)
+    public function invoiceSavePayment($number, $financialData, $date, $amount, $transactionNumber = null, $description = null, $transactionFee = 0)
     {
         $method = 'invoice/savepayment';
         $data = array(
             'number' => (int)$number,
-            'bankCode' => (int)$bankCode,
             'date' => $date,
             'amount' => $amount,
             'transactionNumber' => $transactionNumber,
             'description' => $description,
             'transactionFee' => $transactionFee,
         );
+        $data = array_merge($data, $financialData);
 
         return $this->apiRequest($method, $data);
     }
@@ -406,6 +406,12 @@ class Ssbhesabfa_Api
     public function settingGetBanks()
     {
         $method = 'setting/getBanks';
+        return $this->apiRequest($method);
+    }
+//================================================================================================
+    public function settingGetCashes()
+    {
+        $method = 'setting/GetCashes';
         return $this->apiRequest($method);
     }
 //================================================================================================

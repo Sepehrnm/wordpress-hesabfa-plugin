@@ -103,9 +103,23 @@ class Ssbhesabfa_Validation
 //=============================================================================================
     public static function contactCountryValidation($country) {return mb_substr($country, 0, 49);}
 //=============================================================================================
-    public static function contactStateValidation($state) {return mb_substr($state, 0, 49);}
+    public static function contactStateValidation($state) {
+        if ( is_numeric( $state ) ) {
+            if(is_plugin_active("persian-woocommerce-shipping/woocommerce-shipping.php")) {
+                $state = PWS()::get_state( $state );
+            }
+        }
+        return mb_substr($state, 0, 49);
+    }
 //=============================================================================================
-    public static function contactCityValidation($city) {return mb_substr($city, 0, 49);}
+    public static function contactCityValidation($city) {
+        if ( is_numeric( $city ) ) {
+            if(is_plugin_active("persian-woocommerce-shipping/woocommerce-shipping.php")) {
+                $city = PWS()::get_city($city);
+            }
+        }
+        return mb_substr($city, 0, 49);
+    }
 //=============================================================================================
     public static function contactPostalCodeValidation($postalCode)
     {

@@ -595,6 +595,8 @@ class Ssbhesabfa_Setting {
 //=============================================================================================
 	public static function ssbhesabfa_payment_setting_fields() {
 		$banks = Ssbhesabfa_Setting::ssbhesabfa_get_banks();
+		$cashes = Ssbhesabfa_Setting::ssbhesabfa_get_cashes();
+        $payInputValue = array_merge($banks,$cashes);
 
 		$payment_gateways           = new WC_Payment_Gateways;
 		$available_payment_gateways = $payment_gateways->get_available_payment_gateways();
@@ -622,14 +624,14 @@ class Ssbhesabfa_Setting {
 			),
 		);
 
-		foreach ( $available_payment_gateways as $gateway ) {
-			$fields[] = array(
-				'title'   => $gateway->title,
-				'id'      => 'ssbhesabfa_payment_method_' . $gateway->id,
-				'type'    => 'select',
-				'options' => $banks,
-			);
-		}
+        foreach ( $available_payment_gateways as $gateway ) {
+            $fields[] = array(
+                'title'   => $gateway->title,
+                'id'      => 'ssbhesabfa_payment_method_' . $gateway->id,
+                'type'    => 'select',
+                'options' => $payInputValue
+            );
+        }
 
 		$fields[] = array( 'type' => 'sectionend', 'id' => 'payment_options' );
 
@@ -643,7 +645,7 @@ class Ssbhesabfa_Setting {
         <div class="alert alert-warning hesabfa-f">
             <strong>توجه</strong><br>
             در اینجا تعیین کنید که رسید دریافت وجه فاکتور در چه وضعیتی ثبت شود
-            و در هر روش پرداخت، رسید در چه بانکی ثبت شود.
+            و در هر روش پرداخت، رسید در چه بانکی و یا صندوقی ثبت شود.
         </div>
         <form id="ssbhesabfa_form" enctype="multipart/form-data" action="" method="post">
 			<?php $Html_output->init( $ssbhesabf_setting_fields ); ?>
@@ -1398,8 +1400,8 @@ class Ssbhesabfa_Setting {
 			$available_banks[ - 1 ] = __( 'Choose', 'ssbhesabfa' );
 			foreach ( $banks->Result as $bank ) {
 				if ( $bank->Currency == get_woocommerce_currency() || ( get_woocommerce_currency() == 'IRT' && $bank->Currency == 'IRR' ) || ( get_woocommerce_currency() == 'IRR' && $bank->Currency == 'IRT' ) ) {
-					$available_banks[ $bank->Code ] = $bank->Name . ' - ' . $bank->Branch . ' - ' . $bank->AccountNumber;
-				}
+					$available_banks[ 'bank'.$bank->Code ] = $bank->Name . ' - ' . $bank->Branch . ' - ' . $bank->AccountNumber;
+                }
 			}
 
 			if ( empty( $available_banks ) ) {
@@ -1419,6 +1421,22 @@ class Ssbhesabfa_Setting {
                 "Cannot get banking information. Error Code: $banks->ErrorCode. Error Message: $banks->ErrorMessage." ) );
 
 			return array( '0' => __( 'Cannot get Banks detail.', 'ssbhesabfa' ) );
+		}
+	}
+//=============================================================================================
+	public static function ssbhesabfa_get_cashes() {
+        //call API
+		$ssbhesabfa_api = new Ssbhesabfa_Api();
+		$cashes          = $ssbhesabfa_api->settingGetCashes();
+
+		if ( is_object( $cashes ) && $cashes->Success ) {
+            $available_cashes        = array();
+            foreach ( $cashes->Result as $cash ) {
+				if ( $cash->Currency == get_woocommerce_currency() || ( get_woocommerce_currency() == 'IRT' && $cash->Currency == 'IRR' ) || ( get_woocommerce_currency() == 'IRR' && $cash->Currency == 'IRT' ) ) {
+					$available_cashes[ 'cash'.$cash->Code ] = $cash->Name . ' - - ';
+				}
+			}
+			return $available_cashes;
 		}
 	}
 //=============================================================================================

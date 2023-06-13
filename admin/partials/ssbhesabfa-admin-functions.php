@@ -561,8 +561,8 @@ class Ssbhesabfa_Admin_Functions
         if ($order->get_total() <= 0) {
             return true;
         }
-
         $bank_code = $this->getBankCodeByPaymentMethod($order->get_payment_method());
+
         if ($bank_code == -1) {
             return true;
         } elseif ($bank_code != false) {
@@ -570,6 +570,17 @@ class Ssbhesabfa_Admin_Functions
             //fix Hesabfa API error
             if ($transaction_id == '') {
                 $transaction_id = 'None';
+            }
+
+            $payTempValue = substr($bank_code, 0, 4);
+            global $financialData;
+            switch($payTempValue) {
+                case 'bank':
+                    $payTempValue = substr($bank_code, 4);
+                    $financialData = array('bankCode' => $payTempValue);break;
+                case 'cash':
+                    $payTempValue = substr($bank_code, 4);
+                    $financialData = array('cashCode' => $payTempValue);break;
             }
 
             $date_obj = $order->get_date_paid();
@@ -582,7 +593,7 @@ class Ssbhesabfa_Admin_Functions
                 if ($response->Result->Paid > 0) {
                     // payment submited before
                 } else {
-                    $response = $hesabfa->invoiceSavePayment($number, $bank_code, $date_obj->date('Y-m-d H:i:s'), $this->getPriceInHesabfaDefaultCurrency($order->get_total()), $transaction_id);
+                    $response = $hesabfa->invoiceSavePayment($number, $financialData, $date_obj->date('Y-m-d H:i:s'), $this->getPriceInHesabfaDefaultCurrency($order->get_total()), $transaction_id);
 
                     if ($response->Success) {
                         //LOG into the log file
