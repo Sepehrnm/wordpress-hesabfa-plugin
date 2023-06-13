@@ -163,7 +163,6 @@ class HesabfaWpFaService
     public function saveCustomer($customer): bool
     {
         $json = json_decode($customer->Tag);
-        //if customer id is 0 return true
         if ((int)$json->id_customer == 0) return true;
 
         $id = $this->getWpFaId('customer', (int)$json->id_customer);

@@ -251,7 +251,6 @@ msgid "Automatically save Customer's group in hesabfa"
 msgstr "به صورت خودکار دسته بندی مشتریان را در حسابفا ذخیره کن"
 
 
-
 #: admin/partials/ssbhesabfa-admin-setting.php:111
 msgid "Customer's detail auto save and update"
 msgstr "ذخیره خودکار مشتریان"
@@ -310,7 +309,7 @@ msgid "please enter your Registration number"
 msgstr "لطفا شماره ثبت خود را وارد کتید"
 
 msgid "please enter your Website address"
-msgstr "لطفا آدرس سایت خود را وارد کتید"
+msgstr "لطفا آدرس سایت خود را وارد کنید"
 
 msgid "please enter a valid Website URL"
 msgstr "لطفا آدرس سایت معتبر وارد نمایید"
@@ -326,6 +325,22 @@ msgstr "افزودن فاکتور در وضعیت:"
 #: admin/partials/ssbhesabfa-admin-setting.php:380
 msgid "Save invoice in draft mode in Hesabfa"
 msgstr "ثبت فاکتور بصورت پیش نویس در حسابفا"
+
+#: admin/partials/ssbhesabfa-admin-setting.php:557
+msgid "Save Freight"
+msgstr "ذخیره هزینه حمل و نقل"
+
+#: admin/partials/ssbhesabfa-admin-setting.php:561
+msgid "Save as Freight"
+msgstr "ذخیره به عنوان هزینه"
+
+#: admin/partials/ssbhesabfa-admin-setting.php:562
+msgid "Save as a Service"
+msgstr "ذخیره به عنوان یک خدمت"
+
+#: admin/partials/ssbhesabfa-admin-setting.php:562
+msgid "Service Code For Freight"
+msgstr "کد خدمت حمل و نقل ذخیره شده در حسابفا"
 
 #: admin/partials/ssbhesabfa-admin-setting.php:151
 #: admin/partials/ssbhesabfa-admin-setting.php:167

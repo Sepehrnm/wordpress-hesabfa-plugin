@@ -174,7 +174,7 @@ class Ssbhesabfa
 
                 // these lines add hesabfa id to the all products list page and make it sortable as well
                 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-                $this->loader->add_filter( 'manage_edit-product_columns', $plugin_admin,'admin_products_hesabfaId_column', 9999 );
+                $this->loader->add_filter( 'manage_edit-product_columns', $plugin_admin,'admin_products_hesabfaId_column', 12 );
                 $this->loader->add_action( 'manage_product_posts_custom_column', $plugin_admin, 'admin_products_hesabfaId_column_content', 10, 2 );
                 $this->loader->add_filter( 'manage_edit-product_sortable_columns', $plugin_admin,'admin_products_hesabfaId_column');
 

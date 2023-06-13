@@ -84,15 +84,12 @@ class Ssbhesabfa_Admin_Functions
     //Items
     public function setItems($id_product_array)
     {
-        //check the array of the product id not set or the first item must not be a NULL
         if (!isset($id_product_array) || $id_product_array[0] == null) return false;
-        //check if product array id is an array and empty
         if (is_array($id_product_array) && empty($id_product_array)) return true;
 
         $items = array();
         foreach ($id_product_array as $id_product) {
             $product = new WC_Product($id_product);
-            //if the status of the product is draft then continue
             if ($product->get_status() === "draft") continue;
 
             // Set base product
@@ -105,25 +102,19 @@ class Ssbhesabfa_Admin_Functions
                     $items[] = ssbhesabfaItemService::mapProductVariation($product, $variation, $id_product, false);
         }
 
-        //if items array is empty
         if (count($items) === 0) return false;
-        //if save Items returns false
         if (!$this->saveItems($items)) return false;
-        //at the end
         return true;
     }
 //====================================================================================================================
     public function saveItems($items)
     {
-        //creat a variable(object) from ssbhesabfa API class
         $hesabfa = new Ssbhesabfa_Api();
-        //creat a variable(object) from hesabfa wpfa service class
         $wpFaService = new HesabfaWpFaService();
 
         $response = $hesabfa->itemBatchSave($items);
         if ($response->Success) {
             foreach ($response->Result as $item)
-                //save product if response success is true
                 $wpFaService->saveProduct($item);
             return true;
         } else {
@@ -394,6 +385,30 @@ class Ssbhesabfa_Admin_Functions
         if ($order_shipping_method)
             $note .= "\n" . __('Shipping method', 'ssbhesabfa') . ": " . $order_shipping_method;
 
+        //freight new feature
+
+        global $freightArray, $freightOption, $freightItemCode;
+        $freightOption = get_option("ssbhesabfa_invoice_freight");
+
+        if($freightOption == 0) {
+            $freightArray = array(
+                'Freight' => $this->getPriceInHesabfaDefaultCurrency($order->get_shipping_total() + $order->get_shipping_tax()),
+            );
+        } else if($freightOption == 1) {
+            $freightItemCode = get_option('ssbhesabfa_invoice_freight_code');
+
+            $invoiceItem = array(
+                'RowNumber' => $i,
+                'ItemCode' => $freightItemCode,
+                'Description' => 'هزینه حمل و نقل',
+                'Quantity' => 1,
+                'UnitPrice' => (float) $this->getPriceInHesabfaDefaultCurrency($order->get_shipping_total() + $order->get_shipping_tax()),
+                'Discount' => 0,
+                'Tax' => 0
+            );
+            array_push($invoiceItems, $invoiceItem);
+        }
+
         $data = array(
             'Number' => $number,
             'InvoiceType' => $orderType,
@@ -403,10 +418,13 @@ class Ssbhesabfa_Admin_Functions
             'Reference' => $reference,
             'Status' => 2,
             'Tag' => json_encode(array('id_order' => $id_order)),
-            'Freight' => $this->getPriceInHesabfaDefaultCurrency($order->get_shipping_total() + $order->get_shipping_tax()),
             'InvoiceItems' => $invoiceItems,
             'Note' => $note
         );
+
+        array_push($data, $freightArray);
+        HesabfaLogService::log($data);
+
 
         $invoice_draft_save = get_option('ssbhesabfa_invoice_draft_save_in_hesabfa', 'no');
         if ($invoice_draft_save != 'no')

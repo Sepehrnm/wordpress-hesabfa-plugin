@@ -1014,7 +1014,7 @@ class Ssbhesabfa_Admin
             <?php
             return;
         }
-
+        global $items;
         $items[] = ssbhesabfaItemService::mapProduct($product, $id_product, false);
         $items[0]["Quantity"] = $product->get_stock_quantity();
         $items[0]["Id"] = $id_product;

@@ -349,7 +349,7 @@ class Ssbhesabfa_Setting {
 			<?php $Html_output->init( $ssbhesabf_setting_fields ); ?>
 
             <div class="row my-3">
-                <div class="col-1 ml-4  ">
+                <div class="col-1 ml-4">
                     <label class="hesabfa-p mt-2"
                            style="font-weight: bold"><?php echo __( 'Add additional fields to checkout page', 'ssbhesabfa' ) ?></label>
                 </div>
@@ -544,6 +544,7 @@ class Ssbhesabfa_Setting {
 			'type'    => 'select',
 			'options' => $salesmen,
 		);
+
         $fields[] = array(
             'title' => '',
             'desc' => __('Save invoice in draft mode in Hesabfa', 'ssbhesabfa'),
@@ -551,7 +552,23 @@ class Ssbhesabfa_Setting {
             'type' => 'checkbox',
             'default' => 'no'
         );
-        if(is_plugin_active( "dokan-lite/dokan.php" )){
+
+        $fields[] = array(
+            'title' => __('Save Freight', 'ssbhesabfa'),
+            'id' => 'ssbhesabfa_invoice_freight',
+            'type' => 'radio',
+            'options' => [
+                0 => __("Save as Freight", 'ssbhesabfa'),
+                1 => __("Save as a Service", 'ssbhesabfa')
+        ]);
+
+        $fields[] = array(
+            'title' => __('Service Code For Freight', 'ssbhesabfa'),
+            'id' => 'ssbhesabfa_invoice_freight_code',
+            'type' => 'text',
+        );
+
+        if(is_plugin_active( 'dokan-lite/dokan.php' )){
             $fields[] = array(
                 'title'   => __( "Submit invoice base on Dokan orders", 'ssbhesabfa' ),
                 'id'      => 'ssbhesabfa_invoice_dokan',
@@ -562,6 +579,7 @@ class Ssbhesabfa_Setting {
                 'default' => 0
             );
         }
+
 
 		$fields[] = array('type' => 'sectionend', 'id' => 'invoice_options');
 
@@ -576,6 +594,8 @@ class Ssbhesabfa_Setting {
             <strong>توجه</strong><br>
             در اینجا تعیین کنید که فاکتور سفارش در چه مرحله ای در حسابفا ثبت شود.
             و چه زمان برای یک سفارش فاکتور برگشت از فروش ثبت شود.
+            <br><br>
+            در صورت انتخاب ذخیره هزینه حمل و نقل به عنوان یک خدمت، ابتدا باید یک خدمت در حسابفا تعریف گردیده و کد مربوط به آن را در فیلد کد خدمت حمل و نقل ذخیره شده در حسابفا وارد و ذخیره نمایید.
         </div>
         <form id="ssbhesabfa_form" enctype="multipart/form-data" action="" method="post">
 			<?php $Html_output->init( $ssbhesabf_setting_fields ); ?>
@@ -697,13 +717,6 @@ class Ssbhesabfa_Setting {
 			'desc'  => __( 'Find Login token in Setting->Financial Settings->API Menu', 'ssbhesabfa' ),
 			'id'    => 'ssbhesabfa_account_login_token',
 			'type'  => 'text',
-		);
-
-		$fields[] = array(
-			'title'   => __( "API Address", 'ssbhesabfa' ),
-			'id'      => 'ssbhesabfa_api_address',
-			'type'    => 'hidden',
-			'options' => array( "Server 1 (Cloudflare)", "Server 2 (Arvancloud)" ),
 		);
 
 		$fields[] = array( 'type' => 'sectionend', 'id' => 'api_options' );
