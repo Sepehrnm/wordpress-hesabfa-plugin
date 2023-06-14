@@ -199,6 +199,10 @@ msgstr "به‌روزرسانی موجودی"
 msgid "Update Quantity after change in Hesabfa"
 msgstr "به‌روزرسانی موجودی بعد از تغییر در حسابفا"
 
+#: admin/partials/ssbhesabfa-admin-setting.php:240
+msgid "Show Hesabfa ID in Products Page"
+msgstr "نمایش کد حسابفا در صفحه محصولات"
+
 #: admin/partials/ssbhesabfa-admin-setting.php:84
 #: admin/partials/ssbhesabfa-admin-setting.php:130
 #: admin/partials/ssbhesabfa-admin-setting.php:191

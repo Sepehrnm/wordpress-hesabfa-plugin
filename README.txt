@@ -4,7 +4,7 @@ Tags: accounting cloud hesabfa
 Requires at least: 5.2
 Tested up to: 6.2.2
 Requires PHP: 5.6
-Stable tag: 2.0.67
+Stable tag: 2.0.68
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -333,6 +333,11 @@ by clicking update stock and price button in hesabfa tab in product edit page
 * Add website validation
 * Add persian log to the log file
 
-=2.0.67 - 12.06.2023
+= 2.0.67 - 12.06.2023
 * national code validation bug fixed
 * website validation bug fixed
+
+= 2.0.68 - 14.06.2023
+* add freight as service option
+* add show hesabfa id in products page option
+* persian woocommerce shipping bug fixed

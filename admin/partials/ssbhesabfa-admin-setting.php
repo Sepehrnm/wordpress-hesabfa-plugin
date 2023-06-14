@@ -4,7 +4,7 @@ include_once( plugin_dir_path( __DIR__ ) . 'services/HesabfaLogService.php' );
 error_reporting(0);
 /**
  * @class      Ssbhesabfa_Setting
- * @version    2.0.67
+ * @version    2.0.68
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin/setting
@@ -231,6 +231,14 @@ class Ssbhesabfa_Setting {
 			'title'   => "",
 			'desc'    => __( 'Do not update product code in Hesabfa by saving product in woocommerce', 'ssbhesabfa' ),
 			'id'      => 'ssbhesabfa_do_not_update_product_product_code_in_hesabfa',
+			'default' => 'no',
+			'type'    => 'checkbox'
+		);
+
+        $fields[] = array(
+			'title'   => "",
+			'desc'    => __( 'Show Hesabfa ID in Products Page', 'ssbhesabfa' ),
+			'id'      => 'ssbhesabfa_show_product_code_in_products_page',
 			'default' => 'no',
 			'type'    => 'checkbox'
 		);
@@ -595,7 +603,7 @@ class Ssbhesabfa_Setting {
             در اینجا تعیین کنید که فاکتور سفارش در چه مرحله ای در حسابفا ثبت شود.
             و چه زمان برای یک سفارش فاکتور برگشت از فروش ثبت شود.
             <br><br>
-            در صورت انتخاب ذخیره هزینه حمل و نقل به عنوان یک خدمت، ابتدا باید یک خدمت در حسابفا تعریف گردیده و کد مربوط به آن را در فیلد کد خدمت حمل و نقل ذخیره شده در حسابفا وارد و ذخیره نمایید.
+            در صورت انتخاب ذخیره هزینه حمل و نقل به عنوان یک خدمت، ابتدا باید یک خدمت در حسابفا تعریف کنید و کد مربوط به آن را در فیلد کد خدمت حمل و نقل  وارد و ذخیره نمایید.
         </div>
         <form id="ssbhesabfa_form" enctype="multipart/form-data" action="" method="post">
 			<?php $Html_output->init( $ssbhesabf_setting_fields ); ?>

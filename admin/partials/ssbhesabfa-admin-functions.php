@@ -6,7 +6,7 @@ include_once(plugin_dir_path(__DIR__) . 'services/HesabfaWpFaService.php');
 
 /**
  * @class      Ssbhesabfa_Admin_Functions
- * @version    2.0.67
+ * @version    2.0.68
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin/functions
@@ -387,14 +387,10 @@ class Ssbhesabfa_Admin_Functions
 
         //freight new feature
 
-        global $freightArray, $freightOption, $freightItemCode;
+        global $freightOption, $freightItemCode;
         $freightOption = get_option("ssbhesabfa_invoice_freight");
 
-        if($freightOption == 0) {
-            $freightArray = array(
-                'Freight' => $this->getPriceInHesabfaDefaultCurrency($order->get_shipping_total() + $order->get_shipping_tax()),
-            );
-        } else if($freightOption == 1) {
+        if($freightOption == 1) {
             $freightItemCode = get_option('ssbhesabfa_invoice_freight_code');
 
             $invoiceItem = array(
@@ -406,7 +402,7 @@ class Ssbhesabfa_Admin_Functions
                 'Discount' => 0,
                 'Tax' => 0
             );
-            array_push($invoiceItems, $invoiceItem);
+            $invoiceItems[] = $invoiceItem;
         }
 
         $data = array(
@@ -419,12 +415,14 @@ class Ssbhesabfa_Admin_Functions
             'Status' => 2,
             'Tag' => json_encode(array('id_order' => $id_order)),
             'InvoiceItems' => $invoiceItems,
-            'Note' => $note
+            'Note' => $note,
+            'Freight' => ''
         );
 
-        array_push($data, $freightArray);
-        HesabfaLogService::log($data);
-
+        if($freightOption == 0) {
+            $freight = $this->getPriceInHesabfaDefaultCurrency($order->get_shipping_total() + $order->get_shipping_tax());
+            $data['Freight'] = $freight;
+        }
 
         $invoice_draft_save = get_option('ssbhesabfa_invoice_draft_save_in_hesabfa', 'no');
         if ($invoice_draft_save != 'no')
