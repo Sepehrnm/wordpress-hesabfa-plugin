@@ -795,7 +795,6 @@ jQuery(function ($) {
     });
 });
 //=====================================================================================================================
-//this function is used in the first page of the plugin in video to jump into the specific section of the video
 function hesabfaTutorialJumpTo(time) {
     let vidEl = document.getElementById('hesabfa-tutorial-video');
     vidEl.play();

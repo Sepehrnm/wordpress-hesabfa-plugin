@@ -26,5 +26,5 @@ if ($result->Password != get_option('ssbhesabfa_webhook_password')) {
 }
 
 include(dirname(__FILE__) . '/class-ssbhesabfa-webhook.php');
-//calling the class ssbhesabfa webhook
+
 new Ssbhesabfa_Webhook();

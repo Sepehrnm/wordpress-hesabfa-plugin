@@ -1468,7 +1468,6 @@ class Ssbhesabfa_Admin
                'priority' => 33,
                'required'  => (bool) $Website_isRequired,
                'clear'     => true,
-               'pattern'    => "[Hh][Tt][Tt][Pp][Ss]?:\/\/(?:(?:[a-zA-Z\u00a1-\uffff0-9]+-?)*[a-zA-Z\u00a1-\uffff0-9]+)(?:\.(?:[a-zA-Z\u00a1-\uffff0-9]+-?)*[a-zA-Z\u00a1-\uffff0-9]+)*(?:\.(?:[a-zA-Z\u00a1-\uffff]{2,}))(?::\d{2,5})?(?:\/[^\s]*)?",
              );
 	    }
         if(isset($_POST['billing_hesabfa_nationalcode']) || isset($_POST['billing_hesabfa_website'])) {

@@ -328,16 +328,19 @@ by clicking update stock and price button in hesabfa tab in product edit page
 * bug fix: fix invoice tax bug.
 
 = 2.0.66 - 21.05.2023 =
-* Add hesabfa id to admin product list page
-* Add national code validation
-* Add website validation
-* Add persian log to the log file
+* Add hesabfa id to admin product list page.
+* Add national code validation.
+* Add website validation.
+* Add persian log to the log file.
 
-= 2.0.67 - 12.06.2023
-* national code validation bug fixed
-* website validation bug fixed
+= 2.0.67 - 12.06.2023 =
+* national code validation bug fixed.
+* website validation bug fixed.
 
-= 2.0.68 - 14.06.2023
-* add freight as service option
-* add show hesabfa id in products page option
-* persian woocommerce shipping bug fixed
+= 2.0.68 - 14.06.2023 =
+* add freight as service option.
+* add show hesabfa id in products page option.
+* persian woocommerce shipping bug fixed.
+* add cash payment method.
+* codes refactored.
+* descriptions added.

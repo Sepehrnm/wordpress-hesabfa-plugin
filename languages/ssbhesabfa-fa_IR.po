@@ -201,7 +201,7 @@ msgstr "به‌روزرسانی موجودی بعد از تغییر در حسا�
 
 #: admin/partials/ssbhesabfa-admin-setting.php:240
 msgid "Show Hesabfa ID in Products Page"
-msgstr "نمایش کد حسابفا در صفحه محصولات"
+msgstr "نمایش کد حسابفا در صفحه همه محصولات"
 
 #: admin/partials/ssbhesabfa-admin-setting.php:84
 #: admin/partials/ssbhesabfa-admin-setting.php:130

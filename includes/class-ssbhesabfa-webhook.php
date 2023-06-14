@@ -21,11 +21,9 @@ class Ssbhesabfa_Webhook
 
     public function __construct()
     {
-        //LOG into the log file
         HesabfaLogService::writeLogStr("=====  صدا زدن وب هوک =====" . "\n" . "==== Calling Webhook ====");
         $wpFaService = new HesabfaWpFaService();
 
-        //Call API
         $hesabfaApi = new Ssbhesabfa_Api();
 
         $lastChange = get_option('ssbhesabfa_last_log_check_id');
@@ -84,7 +82,6 @@ class Ssbhesabfa_Webhook
                 }
             }
 
-            //remove duplicate values
             $this->invoiceItemsCode = array_unique($this->invoiceItemsCode);
             $this->contactsObjectId = array_unique($this->contactsObjectId);
             $this->itemsObjectId = array_unique($this->itemsObjectId);
@@ -92,7 +89,6 @@ class Ssbhesabfa_Webhook
 
             $this->setChanges();
 
-            //set LastChange ID
             $lastChange = end($changes->Result);
             if (is_object($lastChange))
                 update_option('ssbhesabfa_last_log_check_id', $lastChange->Id);
@@ -100,7 +96,6 @@ class Ssbhesabfa_Webhook
                 update_option('ssbhesabfa_last_log_check_id', $changes->LastId);
 
         } else {
-            //LOG into the log file
             HesabfaLogService::log(array("حسابفا - نمی توان آخرین تغییرات را چک کرد. متن خطا: " . (string)$changes->ErrorMessage . ". کدخطا: " . (string)$changes->ErrorCode . "\n" .
                 "ssbhesabfa - Cannot check last changes. Error Message: " . (string)$changes->ErrorMessage . ". Error Code: " . (string)$changes->ErrorCode));
             if ($changes->ErrorCode == 108) {
@@ -174,7 +169,6 @@ class Ssbhesabfa_Webhook
 
         $wpFaService = new HesabfaWpFaService();
 
-        //1.set new Hesabfa Invoice Code if changes
         $number = $invoice->Number;
         $json = json_decode($invoice->Tag);
         if (is_object($json)) {
@@ -184,9 +178,7 @@ class Ssbhesabfa_Webhook
         }
 
         if ($invoice->InvoiceType == 0) {
-            //check if Tag not set in hesabfa
             if ($id_order == 0) {
-                //LOG into the log file
                 HesabfaLogService::log(array("این صورتحساب(فاکتور) در فروشگاه آنلاین تعریف نشده است. شماره صورتحساب(فاکتور): " . $number . "\n" .
                     "This invoice is not defined in OnlineStore. Invoice Number: " . $number));
             } else {
@@ -213,7 +205,6 @@ class Ssbhesabfa_Webhook
     {
         if (!is_object($contact)) return false;
 
-        //1.set new Hesabfa Contact Code if changes
         $code = $contact->Code;
 
         $json = json_decode($contact->Tag);
@@ -223,15 +214,12 @@ class Ssbhesabfa_Webhook
             $id_customer = 0;
         }
 
-        //check if Tag not set in hesabfa
         if ($id_customer == 0) {
-            //LOG into the log file
             HesabfaLogService::log(array("این مشتری در فروشگاه آنلاین تعریف نشده است. کد مشتری: $code" . "\n" .
             "This Customer is not define in OnlineStore. Customer code: $code"));
             return false;
         }
 
-        //check if customer exist in wordpress
         $wpFaService = new HesabfaWpFaService();
         $id_obj = $wpFaService->getWpFaId('customer', $id_customer);
 
@@ -243,7 +231,6 @@ class Ssbhesabfa_Webhook
                 $id_hesabfa_old = $row->id_hesabfa;
                 $wpdb->update($wpdb->prefix . 'ssbhesabfa', array('id_hesabfa' => (int)$code), array('id' => $id_obj));
 
-                //LOG into the log file
                 HesabfaLogService::log(array("کد مخاطب تغییر یافت. شناسه قدیم: $id_hesabfa_old. شناسه جدید: $code" . "\n" .
                 "Contact Code changed. Old ID: $id_hesabfa_old. New ID: $code"));
             }
@@ -254,7 +241,6 @@ class Ssbhesabfa_Webhook
 //=================================================================================================================================
     public function getObjectsByIdList($idList, $type)
     {
-        //call API
         $hesabfaApi = new Ssbhesabfa_Api();
         switch ($type) {
             case 'item':
@@ -281,7 +267,6 @@ class Ssbhesabfa_Webhook
     public function getObjectsByCodeList($codeList)
     {
         $filters = array(array("Property" => "Code", "Operator" => "in", "Value" => $codeList));
-        //Call API
         $hesabfaApi = new Ssbhesabfa_Api();
 
         $warehouse = get_option('ssbhesabfa_item_update_quantity_based_on', "-1");
