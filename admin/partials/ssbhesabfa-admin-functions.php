@@ -525,7 +525,7 @@ class Ssbhesabfa_Admin_Functions
             $transaction_id = $order->get_transaction_id();
             //fix Hesabfa API error
             if ($transaction_id == '') {
-                $transaction_id = 'None';
+                $transaction_id = '-';
             }
 
             $payTempValue = substr($bank_code, 0, 4);
