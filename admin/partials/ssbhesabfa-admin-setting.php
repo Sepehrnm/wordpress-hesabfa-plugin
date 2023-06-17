@@ -243,6 +243,14 @@ class Ssbhesabfa_Setting {
 			'type'    => 'checkbox'
 		);
 
+        $fields[] = array(
+			'title'   => "",
+			'desc'    => __( 'Set Special Sale as Discount', 'ssbhesabfa' ),
+			'id'      => 'ssbhesabfa_set_special_sale_as_discount',
+			'default' => 'no',
+			'type'    => 'checkbox'
+		);
+
 		$options_to_update_sale_price    = array();
 		$options_to_update_sale_price[0] = __( "The Sale price does not change", 'ssbhesabfa' );
 		$options_to_update_sale_price[1] = __( "The Sale price gets removed", 'ssbhesabfa' );

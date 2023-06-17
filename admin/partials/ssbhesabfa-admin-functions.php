@@ -291,13 +291,24 @@ class Ssbhesabfa_Admin_Functions
                 break;
             }
 
+            $wcProduct = new WC_Product($product['product_id']);
+
+            global $discount, $price;
+            if( $wcProduct->is_on_sale() && get_option('ssbhesabfa_set_special_sale_as_discount') === 'yes' ) {
+                $price = $wcProduct->get_regular_price();
+                $discount = $wcProduct->get_regular_price() - $wcProduct->get_sale_price();
+            } else {
+                $price = $this->getPriceInHesabfaDefaultCurrency($product['subtotal'] / $product['quantity']);
+                $discount = $this->getPriceInHesabfaDefaultCurrency($product['subtotal'] - $product['total']);
+            }
+
             $item = array(
                 'RowNumber' => $i,
                 'ItemCode' => $itemCode,
                 'Description' => Ssbhesabfa_Validation::invoiceItemDescriptionValidation($product['name']),
                 'Quantity' => (int)$product['quantity'],
-                'UnitPrice' => (float)$this->getPriceInHesabfaDefaultCurrency($product['subtotal'] / $product['quantity']),
-                'Discount' => (float)$this->getPriceInHesabfaDefaultCurrency($product['subtotal'] - $product['total']),
+                'UnitPrice' => (float)$price,
+                'Discount' => (float)$discount,
                 'Tax' => (float)$this->getPriceInHesabfaDefaultCurrency($product['total_tax']),
             );
 

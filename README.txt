@@ -334,13 +334,13 @@ by clicking update stock and price button in hesabfa tab in product edit page
 * Add persian log to the log file.
 
 = 2.0.67 - 12.06.2023 =
-* national code validation bug fixed.
-* website validation bug fixed.
+* bug fixed.
 
-= 2.0.68 - 14.06.2023 =
+= 2.0.68 - 17.06.2023 =
 * add freight as service option.
 * add show hesabfa id in products page option.
 * persian woocommerce shipping bug fixed.
 * add cash payment method.
+* add set sale price as discount option.
 * codes refactored.
 * descriptions added.

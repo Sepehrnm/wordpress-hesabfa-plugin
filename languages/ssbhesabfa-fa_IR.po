@@ -203,6 +203,10 @@ msgstr "به‌روزرسانی موجودی بعد از تغییر در حسا�
 msgid "Show Hesabfa ID in Products Page"
 msgstr "نمایش کد حسابفا در صفحه همه محصولات"
 
+#: admin/partials/ssbhesabfa-admin-setting.php:246
+msgid "Set Special Sale as Discount"
+msgstr "ثبت فروش ویژه به عنوان تخفیف"
+
 #: admin/partials/ssbhesabfa-admin-setting.php:84
 #: admin/partials/ssbhesabfa-admin-setting.php:130
 #: admin/partials/ssbhesabfa-admin-setting.php:191
