@@ -1,6 +1,6 @@
+@import "fontiran.css";
 * {
-    font-family: IRANYekan, Tahoma;
-    font-family: IRANYekan !important;
+    font-family: IRANYekan, serif !important;
 }
 
 .hand {

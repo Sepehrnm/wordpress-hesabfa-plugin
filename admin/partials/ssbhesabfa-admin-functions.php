@@ -358,6 +358,7 @@ class Ssbhesabfa_Admin_Functions
 
         if($freightOption == 1) {
             $freightItemCode = get_option('ssbhesabfa_invoice_freight_code');
+            if(!isset($freightItemCode) || !$freightItemCode) HesabfaLogService::writeLogStr("کد هزینه حمل و نقل تعریف نشده است");
             $invoiceItem = array(
                 'RowNumber' => $i,
                 'ItemCode' => $freightItemCode,
