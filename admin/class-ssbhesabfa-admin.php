@@ -227,7 +227,7 @@ class Ssbhesabfa_Admin
             }
 
             echo json_encode($result);
-            die(); // this is required to return a proper result
+            die();
         }
     }
 //=========================================================================================================================
@@ -255,7 +255,7 @@ class Ssbhesabfa_Admin
             }
 
             echo json_encode($result);
-            die(); // this is required to return a proper result
+            die();
         }
     }
 //=========================================================================================================================
@@ -288,7 +288,7 @@ class Ssbhesabfa_Admin
             }
 
             echo json_encode($result);
-            die(); // this is required to return a proper result
+            die();
         }
     }
 //=========================================================================================================================
@@ -315,7 +315,7 @@ class Ssbhesabfa_Admin
             }
             echo json_encode($result);
 
-            die(); // this is required to return a proper result
+            die();
         }
     }
 //=========================================================================================================================
@@ -333,7 +333,7 @@ class Ssbhesabfa_Admin
             $redirect_url = admin_url('admin.php?page=ssbhesabfa-option&tab=sync&changesSyncResult=true');
             echo $redirect_url;
 
-            die(); // this is required to return a proper result
+            die();
         }
     }
 //=========================================================================================================================
@@ -358,7 +358,7 @@ class Ssbhesabfa_Admin
                 $result["redirectUrl"] = admin_url('admin.php?page=ssbhesabfa-option&tab=sync&productSyncResult=true');
                 echo json_encode($result);
             }
-            die(); // this is required to return a proper result
+            die();
         }
     }
 //=========================================================================================================================
@@ -395,7 +395,7 @@ class Ssbhesabfa_Admin
             }
 
             echo json_encode($result);
-            die(); // this is required to return a proper result
+            die();
         }
     }
 //=========================================================================================================================
@@ -420,7 +420,7 @@ class Ssbhesabfa_Admin
                 $result["redirectUrl"] = admin_url('admin.php?page=ssbhesabfa-option&tab=sync&$productUpdateResult=true');
             }
             echo json_encode($result);
-            die(); // this is required to return a proper result
+            die();
         }
     }
 //==========================================================================================================================
@@ -436,7 +436,7 @@ class Ssbhesabfa_Admin
                 $func->setOrderPayment($orderId);
 
             echo json_encode($result);
-            die(); // this is required to return a proper result
+            die();
         }
     }
 //=========================================================================================================================
@@ -471,7 +471,7 @@ class Ssbhesabfa_Admin
             }
             echo $redirect_url;
 
-            die(); // this is required to return a proper result
+            die();
         }
     }
 //=========================================================================================================================
@@ -979,7 +979,7 @@ class Ssbhesabfa_Admin
             }
             echo $redirect_url;
 
-            die(); // this is required to return a proper result
+            die();
         }
     }
 //=========================================================================================================================
@@ -1168,7 +1168,7 @@ class Ssbhesabfa_Admin
             }
             $result["error"] = false;
             echo json_encode($result);
-            die(); // this is required to return a proper result
+            die();
         }
     }
 //=========================================================================================================================
@@ -1188,7 +1188,7 @@ class Ssbhesabfa_Admin
 
             $result["error"] = false;
             echo json_encode($result);
-            die(); // this is required to return a proper result
+            die();
         }
     }
 //=========================================================================================================================
@@ -1342,7 +1342,7 @@ class Ssbhesabfa_Admin
 
             $result["error"] = false;
             echo json_encode($result);
-            die(); // this is required to return a proper result
+            die();
         }
     }
 //=========================================================================================================================

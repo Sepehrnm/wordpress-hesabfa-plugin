@@ -245,7 +245,7 @@ class Ssbhesabfa_Setting {
 
         $fields[] = array(
 			'title'   => "",
-			'desc'    => __( 'Set Special Sale as Discount', 'ssbhesabfa' ),
+			'desc'    => __( 'Set Special Sale as Discount in invoice', 'ssbhesabfa' ),
 			'id'      => 'ssbhesabfa_set_special_sale_as_discount',
 			'default' => 'no',
 			'type'    => 'checkbox'
