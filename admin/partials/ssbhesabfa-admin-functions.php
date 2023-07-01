@@ -471,6 +471,13 @@ class Ssbhesabfa_Admin_Functions
 //========================================================================================================================
     public function setWarehouseReceipt($items, $invoiceNumber, $warehouseCode, $date, $project)
     {
+        $invoiceFreightCode = get_option('ssbhesabfa_invoice_freight_code');
+        for ($i = 0 ; $i < count($items) ; $i++) {
+            if($items[$i]["ItemCode"] == $invoiceFreightCode) {
+                unset($items[$i]);
+            }
+        }
+
         $data = array(
             'WarehouseCode' => $warehouseCode,
             'InvoiceNumber' => $invoiceNumber,

@@ -1221,8 +1221,9 @@ class Ssbhesabfa_Admin
                 $warehouse = get_option('ssbhesabfa_item_update_quantity_based_on', "-1");
                 if ($warehouse == "-1")
                     $response = $api->itemGet($wpFa->idHesabfa);
-                else
+                else {
                     $response = $api->itemGetQuantity($warehouse, array($wpFa->idHesabfa));
+                }
 
                 if ($response->Success) {
                     $item = $warehouse == "-1" ? $response->Result : $response->Result[0];
@@ -1384,8 +1385,9 @@ class Ssbhesabfa_Admin
             $warehouse = get_option('ssbhesabfa_item_update_quantity_based_on', "-1");
             if ($warehouse == "-1")
                 $response = $api->itemGetItems(array('Filters' => $filters));
-            else
+            else {
                 $response = $api->itemGetQuantity($warehouse, $codes);
+            }
 
             if ($response->Success) {
                 $items = $warehouse == "-1" ? $response->Result->List : $response->Result;

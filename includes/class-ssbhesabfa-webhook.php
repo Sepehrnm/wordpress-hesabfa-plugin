@@ -65,6 +65,7 @@ class Ssbhesabfa_Webhook
                                 }
                                 break;
                             }
+
                             $this->itemsObjectId[] = $item->ObjectId;
                             break;
                         case 'Contact':
@@ -191,7 +192,6 @@ class Ssbhesabfa_Webhook
                         $id_hesabfa_old = $row->id_hesabfa;
                         //ToDo: number must be int in hesabfa, what can I do
                         $wpdb->update($wpdb->prefix . 'ssbhesabfa', array('id_hesabfa' => $number), array('id' => $id_obj));
-                        //LOG into the log file
                         HesabfaLogService::log(array("شماره صورتحساب تغییر یافت. شماره قدیم: $id_hesabfa_old. شناسه جدید: $number" .
                         "Invoice Number changed. Old Number: $id_hesabfa_old. New ID: $number"));
                     }
@@ -200,7 +200,6 @@ class Ssbhesabfa_Webhook
         }
     }
 //=================================================================================================================================
-    // use in webhook call when contact change
     public function setContactChanges($contact)
     {
         if (!is_object($contact)) return false;
@@ -242,9 +241,11 @@ class Ssbhesabfa_Webhook
     public function getObjectsByIdList($idList, $type)
     {
         $hesabfaApi = new Ssbhesabfa_Api();
+        $warehouseCode = get_option('ssbhesabfa_item_update_quantity_based_on');
         switch ($type) {
             case 'item':
-                $result = $hesabfaApi->itemGetById($idList);
+//                $result = $hesabfaApi->itemGetById($idList);
+                $result = $hesabfaApi->itemGetQuantity($warehouseCode, $idList);
                 break;
             case 'contact':
                 $result = $hesabfaApi->contactGetById($idList);
@@ -272,8 +273,9 @@ class Ssbhesabfa_Webhook
         $warehouse = get_option('ssbhesabfa_item_update_quantity_based_on', "-1");
         if ($warehouse == "-1")
             $result = $hesabfaApi->itemGetItems(array('Take' => 100000, 'Filters' => $filters));
-        else
+        else {
             $result = $hesabfaApi->itemGetQuantity($warehouse, $codeList);
+        }
 
         //$result = $hesabfaApi->itemGetItems($queryInfo);
 

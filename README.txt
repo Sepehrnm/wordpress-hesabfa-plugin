@@ -344,3 +344,7 @@ by clicking update stock and price button in hesabfa tab in product edit page
 * add set sale price as discount option.
 * codes refactored.
 * descriptions added.
+
+= 2.0.70 - 00.06.2023 =
+* warehouse receipt service bug fixed
+* inventory bug fixed
