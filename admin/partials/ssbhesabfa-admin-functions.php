@@ -6,7 +6,7 @@ include_once(plugin_dir_path(__DIR__) . 'services/HesabfaWpFaService.php');
 
 /**
  * @class      Ssbhesabfa_Admin_Functions
- * @version    2.0.68
+ * @version    2.0.70
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin/functions
@@ -135,6 +135,8 @@ class Ssbhesabfa_Admin_Functions
         $response = $hesabfa->contactSave($hesabfaCustomer);
 
         if ($response->Success) {
+//            HesabfaLogService::writeLogObj($response);
+
             $wpFaService = new HesabfaWpFaService();
             $wpFaService->saveCustomer($response->Result);
             return $response->Result->Code;
@@ -378,16 +380,18 @@ class Ssbhesabfa_Admin_Functions
             $string =  str_replace($arabic, $newNumbers, $string);
             $freightItemCode = str_replace($persian, $newNumbers, $string);
 
-            $invoiceItem = array(
-                'RowNumber' => $i,
-                'ItemCode' => $freightItemCode,
-                'Description' => 'هزینه حمل و نقل',
-                'Quantity' => 1,
-                'UnitPrice' => (float) $this->getPriceInHesabfaDefaultCurrency($order->get_shipping_total()),
-                'Discount' => 0,
-                'Tax' => (float) $this->getPriceInHesabfaDefaultCurrency($order->get_shipping_tax())
-            );
-            $invoiceItems[] = $invoiceItem;
+            if($this->getPriceInHesabfaDefaultCurrency($order->get_shipping_total()) != 0) {
+                $invoiceItem = array(
+                    'RowNumber' => $i,
+                    'ItemCode' => $freightItemCode,
+                    'Description' => 'هزینه حمل و نقل',
+                    'Quantity' => 1,
+                    'UnitPrice' => (float) $this->getPriceInHesabfaDefaultCurrency($order->get_shipping_total()),
+                    'Discount' => 0,
+                    'Tax' => (float) $this->getPriceInHesabfaDefaultCurrency($order->get_shipping_tax())
+                );
+                $invoiceItems[] = $invoiceItem;
+            }
         }
 
         $data = array(
@@ -471,10 +475,13 @@ class Ssbhesabfa_Admin_Functions
 //========================================================================================================================
     public function setWarehouseReceipt($items, $invoiceNumber, $warehouseCode, $date, $project)
     {
-        $invoiceFreightCode = get_option('ssbhesabfa_invoice_freight_code');
-        for ($i = 0 ; $i < count($items) ; $i++) {
-            if($items[$i]["ItemCode"] == $invoiceFreightCode) {
-                unset($items[$i]);
+        $invoiceOption = get_option('ssbhesabfa_invoice_freight');
+        if($invoiceOption == 1) {
+            $invoiceFreightCode = get_option('ssbhesabfa_invoice_freight_code');
+            for ($i = 0 ; $i < count($items) ; $i++) {
+                if($items[$i]["ItemCode"] == $invoiceFreightCode) {
+                    unset($items[$i]);
+                }
             }
         }
 
@@ -568,13 +575,18 @@ class Ssbhesabfa_Admin_Functions
 
             $payTempValue = substr($bank_code, 0, 4);
             global $financialData;
-            switch($payTempValue) {
-                case 'bank':
-                    $payTempValue = substr($bank_code, 4);
-                    $financialData = array('bankCode' => $payTempValue);break;
-                case 'cash':
-                    $payTempValue = substr($bank_code, 4);
-                    $financialData = array('cashCode' => $payTempValue);break;
+            if(get_option('ssbhesabfa_payment_option') == 'no') {
+                switch($payTempValue) {
+                    case 'bank':
+                        $payTempValue = substr($bank_code, 4);
+                        $financialData = array('bankCode' => $payTempValue);break;
+                    case 'cash':
+                        $payTempValue = substr($bank_code, 4);
+                        $financialData = array('cashCode' => $payTempValue);break;
+                }
+            } elseif (get_option('ssbhesabfa_payment_option') == 'yes') {
+                $defaultBankCode = get_option('ssbhesabfa_default_payment_method_code');
+                $financialData = array('bankCode' => $defaultBankCode);
             }
 
             $date_obj = $order->get_date_paid();

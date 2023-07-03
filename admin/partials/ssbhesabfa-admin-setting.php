@@ -4,7 +4,7 @@ include_once( plugin_dir_path( __DIR__ ) . 'services/HesabfaLogService.php' );
 error_reporting(0);
 /**
  * @class      Ssbhesabfa_Setting
- * @version    2.0.68
+ * @version    2.0.70
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin/setting
@@ -665,6 +665,7 @@ class Ssbhesabfa_Setting {
 			),
 		);
 
+
         foreach ( $available_payment_gateways as $gateway ) {
             $fields[] = array(
                 'title'   => $gateway->title,
@@ -673,6 +674,29 @@ class Ssbhesabfa_Setting {
                 'options' => $payInputValue
             );
         }
+
+        $fields[] = array(
+            'title' => __('Default Payment Gateway By Using this Option, all Invoices Will Have this Payment Gateway as Their Payment Gateway', 'ssbhesabfa'),
+            'id' => 'ssbhesabfa_payment_option',
+            'type' => 'radio',
+            'options' => [
+                'yes' => __("Save Default Bank as the Payment Gateway", "ssbhesabfa"),
+                'no' => __("Save Other Payment Methods as the Payment Gateway", "ssbhesabfa"),
+            ],
+            'default' => 'no'
+        );
+
+        $fields[] = array(
+          'title' => __('Default Bank Code', 'ssbhesabfa'),
+          'id' => 'ssbhesabfa_default_payment_method_code',
+          'type' => 'text'
+        );
+
+        $fields[] = array(
+          'title' => __('Default Bank Name', 'ssbhesabfa'),
+          'id' => 'ssbhesabfa_default_payment_method_name',
+          'type' => 'text'
+        );
 
 		$fields[] = array( 'type' => 'sectionend', 'id' => 'payment_options' );
 
@@ -694,6 +718,12 @@ class Ssbhesabfa_Setting {
                 <input type="submit" name="ssbhesabfa_integration" class="button-primary"
                        value="<?php esc_attr_e( 'Save changes', 'ssbhesabfa' ); ?>"/>
             </p>
+            <?php
+            if(get_option('ssbhesabfa_payment_option') == 'yes') {
+                if(!(get_option('ssbhesabfa_default_payment_method_code'))) echo '<script>alert("کد بانک پیش فرض تعریف نشده است")</script>';
+                if(!(get_option('ssbhesabfa_default_payment_method_name'))) echo '<script>alert("نام بانک پیش فرض تعریف نشده است")</script>';
+            }
+            ?>
         </form>
 		<?php
 	}
@@ -1165,8 +1195,15 @@ class Ssbhesabfa_Setting {
                 <div>
                     <label for="ssbhesabfa-sync-products-submit"></label>
                     <div>
+                        <?php
+                            if(get_option('ssbhesabfa_item_update_price') == 'no' && get_option('ssbhesabfa_item_update_quantity') == 'no') { ?>
+                                <button disabled class="button button-primary hesabfa-f" id="ssbhesabfa-sync-products-submit"
+                                name="ssbhesabfa-sync-products-submit"><?php echo __( 'Sync Products Quantity and Price', 'ssbhesabfa' ); ?></button>
+                           <?php } else {
+                        ?>
                         <button class="button button-primary hesabfa-f" id="ssbhesabfa-sync-products-submit"
                                 name="ssbhesabfa-sync-products-submit"><?php echo __( 'Sync Products Quantity and Price', 'ssbhesabfa' ); ?></button>
+                        <?php } ?>
                     </div>
                 </div>
                 <p class="hesabfa-p mt-2"><?php echo __( 'Sync quantity and price of products in hesabfa with online store.', 'ssbhesabfa' ); ?></p>

@@ -40,7 +40,6 @@ class Ssbhesabfa_Webhook
                                 $wpFa1 = $wpFaService->getWpFaByHesabfaId('order', $item->Extra2);
                                 if($wpFa1) {
                                     $wpFaService->delete($wpFa1);
-                                    //LOG into the log file
                                     HesabfaLogService::writeLogStr("لینک صورتحساب به همراه سفارش پاک شد. شماره صورتحساب: " . $item->Extra2 . ", شناسه سفارش: " . $wpFa1->idWp . "\n" .
                                         "The invoice link with the order deleted. Invoice number: " . $item->Extra2 . ", Order id: " . $wpFa1->idWp);
                                 }
@@ -56,7 +55,6 @@ class Ssbhesabfa_Webhook
                             $this->warehouseReceiptsObjectId[] = $item->ObjectId;
                             break;
                         case 'Product':
-                            //if Action was deleted
                             if ($item->Action == 53) {
                                 $wpFa = $wpFaService->getWpFaByHesabfaId('product', $item->Extra);
                                 if ($wpFa) {
@@ -69,7 +67,6 @@ class Ssbhesabfa_Webhook
                             $this->itemsObjectId[] = $item->ObjectId;
                             break;
                         case 'Contact':
-                            //if Action was deleted
                             if ($item->Action == 33) {
                                 $id_obj = $wpFaService->getWpFaIdByHesabfaId('customer', $item->Extra);
                                 global $wpdb;

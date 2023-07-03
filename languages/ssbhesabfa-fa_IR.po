@@ -203,6 +203,26 @@ msgstr "به‌روزرسانی موجودی بعد از تغییر در حسا�
 msgid "Show Hesabfa ID in Products Page"
 msgstr "نمایش کد حسابفا در صفحه همه محصولات"
 
+#: admin/partials/ssbhesabfa-admin-setting.php:679
+msgid "Default Payment Gateway By Using this Option, all Invoices Will Have this Payment Gateway as Their Payment Gateway"
+msgstr "درگاه پرداخت پیش فرض"
+
+#: admin/partials/ssbhesabfa-admin-setting.php:695
+msgid "Default Bank Code"
+msgstr "کد بانک پیش فرض"
+
+#: admin/partials/ssbhesabfa-admin-setting.php:689
+msgid "Default Bank Name"
+msgstr "نام بانک پیش فرض"
+
+#: admin/partials/ssbhesabfa-admin-setting.php:683
+msgid "Save Default Bank as the Payment Gateway"
+msgstr "بانک پیش فرض به عنوان درگاه پرداخت ذخیره شود"
+
+#: admin/partials/ssbhesabfa-admin-setting.php:684
+msgid "Save Other Payment Methods as the Payment Gateway"
+msgstr "روش های دیگر پرداخت به عنوان درگاه پرداخت ذخیره شود"
+
 #: admin/partials/ssbhesabfa-admin-setting.php:246
 msgid "Set Special Sale as Discount in invoice"
 msgstr "ثبت فروش ویژه به عنوان تخفیف در فاکتور"
@@ -266,7 +286,7 @@ msgstr "ذخیره خودکار مشتریان"
 
 #: admin/partials/ssbhesabfa-admin-setting.php:111
 msgid "Save and update Customer's detail automatically in hesabfa"
-msgstr "ثبت و ذخیره خودرکار اطلاعات مشتریان در حسابفا"
+msgstr "ثبت و ذخیره خودکار اطلاعات مشتریان در حسابفا"
 
 msgid "Add additional fields to checkout page"
 msgstr "افزودن فیلد های دلخواه به صفحه پرداخت"
@@ -277,7 +297,7 @@ msgstr "افزودن فیلد ها توسط افزونه حسابفا"
 
 
 msgid "Customer add field to checkout by postmeta"
-msgstr "استفاده از فیلد های موجود در جدول متا (که توسط اافزونه های دیگر اضافه شده است)"
+msgstr "استفاده از فیلد های موجود در جدول متا (که توسط افزونه های دیگر اضافه شده است)"
 
 
 msgid "Show"
