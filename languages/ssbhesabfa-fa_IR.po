@@ -227,6 +227,18 @@ msgstr "روش های دیگر پرداخت به عنوان درگاه پردا�
 msgid "Set Special Sale as Discount in invoice"
 msgstr "ثبت فروش ویژه به عنوان تخفیف در فاکتور"
 
+#: admin/partials/ssbhesabfa-admin-setting.php:693
+msgid "Enter Bank Code"
+msgstr "کد بانک را وارد نمایید"
+
+#: admin/partials/ssbhesabfa-admin-setting.php:700
+msgid "Enter Bank Name"
+msgstr "نام بانک را وارد نمایید"
+
+#: admin/partials/ssbhesabfa-admin-setting.php:700
+msgid "Enter Freight Code"
+msgstr "کد هزینه حمل و نقل را وارد نمایید"
+
 #: admin/partials/ssbhesabfa-admin-setting.php:84
 #: admin/partials/ssbhesabfa-admin-setting.php:130
 #: admin/partials/ssbhesabfa-admin-setting.php:191

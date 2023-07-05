@@ -1,6 +1,7 @@
-@import "fontiran.css";
+/*@import "fontiran.css";*/
+
 * {
-    font-family: IRANYekan, serif !important;
+    font-family: "Tahoma", "Calibri", sans-serif;
 }
 
 .hand {
@@ -17,26 +18,22 @@ a.nav-tab {
     padding: 5px 10px;
     font-weight: normal;
     border-radius: 7px 7px 0px 0px;
+
 }
 
 .hesabfa-tab-page-title {
     color: dimgray;
 }
 
-.hesabfa-p {
-    font-family: IRANYekan, Tahoma;
-}
-
-.hesabfa-f {
-    font-family: IRANYekan, Tahoma;
-}
-
 .hesabfa-f-12 {
     font-size: 12pt;
 }
 
+.hesabfa-f li {
+    font-size: 11pt;
+}
+
 .hesabfa-header {
-    font-family: IRANYekan, Tahoma;
     background-color: #304967;
     box-shadow: 5px 5px 5px #f3f3f3;
     padding: 5px;
@@ -65,8 +62,8 @@ a.nav-tab {
     padding-bottom: 10px;
     margin-top: 10px;
 }
+
 .hesabfa-plugin-tutorial-chapter:hover {
     color: dodgerblue;
     cursor: pointer;
 }
-

@@ -345,9 +345,11 @@ by clicking update stock and price button in hesabfa tab in product edit page
 * codes refactored.
 * descriptions added.
 
-= 2.0.70 - 04.07.2023 =
+= 2.0.70 - 08.07.2023 =
 * warehouse receipt service bug fixed
 * inventory bug fixed
 * add default bank option
 * freight zero bug fixed
 * update price and quantity bug fixed
+* empty additional fields values handled
+* font changed

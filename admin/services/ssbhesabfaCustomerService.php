@@ -22,10 +22,10 @@ class ssbhesabfaCustomerService
 	    $RegistrationNumber = $checkout_fields['RegistrationNumber'];
 	    $Website = $checkout_fields['Website'];
 
-        if($NationalCode === false) $NationalCode = '-';
-        if($EconomicCode === false) $EconomicCode = '-';
-        if($RegistrationNumber === false) $RegistrationNumber = '-';
-        if($Website === false) $Website = '-';
+        if($NationalCode === false) $NationalCode = '';
+        if($EconomicCode === false) $EconomicCode = '';
+        if($RegistrationNumber === false) $RegistrationNumber = '';
+        if($Website === false) $Website = '';
 
         if (empty($name) || $name === ' ') $name = __('Not Defined', 'ssbhesabfa');
 

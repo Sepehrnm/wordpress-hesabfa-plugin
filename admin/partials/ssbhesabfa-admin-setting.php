@@ -573,12 +573,14 @@ class Ssbhesabfa_Setting {
             'options' => [
                 0 => __("Save as Freight", 'ssbhesabfa'),
                 1 => __("Save as a Service", 'ssbhesabfa')
-        ]);
+            ],
+        );
 
         $fields[] = array(
             'title' => __('Service Code For Freight', 'ssbhesabfa'),
             'id' => 'ssbhesabfa_invoice_freight_code',
             'type' => 'text',
+            'placeholder' => __('Enter Freight Code', 'ssbhesabfa'),
         );
 
         if(is_plugin_active( 'dokan-lite/dokan.php' )){
@@ -602,6 +604,11 @@ class Ssbhesabfa_Setting {
 		$ssbhesabf_setting_fields = self::ssbhesabfa_invoice_setting_fields();
 		$Html_output              = new Ssbhesabfa_Html_output();
 		?>
+        <style>
+            #ssbhesabfa_invoice_freight_code {
+                min-width: 250px;
+            }
+        </style>
         <div class="alert alert-warning hesabfa-f">
             <strong>توجه</strong><br>
             در اینجا تعیین کنید که فاکتور سفارش در چه مرحله ای در حسابفا ثبت شود.
@@ -689,13 +696,15 @@ class Ssbhesabfa_Setting {
         $fields[] = array(
           'title' => __('Default Bank Code', 'ssbhesabfa'),
           'id' => 'ssbhesabfa_default_payment_method_code',
-          'type' => 'text'
+          'type' => 'text',
+          'placeholder' => __('Enter Bank Code', 'ssbhesabfa')
         );
 
         $fields[] = array(
           'title' => __('Default Bank Name', 'ssbhesabfa'),
           'id' => 'ssbhesabfa_default_payment_method_name',
-          'type' => 'text'
+          'type' => 'text',
+          'placeholder' => __('Enter Bank Name', 'ssbhesabfa')
         );
 
 		$fields[] = array( 'type' => 'sectionend', 'id' => 'payment_options' );
@@ -711,6 +720,8 @@ class Ssbhesabfa_Setting {
             <strong>توجه</strong><br>
             در اینجا تعیین کنید که رسید دریافت وجه فاکتور در چه وضعیتی ثبت شود
             و در هر روش پرداخت، رسید در چه بانکی و یا صندوقی ثبت شود.
+            <br>
+            بانک پیش فرض، جهت کاربرانی می باشد که به هر دلیلی روش های پرداخت وکامرس در اینجا نمایش داده نمی شود. در این صورت با انتخاب بانک و ثبت کد آن، تمامی دریافت ها در آن بانک ثبت خواهد شد
         </div>
         <form id="ssbhesabfa_form" enctype="multipart/form-data" action="" method="post">
 			<?php $Html_output->init( $ssbhesabf_setting_fields ); ?>
@@ -721,7 +732,6 @@ class Ssbhesabfa_Setting {
             <?php
             if(get_option('ssbhesabfa_payment_option') == 'yes') {
                 if(!(get_option('ssbhesabfa_default_payment_method_code'))) echo '<script>alert("کد بانک پیش فرض تعریف نشده است")</script>';
-                if(!(get_option('ssbhesabfa_default_payment_method_name'))) echo '<script>alert("نام بانک پیش فرض تعریف نشده است")</script>';
             }
             ?>
         </form>
