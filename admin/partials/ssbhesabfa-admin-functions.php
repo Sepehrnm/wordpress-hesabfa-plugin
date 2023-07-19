@@ -6,7 +6,7 @@ include_once(plugin_dir_path(__DIR__) . 'services/HesabfaWpFaService.php');
 
 /**
  * @class      Ssbhesabfa_Admin_Functions
- * @version    2.0.70
+ * @version    2.0.72
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin/functions
@@ -297,8 +297,8 @@ class Ssbhesabfa_Admin_Functions
 
             global $discount, $price;
             if( $wcProduct->is_on_sale() && get_option('ssbhesabfa_set_special_sale_as_discount') === 'yes' ) {
-                $price = $wcProduct->get_regular_price();
-                $discount = $wcProduct->get_regular_price() - $wcProduct->get_sale_price();
+                $price = $this->getPriceInHesabfaDefaultCurrency($wcProduct->get_regular_price());
+                $discount = $this->getPriceInHesabfaDefaultCurrency($wcProduct->get_regular_price() - $wcProduct->get_sale_price());
             } else {
                 $price = $this->getPriceInHesabfaDefaultCurrency($product['subtotal'] / $product['quantity']);
                 $discount = $this->getPriceInHesabfaDefaultCurrency($product['subtotal'] - $product['total']);
@@ -862,7 +862,7 @@ class Ssbhesabfa_Admin_Functions
             $result["error"] = true;
             return $result;
         };
-        sleep(2);
+//        sleep(2);
 
         $result["batch"] = $batch;
         $result["totalBatch"] = $totalBatch;

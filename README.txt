@@ -4,7 +4,7 @@ Tags: accounting cloud hesabfa
 Requires at least: 5.2
 Tested up to: 6.2.2
 Requires PHP: 5.6
-Stable tag: 2.0.70
+Stable tag: 2.0.72
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -21,13 +21,14 @@ For more information and a full guide to how to use Hesabfa and WooCommerce Plug
 3. Use the Settings->Hesabfa screen to configure the plugin
 
 == Screenshots ==
-1. Catalog setting page
-2. Customers setting page
-3. Invoice setting page
-4. Payment Methods setting page
-5. API setting page
-6. Export setting page
+1. API setting page
+2. Catalog setting page
+3. Customers setting page
+4. Invoice setting page
+5. Payment Methods setting page
+6. Import and export setting page
 7. Sync setting page
+8. Log file
 
 == Changelog ==
 = 1.0.0 - 07.03.2020 =
@@ -353,3 +354,8 @@ by clicking update stock and price button in hesabfa tab in product edit page
 * update price and quantity bug fixed
 * empty additional fields values handled
 * font changed
+
+= 2.0.72 - 19.07.2023 =
+* daily log history and log features added
+* price update after webhook call added
+* special sale currency change bug fixed

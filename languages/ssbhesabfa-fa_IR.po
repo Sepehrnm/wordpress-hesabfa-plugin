@@ -239,6 +239,21 @@ msgstr "نام بانک را وارد نمایید"
 msgid "Enter Freight Code"
 msgstr "کد هزینه حمل و نقل را وارد نمایید"
 
+#: admin/partials/ssbhesabfa-admin-setting.php:1642
+msgid "Delete Logs Between These Tow Dates"
+msgstr "حذف لاگ ها در بازه مشخص شده"
+
+#: admin/partials/ssbhesabfa-admin-setting.php:1633
+msgid "Log History"
+msgstr "تاریخچه لاگ ها"
+#: admin/partials/ssbhesabfa-admin-setting.php:1648
+#: admin/partials/ssbhesabfa-admin-setting.php:1680
+msgid "Delete All Log Files"
+msgstr "پاک کردن کل لاگ ها"
+#: admin/partials/ssbhesabfa-admin-setting.php:1613
+msgid "Find Log File"
+msgstr "جستجوی فایل لاگ براساس تاریخ"
+
 #: admin/partials/ssbhesabfa-admin-setting.php:84
 #: admin/partials/ssbhesabfa-admin-setting.php:130
 #: admin/partials/ssbhesabfa-admin-setting.php:191
@@ -718,8 +733,8 @@ msgstr "لاگ"
 msgid "Events and bugs log"
 msgstr "لاگ رویدادها و خطاها"
 
-msgid "Clean log"
-msgstr "پاک کردن لاگ"
+msgid "Clean current log"
+msgstr "پاک کردن لاگ جاری"
 
 msgid "Download log file"
 msgstr "دانلود فایل لاگ"

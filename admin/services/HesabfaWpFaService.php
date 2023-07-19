@@ -139,7 +139,6 @@ class HesabfaWpFaService
     {
         $json = json_decode($item->Tag);
         $wpFaService = new HesabfaWpFaService();
-        //get hesabfa id
         $wpFa = $wpFaService->getWpFaByHesabfaId('product', $item->Code);
 
         if (!$wpFa) {

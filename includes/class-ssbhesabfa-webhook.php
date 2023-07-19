@@ -64,6 +64,16 @@ class Ssbhesabfa_Webhook
                                 break;
                             }
 
+                            if($item->Action == 52) {
+                                $updatedItem = $hesabfaApi->itemGet($item->Extra);
+                                $wpFaService = new HesabfaWpFaService();
+                                $wpFa = $wpFaService->getWpFaByHesabfaId('product', $updatedItem->Result->Code);
+
+                                update_post_meta($wpFa->idWp, '_regular_price', $updatedItem->Result->SellPrice);
+                                update_post_meta($wpFa->idWp, '_price', $updatedItem->Result->SellPrice);
+                                break;
+                            }
+
                             $this->itemsObjectId[] = $item->ObjectId;
                             break;
                         case 'Contact':

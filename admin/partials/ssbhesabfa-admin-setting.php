@@ -4,7 +4,7 @@ include_once( plugin_dir_path( __DIR__ ) . 'services/HesabfaLogService.php' );
 error_reporting(0);
 /**
  * @class      Ssbhesabfa_Setting
- * @version    2.0.70
+ * @version    2.0.72
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin/setting
@@ -1583,17 +1583,21 @@ class Ssbhesabfa_Setting {
 	public static function ssbhesabfa_tab_log_html() {
         ?>
         <div style="padding-left: 20px">
+            <div class="alert alert-warning hesabfa-f">
+                توجه فرمایید با زدن دکمه پاک کردن کل لاگ ها، تمامی فایل های لاگ ذخیره شده پاک می شوند.
+                <br>
+                در صورت نیاز به پاک کردن فایل لاگ جاری می توانید از دکمه پاک کردن لاگ جاری، زمانی که فایل لاگ مدنظر انتخاب شده است، استفاده کنید.
+                <br>
+                فهرست تاریخچه لاگ ها، لاگ های موجود در سیستم در بازه 10 روز گذشته را نمایش می دهد.
+            </div>
             <h3 class="hesabfa-tab-page-title"><?php echo __( 'Events and bugs log', 'ssbhesabfa' ) ?></h3>
-            <div class="flex">
-                <div style="display: inline-block; ">
-                    <form id="ssbhesabfa_clean_log" autocomplete="off"
-                          action="<?php echo admin_url( 'admin.php?page=ssbhesabfa-option&tab=log' ); ?>"
-                          method="post">
+            <div style="display:flex;align-items: center;">
+                <div style="display: inline-block;">
+                    <label for="ssbhesabfa-clean-log-files"></label>
+                    <form method="post">
                         <div>
-                            <label for="ssbhesabfa-log-clean-submit"></label>
                             <div>
-                                <button class="button button-primary hesabfa-f" id="ssbhesabfa-log-clean-submit"
-                                        name="ssbhesabfa-log-clean-submit"><?php echo __( 'Clean log', 'ssbhesabfa' ); ?></button>
+                                <button name="deleteLogFiles" class="button button-primary hesabfa-f" style="cursor: pointer; margin: 0.4rem 0;"><?php echo __("Delete All Log Files", "ssbhesabfa"); ?></button>
                             </div>
                         </div>
                     </form>
@@ -1602,19 +1606,64 @@ class Ssbhesabfa_Setting {
                     <label for="ssbhesabfa-log-download-submit"></label>
                     <div>
                         <a class="button button-secondary hesabfa-f" target="_blank"
-                           href="<?php echo WP_CONTENT_URL ?>/ssbhesabfa.log">
+                           href="<?php if(isset($_POST["changeLogFile"])) echo WP_CONTENT_URL . '/ssbhesabfa-' . $_POST["changeLogFile"] . '.txt'; else echo WP_CONTENT_URL . '/ssbhesabfa-' . date("20y-m-d") . '.txt'; ?>">
                             <?php echo __( 'Download log file', 'ssbhesabfa' ); ?>
                         </a>
                     </div>
                 </div>
+                <div style="display: inline-block; margin-right: 10px;">
+                    <form method="post">
+                        <label for="ssbhesabfa-log-clean-submit"></label>
+                        <div>
+                            <div>
+                                <input name="currentLogFileDate" type="hidden" value="<?php if(isset($_POST["changeLogFile"])) echo WP_CONTENT_DIR . '/ssbhesabfa-' . $_POST["changeLogFile"] . '.txt'; else echo WP_CONTENT_DIR . '/ssbhesabfa-' . $_POST["ssbhesabfa_find_log_date"] . '.txt'; ?>">
+                                <button class="button button-primary hesabfa-f" id="ssbhesabfa-log-clean-submit"
+                                        name="ssbhesabfa-log-clean-submit"> <?php echo __( 'Clean current log', 'ssbhesabfa' ); ?></button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <br>
+            <hr>
+            <div style="display:flex;align-items: center;">
+                <div style="display: inline-block;">
+                    <form method="post">
+                        <label for="ssbhesabfa-find-log-submit"></label>
+                        <div>
+                            <input type="date" id="ssbhesabfa_find_log_date" name="ssbhesabfa_find_log_date" value=""
+                                   class="datepicker"/>
+                            <button class="button button-primary hesabfa-f" id="ssbhesabfa-find-log-submit"
+                                    name="ssbhesabfa-find-log-submit"><?php echo __( 'Find Log File', 'ssbhesabfa' ); ?></button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <br>
+            <hr>
+            <div style="display:flex;align-items: center;">
+                <div style="display: inline-block;">
+                    <form method="post">
+                        <label for="ssbhesabfa-delete-logs-between-two-dates"></label>
+                        <div>
+                            <input type="date" id="ssbhesabfa_delete_log_date_from" name="ssbhesabfa_delete_log_date_from" value=""
+                                   class="datepicker"/>
+                            <input type="date" id="ssbhesabfa_delete_log_date_to" name="ssbhesabfa_delete_log_date_to" value=""
+                                   class="datepicker"/>
+                            <button class="button button-primary hesabfa-f" id="ssbhesabfa-delete-logs-between-two-dates"
+                                    name="ssbhesabfa-delete-logs-between-two-dates"><?php echo __( 'Delete Logs Between These Tow Dates', 'ssbhesabfa' ); ?></button>
+                        </div>
+                    </form>
+                </div>
             </div>
             <br>
 			<?php
-			if ( file_exists( WP_CONTENT_DIR . '/ssbhesabfa.log' ) &&
-			     ( filesize( WP_CONTENT_DIR . '/ssbhesabfa.log' ) / 1000 ) > 1000 ) {
+			if ( file_exists( WP_CONTENT_DIR . '/ssbhesabfa-' . date("20y-m-d") . '.txt' ) &&
+			     ( filesize( WP_CONTENT_DIR . '/ssbhesabfa-' . date("20y-m-d") . '.txt' ) / 1000 ) > 1000 ) {
 
-				$fileSizeInMb = ( ( filesize( WP_CONTENT_DIR . '/ssbhesabfa.log' ) / 1000 ) / 1000 );
+				$fileSizeInMb = ( ( filesize( WP_CONTENT_DIR . '/ssbhesabfa-' . date("20y-m-d") . '.txt' ) / 1000 ) / 1000 );
 				$fileSizeInMb = round( $fileSizeInMb, 2 );
+
 
 				$str = __( 'The log file size is large, clean log file.', 'ssbhesabfa' );
 
@@ -1622,11 +1671,136 @@ class Ssbhesabfa_Setting {
 				     '<p class="hesabfa-p">' . $str . ' (' . $fileSizeInMb . 'MB)' . '</p>'
 				     . '</div>';
 
-			} else if ( file_exists( WP_CONTENT_DIR . '/ssbhesabfa.log' ) ) {
+			} else if ( file_exists( WP_CONTENT_DIR . '/ssbhesabfa-' . date("20y-m-d") . '.txt' ) ) {
 
-				$logFileContent = HesabfaLogService::readLog();
-				echo '<textarea rows="35"  style="width: 100%; box-sizing: border-box; direction: ltr; margin-left: 10px; background-color: whitesmoke">' . $logFileContent . '</textarea>';
+                $URL = WP_CONTENT_DIR . '/ssbhesabfa-' . date("20y-m-d") . '.txt';
+                $logFileContent = HesabfaLogService::readLog($URL);
 
+                echo '<div id="logFileContainer" style="display: flex; justify-content: space-between; flex-direction: column;">'.
+                    '<div style="direction: ltr;display: flex; flex-direction: column; align-items: center;">
+                        <h3>' . __("Log History", "ssbhesabfa") . '</h3>
+                        <form method="post"">
+                            <ul>';
+                            for($i = 0 ; $i < 10 ; $i++) {
+                                if( file_exists( WP_CONTENT_DIR . '/ssbhesabfa-' . date("20y-m-d", strtotime(-$i."day")) . '.txt' ) ) {
+                                    echo '<li class="button button-secondary" style="cursor: pointer; margin: 0.4rem;"><input style="background: transparent;border: none; color: #2271B1" name="changeLogFile" type="submit" value="'. date("20y-m-d", strtotime(-$i."day")) .'" /></li>';
+                                }
+                            }
+                            echo '
+                            </ul>          
+                        </form>
+                    </div>';
+				echo '<textarea id="textarea" rows="35" style="width: 100%; box-sizing: border-box; direction: ltr; margin-left: 10px; background-color: whitesmoke">' . $logFileContent . '</textarea>';
+                echo '</div>';
+//---------------------------------------
+                if(isset($_POST["changeLogFile"])) {
+                    echo
+                    '<script>
+                        document.getElementById("logFileContainer").innerHTML = "";
+                    </script>';
+
+                    $URL = WP_CONTENT_DIR . '/ssbhesabfa-' . $_POST["changeLogFile"] . '.txt';
+                    $logFileContent = HesabfaLogService::readLog($URL);
+
+                    echo '<div id="logFileContainer" style="display: flex; justify-content: space-between; flex-direction: column;">'.
+                        '<div style="direction: ltr;display: flex; flex-direction: column; align-items: center;">
+                        <h3>' . __("Log History", "ssbhesabfa") . '</h3>
+                        <form method="post">
+                            <ul>';
+                    for($i = 0 ; $i < 10 ; $i++) {
+                        if( file_exists( WP_CONTENT_DIR . '/ssbhesabfa-' . date("20y-m-d", strtotime(-$i."day")) . '.txt' ) ) {
+                            echo '<li class="button button-secondary" style="cursor: pointer; margin: 0.4rem;"><input style="background: transparent;border: none; color: #2271B1" name="changeLogFile" type="submit" value="'. date("20y-m-d", strtotime(-$i."day")) .'" /></li>';
+                        }
+                    }
+                    echo '
+                            </ul>          
+                        </form>
+                    </div>';
+                    echo '<textarea id="textarea" rows="35" style="width: 100%; box-sizing: border-box; direction: ltr; margin-left: 10px; background-color: whitesmoke">' . $logFileContent . '</textarea>';
+                    echo '</div>';
+                }
+//---------------------------------------
+                if(isset($_POST["deleteLogFiles"])) {
+                    $prefix = WP_CONTENT_DIR . '/ssbhesabfa-';
+
+                    $files = glob($prefix . '*');
+                    if ($files) {
+                        foreach ($files as $file) {
+                            if (is_file($file)) {
+                                if (unlink($file)) {
+                                    header("refresh:0");
+                                } else {
+                                    HesabfaLogService::writeLogStr("Unable to delete the file");
+                                }
+                            }
+                        }
+                    } else {
+                        HesabfaLogService::writeLogStr("No files found");
+                    }
+                }
+//---------------------------------------
+                if(isset($_POST["ssbhesabfa-log-clean-submit"])) {
+                    $file = $_POST["currentLogFileDate"];
+                    if (is_file($file)) {
+                        if (unlink($file)) {
+                            HesabfaLogService::writeLogStr("=====فایل لاگ جاری پاک شد=====" . "\n" . "=====Current Log File deleted=====");
+                            header("refresh:0");
+                        } else {
+                            HesabfaLogService::writeLogStr("Unable to delete the file");
+                        }
+                    }
+                }
+//---------------------------------------
+                if(isset($_POST["ssbhesabfa-delete-logs-between-two-dates"])) {
+                    $startDate = $_POST["ssbhesabfa_delete_log_date_from"];
+                    $endDate = $_POST["ssbhesabfa_delete_log_date_to"];
+
+                    $directory = WP_CONTENT_DIR . '/ssbhesabfa-';
+                    $files = glob($directory . '*');
+                    if($files) {
+                        foreach ($files as $file) {
+                            if(is_file($file)) {
+                                $fileDate = substr($file, strlen($directory), 10);
+                                $dateObj = DateTime::createFromFormat('Y-m-d', $fileDate);
+                                $startObj = DateTime::createFromFormat('Y-m-d', $startDate);
+                                $endObj = DateTime::createFromFormat('Y-m-d', $endDate);
+
+                                if ($dateObj >= $startObj && $dateObj <= $endObj) {
+                                     HesabfaLogService::writeLogStr("=====فایل های لاگ پاک شدند=====" . "\n" . "=====Log Files deleted=====");
+                                     unlink($file);
+                                }
+                            }
+                        }
+                    }
+                    header("refresh:0");
+                }
+//---------------------------------------
+                if(isset($_POST["ssbhesabfa-find-log-submit"])) {
+                    echo
+                    '<script>
+                        document.getElementById("logFileContainer").innerHTML = "";
+                    </script>';
+
+                    $URL = WP_CONTENT_DIR . '/ssbhesabfa-' . $_POST["ssbhesabfa_find_log_date"] . '.txt';
+                    $logFileContent = HesabfaLogService::readLog($URL);
+
+                    echo '<div id="logFileContainer" style="display: flex; justify-content: space-between; flex-direction: row-reverse;">'.
+                        '<div style="direction: ltr; width: 10%;display: flex; flex-direction: column; align-items: center;">
+                        <h3>' . __("Log History", "ssbhesabfa") . '</h3>
+                        <form method="post">
+                            <ul>';
+                    for($i = 0 ; $i < 10 ; $i++) {
+                        if( file_exists( WP_CONTENT_DIR . '/ssbhesabfa-' . date("20y-m-d", strtotime(-$i."day")) . '.txt' ) ) {
+                            echo '<li class="button button-secondary" style="cursor: pointer; margin: 0.4rem 0;"><input style="background: transparent;border: none; color: #2271B1" name="changeLogFile" type="submit" value="'. date("20y-m-d", strtotime(-$i."day")) .'" /></li>';
+                        }
+                    }
+                    echo '
+                            </ul>          
+                        </form>
+                    </div>';
+                    echo '<textarea id="textarea" rows="35" style="width: 90%; box-sizing: border-box; direction: ltr; margin-left: 10px; background-color: whitesmoke">' . $logFileContent . '</textarea>';
+                    echo '</div>';
+                }
 			}
 			?>
         </div>

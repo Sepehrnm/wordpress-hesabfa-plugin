@@ -7,7 +7,7 @@ include_once(plugin_dir_path(__DIR__) . 'admin/services/HesabfaWpFaService.php')
  * The admin-specific functionality of the plugin.
  *
  * @class      Ssbhesabfa_Admin
- * @version    2.0.70
+ * @version    2.0.72
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin
@@ -327,7 +327,6 @@ class Ssbhesabfa_Admin
     {
         if (is_admin() && (defined('DOING_AJAX') || DOING_AJAX)) {
             include(plugin_dir_path(__DIR__) . 'includes/class-ssbhesabfa-webhook.php');
-            //Call Webhook
             new Ssbhesabfa_Webhook();
 
             $redirect_url = admin_url('admin.php?page=ssbhesabfa-option&tab=sync&changesSyncResult=true');
@@ -517,7 +516,6 @@ class Ssbhesabfa_Admin
         }
     }
 //=========================================================================================================================
-    //This functions are related to set webhook
     public function ssbhesabfa_init_internal()
     {
         add_rewrite_rule('ssbhesabfa-webhook.php$', 'index.php?ssbhesabfa_webhook=1', 'top');
@@ -535,7 +533,7 @@ class Ssbhesabfa_Admin
         $nowDateTime = new DateTime();
         $diff = $nowDateTime->diff($syncChangesLastDate);
 
-        if ($diff->i >= 3) {
+        if ($diff->i >= 2) {
             HesabfaLogService::writeLogStr('===== همگام سازی اتوماتیک تغییرات =====' . "\n" .
             '===== Sync Changes Automatically =====');
             update_option('ssbhesabfa_sync_changes_last_date', new DateTime());
@@ -861,17 +859,18 @@ class Ssbhesabfa_Admin
                 if ($code != false) {
                     $hesabfaApi->itemDelete($code);
                     $wpdb->delete($wpdb->prefix . 'ssbhesabfa', array('id_hesabfa' => $code, 'obj_type' => 'product'));
-                    //LOG into the log file
+
                     HesabfaLogService::log(array("تنوع محصول پاک شد. شناسه محصول: $id_product-$id_attribute" . "\n" . "Product variation deleted. Product ID: $id_product-$id_attribute"));
                 }
             }
         }
 
         $code = $wpFaService->getProductCodeByWpId($id_product);
+
         if ($code != false) {
             $hesabfaApi->itemDelete($code);
             $wpdb->delete($wpdb->prefix . 'ssbhesabfa', array('id_hesabfa' => $code, 'obj_type' => 'product'));
-            //LOG into the log file
+
             HesabfaLogService::log(array(" محصول حذف گردید. شناسه محصول: $id_product" . "\n" . "Product deleted. Product ID: $id_product"));
         }
     }
@@ -1082,10 +1081,11 @@ class Ssbhesabfa_Admin
     }
 //======
     function admin_products_hesabfaId_column_content( $column ){
-        global $woocommerce, $post;
+        global $post;
         $funcs = new Ssbhesabfa_Admin_Functions();
         $items = array();
-        $id_product = $post->ID;
+//        $id_product = $post->ID;
+        $id_product = get_the_ID();
         $product = new WC_Product($id_product);
 
         $items[] = ssbhesabfaItemService::mapProduct($product, $id_product, false);
@@ -1103,12 +1103,11 @@ class Ssbhesabfa_Admin
             }
         }
 
-        $action = "#";
-        echo '<div><form action="' .  $action . '">';
+        echo '<div><form>';
         foreach ($items as $item) {
             if ( $column == 'hesabfaID' ) {
                 $hesabfaId = $item["Code"];
-                echo "<span class='sortable' style='background: #f6f7f7;color: #2271b1;padding: 0.2rem;border-radius: 3px;'>" . $hesabfaId . " " . "</span>";
+                echo "<span class='button button-secondary'>" . $hesabfaId . " " . "</span>";
             }
         }
         echo '</div></form>';
