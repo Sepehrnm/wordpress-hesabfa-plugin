@@ -69,9 +69,13 @@ class Ssbhesabfa_Webhook
                                 $wpFaService = new HesabfaWpFaService();
                                 $wpFa = $wpFaService->getWpFaByHesabfaId('product', $updatedItem->Result->Code);
 
-                                update_post_meta($wpFa->idWp, '_regular_price', $updatedItem->Result->SellPrice);
-                                update_post_meta($wpFa->idWp, '_price', $updatedItem->Result->SellPrice);
-                                break;
+                                $newPrice = Ssbhesabfa_Admin_Functions::getPriceInWooCommerceDefaultCurrency($updatedItem->Result->SellPrice);
+
+                                if (get_option('ssbhesabfa_item_update_price') == 'yes') {
+                                    update_post_meta($wpFa->idWp, '_regular_price', $newPrice);
+                                    update_post_meta($wpFa->idWp, '_price', $newPrice);
+                                }
+
                             }
 
                             $this->itemsObjectId[] = $item->ObjectId;

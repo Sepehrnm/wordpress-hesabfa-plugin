@@ -1,5 +1,5 @@
 === Hesabfa Accounting ===
-Contributors: saeedsb, hamidprime
+Contributors: saeedsb, hamidprime, sepehr-najafi
 Tags: accounting cloud hesabfa
 Requires at least: 5.2
 Tested up to: 6.2.2
@@ -355,7 +355,9 @@ by clicking update stock and price button in hesabfa tab in product edit page
 * empty additional fields values handled
 * font changed
 
-= 2.0.72 - 19.07.2023 =
+= 2.0.72 - 23.07.2023 =
 * daily log history and log features added
 * price update after webhook call added
-* special sale currency change bug fixed
+* special sale currency change and quantity bug fixed
+* codes optimized and refactored
+* descriptions refactored

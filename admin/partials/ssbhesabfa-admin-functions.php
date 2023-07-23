@@ -299,6 +299,7 @@ class Ssbhesabfa_Admin_Functions
             if( $wcProduct->is_on_sale() && get_option('ssbhesabfa_set_special_sale_as_discount') === 'yes' ) {
                 $price = $this->getPriceInHesabfaDefaultCurrency($wcProduct->get_regular_price());
                 $discount = $this->getPriceInHesabfaDefaultCurrency($wcProduct->get_regular_price() - $wcProduct->get_sale_price());
+                $discount *= $product['quantity'];
             } else {
                 $price = $this->getPriceInHesabfaDefaultCurrency($product['subtotal'] / $product['quantity']);
                 $discount = $this->getPriceInHesabfaDefaultCurrency($product['subtotal'] - $product['total']);
@@ -1313,6 +1314,7 @@ class Ssbhesabfa_Admin_Functions
             $new_price = Ssbhesabfa_Admin_Functions::getPriceInWooCommerceDefaultCurrency($item->SellPrice);
             update_post_meta($post_id, '_regular_price', $new_price);
             update_post_meta($post_id, '_price', $new_price);
+
 
             $sale_price = $product->get_sale_price();
             if ($sale_price && is_numeric($sale_price)) {

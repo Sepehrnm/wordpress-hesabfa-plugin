@@ -73,6 +73,10 @@ msgstr ""
 "این فیلد کد کالای متغییر در حسابفا است، اگر می‌خواهید این کالا را به کالای "
 "دیگری در حسابفا ارتباط دهید، کد کالای جدید را وارد نمایید."
 
+#: admin/partials/ssbhesabfa-admin-display.php:305
+msgid "Extra Settings"
+msgstr "تنظیمات پیشرفته"
+
 #: admin/partials/ssbhesabfa-admin-display.php:28
 msgid "Hesabfa Options"
 msgstr "تنظیمات افزونه حسابفا"
@@ -149,6 +153,18 @@ msgstr "مشتری به عنوان مهمان ثبت‌نام کرده است."
 msgid "Hesabfa Accounting"
 msgstr "نرم‌افزار حسابداری آنلاین حسابفا"
 
+#: admin/partials/ssbhesabfa-admin-setting.php:186
+msgid "Enable or Disable Advanced Log"
+msgstr "تب لاگ پیشرفته"
+
+#: admin/partials/ssbhesabfa-admin-setting.php:189
+msgid "Disable The Advanced Log"
+msgstr "غیرفعال کردن تب لاگ پیشرفته"
+
+#: admin/partials/ssbhesabfa-admin-setting.php:190
+msgid "Enable The Advanced Log"
+msgstr "فعال کردن تب لاگ پیشرفته"
+
 #: admin/partials/ssbhesabfa-admin-setting.php:45
 msgid ""
 "This module helps connect your (online) store to Hesabfa online accounting "
@@ -174,10 +190,10 @@ msgstr ""
 #: admin/partials/ssbhesabfa-admin-setting.php:46
 msgid ""
 "For more information and a full guide to how to use Hesabfa and WooCommerce "
-"Plugin, visit Hesabfa’s website and go to the “Accounting School” menu."
+"Plugin, visit Hesabfa’s website and go to the “Guides and Tutorials” menu."
 msgstr ""
 "برای کسب اطلاعات بیشتر و راهنمای استفاده از حسابفا و افزونه ووکامرس به وب سایت "
-"حسابفا، قسمت مدرسه حسابداری مراجعه کنید."
+"حسابفا، قسمت راهنما ها و خودآموز ها مراجعه کنید."
 
 #: admin/partials/ssbhesabfa-admin-setting.php:53
 msgid "Catalog Settings"

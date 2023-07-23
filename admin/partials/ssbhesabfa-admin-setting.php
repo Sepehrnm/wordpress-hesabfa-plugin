@@ -55,6 +55,12 @@ class Ssbhesabfa_Setting {
 		add_action( 'ssbhesabfa_sync_setting', array( __CLASS__, 'ssbhesabfa_sync_setting' ) );
 
 		add_action( 'ssbhesabfa_log_setting', array( __CLASS__, 'ssbhesabfa_log_setting' ) );
+
+		add_action( 'ssbhesabfa_extra_setting', array( __CLASS__, 'ssbhesabfa_extra_setting' ) );
+        add_action( 'ssbhesabfa_extra_setting_save_field', array(
+            __CLASS__,
+            'ssbhesabfa_extra_setting_save_field'
+        ) );
 	}
 //==========================================================================================================================
 	public static function ssbhesabfa_home_setting() {
@@ -62,7 +68,7 @@ class Ssbhesabfa_Setting {
         <h3 class="h3 hesabfa-tab-page-title mt-4"><?php esc_attr_e( 'Hesabfa Accounting', 'ssbhesabfa' ); ?></h3>
         <p class="p mt-4 hesabfa-p hesabfa-f-12 ms-3"
            style="text-align: justify"><?php esc_attr_e( 'This module helps connect your (online) store to Hesabfa online accounting software. By using this module, saving products, contacts, and orders in your store will also save them automatically in your Hesabfa account. Besides that, just after a client pays a bill, the receipt document will be stored in Hesabfa as well. Of course, you have to register your account in Hesabfa first. To do so, visit Hesabfa at the link here www.hesabfa.com and sign up for free. After you signed up and entered your account, choose your business, then in the settings menu/API, you can find the API keys for the business and import them to the plugin’s settings. Now your module is ready to use.', 'ssbhesabfa' ); ?></p>
-        <p class="p hesabfa-p hesabfa-f-12"><?php esc_attr_e( 'For more information and a full guide to how to use Hesabfa and WooCommerce Plugin, visit Hesabfa’s website and go to the “Accounting School” menu.', 'ssbhesabfa' ); ?></p>
+        <p class="p hesabfa-p hesabfa-f-12"><?php esc_attr_e( 'For more information and a full guide to how to use Hesabfa and WooCommerce Plugin, visit Hesabfa’s website and go to the “Guides and Tutorials” menu.', 'ssbhesabfa' ); ?></p>
 
         <div class="alert alert-danger hesabfa-f mt-4">
             <strong>هشدارها</strong>
@@ -80,10 +86,20 @@ class Ssbhesabfa_Setting {
                 </li>
             </ul>
         </div>
+        <div class="alert alert-warning hesabfa-f mt-4">
+            <strong style="font-size: 1rem;">نکات</strong>
+            <br>
+            <ul class="mt-2">
+                <li> *
+                    پیشنهاد می شود قبل از شروع کار با افزونه، حتما ویدیو خودآموز افزونه را مشاهده نمایید.
+                </li>
+            </ul>
+        </div>
 <!--////////////////////////video timing in the first page of the plugin////////////////////////////////////////////-->
         <div class="row" style="margin-left: 10px;">
             <div class="col">
                 <h4 class="h4 hesabfa-tab-page-title mt-4"><?php esc_attr_e( 'Plugin Tutorial Video', 'ssbhesabfa' ); ?></h4>
+
                 <video controls poster="https://www.hesabfa.com/img/woocommerc-plugin-help-cover.jpg"
                        id="hesabfa-tutorial-video" style="border: 1px solid gray" class="mt-3">
                     <source src="https://www.hesabfa.com/file/woocommerce/woocommerce-plugin-tutorial.mp4"
@@ -161,6 +177,46 @@ class Ssbhesabfa_Setting {
 
 		<?php
 	}
+//==============================================================================================
+    public static function ssbhesabfa_extra_setting_fields() {
+        $fields[] = array(
+            'title' => __( 'Extra Settings', 'ssbhesabfa' ),
+            'type'  => 'title',
+            'desc'  => '',
+            'id'    => 'extra_settings'
+        );
+
+        return $fields;
+    }
+//==============================================================================================
+    public static function ssbhesabfa_extra_setting() {
+        ?>
+        <div class="alert alert-warning hesabfa-f">
+            <ul class="mt-2">
+                <li>
+                    این صفحه برای تنظیمات پیشرفته افزونه می باشد
+                </li>
+            </ul>
+        </div>
+        <?php
+        $ssbhesabf_setting_fields = self::ssbhesabfa_extra_setting_fields();
+        $Html_output = new Ssbhesabfa_Html_output();
+        ?>
+        <form id="ssbhesabfa_form" enctype="multipart/form-data" action="" method="post">
+            <?php $Html_output->init( $ssbhesabf_setting_fields ); ?>
+<!--            <p class="submit hesabfa-p">-->
+<!--                <input type="submit" name="ssbhesabfa_integration" class="button-primary"-->
+<!--                       value="--><?php //esc_attr_e( 'Save changes', 'ssbhesabfa' ); ?><!--"/>-->
+<!--            </p>-->
+        </form>
+        <?php
+    }
+//==============================================================================================
+    public static function ssbhesabfa_extra_setting_save_field() {
+        $ssbhesabf_setting_fields = self::ssbhesabfa_extra_setting_fields();
+        $Html_output              = new Ssbhesabfa_Html_output();
+        $Html_output->save_fields( $ssbhesabf_setting_fields );
+    }
 //==============================================================================================
 	public static function ssbhesabfa_catalog_setting_fields() {
 		$warehouses = Ssbhesabfa_Setting::ssbhesabfa_get_warehouses();
@@ -1616,7 +1672,7 @@ class Ssbhesabfa_Setting {
                         <label for="ssbhesabfa-log-clean-submit"></label>
                         <div>
                             <div>
-                                <input name="currentLogFileDate" type="hidden" value="<?php if(isset($_POST["changeLogFile"])) echo WP_CONTENT_DIR . '/ssbhesabfa-' . $_POST["changeLogFile"] . '.txt'; else echo WP_CONTENT_DIR . '/ssbhesabfa-' . $_POST["ssbhesabfa_find_log_date"] . '.txt'; ?>">
+                                <input name="currentLogFileDate" type="hidden" value="<?php if(isset($_POST["changeLogFile"])) echo $_POST["changeLogFile"]; else echo $_POST["ssbhesabfa_find_log_date"]; ?>">
                                 <button class="button button-primary hesabfa-f" id="ssbhesabfa-log-clean-submit"
                                         name="ssbhesabfa-log-clean-submit"> <?php echo __( 'Clean current log', 'ssbhesabfa' ); ?></button>
                             </div>
@@ -1683,7 +1739,7 @@ class Ssbhesabfa_Setting {
                             <ul>';
                             for($i = 0 ; $i < 10 ; $i++) {
                                 if( file_exists( WP_CONTENT_DIR . '/ssbhesabfa-' . date("20y-m-d", strtotime(-$i."day")) . '.txt' ) ) {
-                                    echo '<li class="button button-secondary" style="cursor: pointer; margin: 0.4rem;"><input style="background: transparent;border: none; color: #2271B1" name="changeLogFile" type="submit" value="'. date("20y-m-d", strtotime(-$i."day")) .'" /></li>';
+                                    echo '<li class="button button-secondary" id="'.date("20y-m-d", strtotime(-$i."day")).'" style="cursor: pointer; margin: 0.4rem;"><input style="background: transparent;border: none; color: #2271B1" name="changeLogFile" type="submit" value="'. date("20y-m-d", strtotime(-$i."day")) .'" /></li>';
                                 }
                             }
                             echo '
@@ -1691,7 +1747,7 @@ class Ssbhesabfa_Setting {
                         </form>
                     </div>';
 				echo '<textarea id="textarea" rows="35" style="width: 100%; box-sizing: border-box; direction: ltr; margin-left: 10px; background-color: whitesmoke">' . $logFileContent . '</textarea>';
-                echo '</div>';
+                echo '</div>';}
 //---------------------------------------
                 if(isset($_POST["changeLogFile"])) {
                     echo
@@ -1709,7 +1765,7 @@ class Ssbhesabfa_Setting {
                             <ul>';
                     for($i = 0 ; $i < 10 ; $i++) {
                         if( file_exists( WP_CONTENT_DIR . '/ssbhesabfa-' . date("20y-m-d", strtotime(-$i."day")) . '.txt' ) ) {
-                            echo '<li class="button button-secondary" style="cursor: pointer; margin: 0.4rem;"><input style="background: transparent;border: none; color: #2271B1" name="changeLogFile" type="submit" value="'. date("20y-m-d", strtotime(-$i."day")) .'" /></li>';
+                            echo '<li class="button button-secondary" id="'.date("20y-m-d", strtotime(-$i."day")).'" style="cursor: pointer; margin: 0.4rem;"><input style="background: transparent;border: none; color: #2271B1" name="changeLogFile" type="submit" value="'. date("20y-m-d", strtotime(-$i."day")) .'" /></li>';
                         }
                     }
                     echo '
@@ -1740,10 +1796,14 @@ class Ssbhesabfa_Setting {
                 }
 //---------------------------------------
                 if(isset($_POST["ssbhesabfa-log-clean-submit"])) {
-                    $file = $_POST["currentLogFileDate"];
+                    if($_POST["currentLogFileDate"]) {
+                        $file = WP_CONTENT_DIR . '/ssbhesabfa-' . $_POST["currentLogFileDate"] . '.txt';
+                    } else {
+                        $file = WP_CONTENT_DIR . '/ssbhesabfa-' . date("20y-m-d") . '.txt';
+                    }
                     if (is_file($file)) {
                         if (unlink($file)) {
-                            HesabfaLogService::writeLogStr("=====فایل لاگ جاری پاک شد=====" . "\n" . "=====Current Log File deleted=====");
+                            HesabfaLogService::writeLogStr("=====فایل لاگ انتخاب شده پاک شد=====" . "\n" . "=====Selected Log File deleted=====");
                             header("refresh:0");
                         } else {
                             HesabfaLogService::writeLogStr("Unable to delete the file");
@@ -1782,26 +1842,28 @@ class Ssbhesabfa_Setting {
                     </script>';
 
                     $URL = WP_CONTENT_DIR . '/ssbhesabfa-' . $_POST["ssbhesabfa_find_log_date"] . '.txt';
-                    $logFileContent = HesabfaLogService::readLog($URL);
+                    if ( file_exists( WP_CONTENT_DIR . '/ssbhesabfa-' . $_POST["ssbhesabfa_find_log_date"] . '.txt' ) &&
+                        ( filesize( WP_CONTENT_DIR . '/ssbhesabfa-' . $_POST["ssbhesabfa_find_log_date"] . '.txt' ) / 1000 ) < 1000 ) {
+                            $logFileContent = HesabfaLogService::readLog($URL);
 
-                    echo '<div id="logFileContainer" style="display: flex; justify-content: space-between; flex-direction: row-reverse;">'.
-                        '<div style="direction: ltr; width: 10%;display: flex; flex-direction: column; align-items: center;">
-                        <h3>' . __("Log History", "ssbhesabfa") . '</h3>
-                        <form method="post">
-                            <ul>';
-                    for($i = 0 ; $i < 10 ; $i++) {
-                        if( file_exists( WP_CONTENT_DIR . '/ssbhesabfa-' . date("20y-m-d", strtotime(-$i."day")) . '.txt' ) ) {
-                            echo '<li class="button button-secondary" style="cursor: pointer; margin: 0.4rem 0;"><input style="background: transparent;border: none; color: #2271B1" name="changeLogFile" type="submit" value="'. date("20y-m-d", strtotime(-$i."day")) .'" /></li>';
-                        }
+                            echo '<div id="logFileContainer" style="display: flex; justify-content: space-between; flex-direction: column;">'.
+                                '<div style="direction: ltr;display: flex; flex-direction: column; align-items: center;">
+                                <h3>' . __("Log History", "ssbhesabfa") . '</h3>
+                                <form method="post">
+                                    <ul>';
+                            for($i = 0 ; $i < 10 ; $i++) {
+                                if( file_exists( WP_CONTENT_DIR . '/ssbhesabfa-' . date("20y-m-d", strtotime(-$i."day")) . '.txt' ) ) {
+                                    echo '<li class="button button-secondary" id="'.date("20y-m-d", strtotime(-$i."day")).'" style="cursor: pointer; margin: 0 0.4rem;"><input style="background: transparent;border: none; color: #2271B1" name="changeLogFile" type="submit" value="'. date("20y-m-d", strtotime(-$i."day")) .'" /></li>';
+                                }
+                            }
+                            echo '
+                                    </ul>          
+                                </form>
+                            </div>';
+                            echo '<textarea id="textarea" rows="35" style="width: 100%; box-sizing: border-box; direction: ltr; margin-left: 10px; background-color: whitesmoke">' . $logFileContent . '</textarea>';
+                            echo '</div>';
                     }
-                    echo '
-                            </ul>          
-                        </form>
-                    </div>';
-                    echo '<textarea id="textarea" rows="35" style="width: 90%; box-sizing: border-box; direction: ltr; margin-left: 10px; background-color: whitesmoke">' . $logFileContent . '</textarea>';
-                    echo '</div>';
                 }
-			}
 			?>
         </div>
 		<?php
