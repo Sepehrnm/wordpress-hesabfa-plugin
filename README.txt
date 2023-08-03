@@ -362,7 +362,7 @@ by clicking update stock and price button in hesabfa tab in product edit page
 * codes optimized and refactored
 * descriptions refactored
 
-= 2.0.74 - 00.08.2023 =
+= 2.0.74 - 03.08.2023 =
 * sync products based on woocommerce with ID filter added
 * extra setting tab added
 * request amounts per batch option added
