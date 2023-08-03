@@ -73,9 +73,7 @@ class Ssbhesabfa_Webhook
 
                                 if (get_option('ssbhesabfa_item_update_price') == 'yes') {
                                     update_post_meta($wpFa->idWp, '_regular_price', $newPrice);
-                                    update_post_meta($wpFa->idWp, '_price', $newPrice);
                                 }
-
                             }
 
                             $this->itemsObjectId[] = $item->ObjectId;

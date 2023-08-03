@@ -4,7 +4,7 @@ include_once( plugin_dir_path( __DIR__ ) . 'services/HesabfaLogService.php' );
 error_reporting(0);
 /**
  * @class      Ssbhesabfa_Setting
- * @version    2.0.72
+ * @version    2.0.74
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin/setting
@@ -61,7 +61,7 @@ class Ssbhesabfa_Setting {
             __CLASS__,
             'ssbhesabfa_extra_setting_save_field'
         ) );
-	}
+    }
 //==========================================================================================================================
 	public static function ssbhesabfa_home_setting() {
 		?>
@@ -180,10 +180,10 @@ class Ssbhesabfa_Setting {
 //==============================================================================================
     public static function ssbhesabfa_extra_setting_fields() {
         $fields[] = array(
-            'title' => __( 'Extra Settings', 'ssbhesabfa' ),
-            'type'  => 'title',
-            'desc'  => '',
-            'id'    => 'extra_settings'
+            'desc' => __('Enable or Disable Debug Mode', 'ssbhesabfa'),
+            'id'    => 'ssbhesabfa_debug_mode_checkbox',
+            'default' => 'no',
+            'type'  => 'checkbox',
         );
 
         return $fields;
@@ -198,18 +198,164 @@ class Ssbhesabfa_Setting {
                 </li>
             </ul>
         </div>
+
+        <h3><?php echo __( 'Extra Settings', 'ssbhesabfa' ); ?></h3>
+
         <?php
-        $ssbhesabf_setting_fields = self::ssbhesabfa_extra_setting_fields();
-        $Html_output = new Ssbhesabfa_Html_output();
+            $ssbhesabf_setting_fields = self::ssbhesabfa_extra_setting_fields();
+            $Html_output = new Ssbhesabfa_Html_output();
         ?>
         <form id="ssbhesabfa_form" enctype="multipart/form-data" action="" method="post">
-            <?php $Html_output->init( $ssbhesabf_setting_fields ); ?>
-<!--            <p class="submit hesabfa-p">-->
-<!--                <input type="submit" name="ssbhesabfa_integration" class="button-primary"-->
-<!--                       value="--><?php //esc_attr_e( 'Save changes', 'ssbhesabfa' ); ?><!--"/>-->
-<!--            </p>-->
+            <?php
+                global $plugin_version;
+                if (defined('SSBHESABFA_VERSION')) {
+                    $plugin_version = constant('SSBHESABFA_VERSION');
+                }
+
+                $peakMemoryUsage = memory_get_peak_usage();
+                $peakMemoryUsage = round($peakMemoryUsage / 1048576, 2);
+                $server_php_version  = phpversion();
+                $plugin_php_version = '8.1';
+
+                echo
+                    '<table style="width: 98%;" class="table table-stripped">
+                        <thead>
+                            <tr style="direction: ltr;">
+                                <th>Peak Memory Usage</th>
+                                <th>Plugin Version</th>
+                                <th>Server PHP Version</th>
+                                <th>Plugin PHP Version Tested Up To</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="direction: ltr;">
+                                <td>' . $peakMemoryUsage . ' MB</td>
+                                <td>' . $plugin_version . '</td>
+                                <td>' . $server_php_version . '</td>                                
+                                <td>' . $plugin_php_version . '</td>                                
+                            </tr>
+                        </tbody>
+                    '
+
+                    . '</table>';
+            ?>
+            <div class="d-flex flex-column">
+                <?php $Html_output->init( $ssbhesabf_setting_fields ); ?>
+                <div class="ssbhesabfa_set_rpp_container mt-2 d-flex align-items-center gap-2">
+                    <label class="form-label" for="ssbhesabfa_set_rpp">
+                        <?php echo __('Set request amount per batch for sync products based on woocommerce in Hesabfa', 'ssbhesabfa');
+                            if(!(get_option('ssbhesabfa_set_rpp_for_sync_products_into_hesabfa'))) add_option('ssbhesabfa_set_rpp_for_sync_products_into_hesabfa-rpp', '-1');
+                        ?>
+                    </label>
+                    <select style="max-width: 100px;" class="form-select" name="ssbhesabfa_set_rpp_for_sync_products_into_hesabfa" id="ssbhesabfa_set_rpp_for_sync_products_into_hesabfa">
+                        <option value="-1"  <?php if(!get_option('ssbhesabfa_set_rpp_for_sync_products_into_hesabfa')) echo 'selected'; ?>><?php echo __('select', 'ssbhesabfa');?></option>
+                        <option value="50"  <?php if(get_option('ssbhesabfa_set_rpp_for_sync_products_into_hesabfa') == '50') echo 'selected'; ?>>50</option>
+                        <option value="100" <?php if(get_option('ssbhesabfa_set_rpp_for_sync_products_into_hesabfa') == '100') echo 'selected'; ?>>100</option>
+                        <option value="150" <?php if(get_option('ssbhesabfa_set_rpp_for_sync_products_into_hesabfa') == '150') echo 'selected'; ?>>150</option>
+                        <option value="200" <?php if(get_option('ssbhesabfa_set_rpp_for_sync_products_into_hesabfa') == '200') echo 'selected'; ?>>200</option>
+                        <option value="300" <?php if(get_option('ssbhesabfa_set_rpp_for_sync_products_into_hesabfa') == '300') echo 'selected'; ?>>300</option>
+                        <option value="400" <?php if(get_option('ssbhesabfa_set_rpp_for_sync_products_into_hesabfa') == '400') echo 'selected'; ?>>400</option>
+                        <option value="500" <?php if(get_option('ssbhesabfa_set_rpp_for_sync_products_into_hesabfa') == '500') echo 'selected'; ?>>500</option>
+                    </select>
+                    <span><?php echo __("Plugin Default", "ssbhesabfa"); ?>: 500</span>
+                </div>
+                <br>
+                <div class="ssbhesabfa_set_rpp_container mt-2 d-flex align-items-center gap-2">
+                    <label class="form-label" for="ssbhesabfa_set_rpp">
+                        <?php echo __('Set request amount per batch for sync products based on Hesabfa in Woocommerce', 'ssbhesabfa');
+                        if(!(get_option('ssbhesabfa_set_rpp_for_sync_products_into_woocommerce'))) add_option('ssbhesabfa_set_rpp_for_sync_products_into_woocommerce', '-1');
+                        ?>
+                    </label>
+                    <select style="max-width: 100px;" class="form-select" name="ssbhesabfa_set_rpp_for_sync_products_into_woocommerce" id="ssbhesabfa_set_rpp_for_sync_products_into_woocommerce">
+                        <option value="-1"  <?php if(!get_option('ssbhesabfa_set_rpp_for_sync_products_into_woocommerce')) echo 'selected'; ?>><?php echo __('select', 'ssbhesabfa');?></option>
+                        <option value="50"  <?php if(get_option('ssbhesabfa_set_rpp_for_sync_products_into_woocommerce') == '50') echo 'selected'; ?>>50</option>
+                        <option value="100" <?php if(get_option('ssbhesabfa_set_rpp_for_sync_products_into_woocommerce') == '100') echo 'selected'; ?>>100</option>
+                        <option value="150" <?php if(get_option('ssbhesabfa_set_rpp_for_sync_products_into_woocommerce') == '150') echo 'selected'; ?>>150</option>
+                        <option value="200" <?php if(get_option('ssbhesabfa_set_rpp_for_sync_products_into_woocommerce') == '200') echo 'selected'; ?>>200</option>
+                        <option value="300" <?php if(get_option('ssbhesabfa_set_rpp_for_sync_products_into_woocommerce') == '300') echo 'selected'; ?>>300</option>
+                        <option value="400" <?php if(get_option('ssbhesabfa_set_rpp_for_sync_products_into_woocommerce') == '400') echo 'selected'; ?>>400</option>
+                        <option value="500" <?php if(get_option('ssbhesabfa_set_rpp_for_sync_products_into_woocommerce') == '500') echo 'selected'; ?>>500</option>
+                    </select>
+                    <span><?php echo __("Plugin Default", "ssbhesabfa"); ?>: 200</span>
+                </div>
+                <br>
+                <div class="ssbhesabfa_set_rpp_container mt-2 d-flex align-items-center gap-2">
+                    <label class="form-label" for="ssbhesabfa_set_rpp">
+                        <?php echo __('Set request amount per batch for import products', 'ssbhesabfa');
+                        if(!(get_option('ssbhesabfa_set_rpp_for_import_products'))) add_option('ssbhesabfa_set_rpp_for_import_products', '-1');
+                        ?>
+                    </label>
+                    <select style="max-width: 100px;" class="form-select" name="ssbhesabfa_set_rpp_for_import_products" id="ssbhesabfa_set_rpp_for_import_products">
+                        <option value="-1"  <?php if(!get_option('ssbhesabfa_set_rpp_for_import_products')) echo 'selected'; ?>><?php echo __('select', 'ssbhesabfa');?></option>
+                        <option value="50"  <?php if(get_option('ssbhesabfa_set_rpp_for_import_products') == '50') echo 'selected'; ?>>50</option>
+                        <option value="100" <?php if(get_option('ssbhesabfa_set_rpp_for_import_products') == '100') echo 'selected'; ?>>100</option>
+                        <option value="150" <?php if(get_option('ssbhesabfa_set_rpp_for_import_products') == '150') echo 'selected'; ?>>150</option>
+                        <option value="200" <?php if(get_option('ssbhesabfa_set_rpp_for_import_products') == '200') echo 'selected'; ?>>200</option>
+                        <option value="300" <?php if(get_option('ssbhesabfa_set_rpp_for_import_products') == '300') echo 'selected'; ?>>300</option>
+                        <option value="400" <?php if(get_option('ssbhesabfa_set_rpp_for_import_products') == '400') echo 'selected'; ?>>400</option>
+                        <option value="500" <?php if(get_option('ssbhesabfa_set_rpp_for_import_products') == '500') echo 'selected'; ?>>500</option>
+                    </select>
+                    <span><?php echo __("Plugin Default", "ssbhesabfa"); ?>: 100</span>
+                </div>
+                <br>
+                <div class="ssbhesabfa_set_rpp_container mt-2 d-flex align-items-center gap-2">
+                    <label class="form-label" for="ssbhesabfa_set_rpp">
+                        <?php echo __('Set request amount per batch for export products', 'ssbhesabfa');
+                        if(!(get_option('ssbhesabfa_set_rpp_for_export_products'))) add_option('ssbhesabfa_set_rpp_for_export_products', '-1');
+                        ?>
+                    </label>
+                    <select style="max-width: 100px;" class="form-select" name="ssbhesabfa_set_rpp_for_export_products" id="ssbhesabfa_set_rpp_for_export_products">
+                        <option value="-1"  <?php if(!get_option('ssbhesabfa_set_rpp_for_export_products')) echo 'selected'; ?>><?php echo __('select', 'ssbhesabfa');?></option>
+                        <option value="50"  <?php if(get_option('ssbhesabfa_set_rpp_for_export_products') == '50') echo 'selected'; ?>>50</option>
+                        <option value="100" <?php if(get_option('ssbhesabfa_set_rpp_for_export_products') == '100') echo 'selected'; ?>>100</option>
+                        <option value="150" <?php if(get_option('ssbhesabfa_set_rpp_for_export_products') == '150') echo 'selected'; ?>>150</option>
+                        <option value="200" <?php if(get_option('ssbhesabfa_set_rpp_for_export_products') == '200') echo 'selected'; ?>>200</option>
+                        <option value="300" <?php if(get_option('ssbhesabfa_set_rpp_for_export_products') == '300') echo 'selected'; ?>>300</option>
+                        <option value="400" <?php if(get_option('ssbhesabfa_set_rpp_for_export_products') == '400') echo 'selected'; ?>>400</option>
+                        <option value="500" <?php if(get_option('ssbhesabfa_set_rpp_for_export_products') == '500') echo 'selected'; ?>>500</option>
+                    </select>
+                    <span><?php echo __("Plugin Default", "ssbhesabfa"); ?>: 500</span>
+                </div>
+                <br>
+                <div class="ssbhesabfa_set_rpp_container mt-2 d-flex align-items-center gap-2">
+                    <label class="form-label" for="ssbhesabfa_set_rpp">
+                        <?php echo __('Set request amount per batch for export opening quantity of products', 'ssbhesabfa');
+                        if(!(get_option('ssbhesabfa_set_rpp_for_export_opening_products'))) add_option('ssbhesabfa_set_rpp_for_export_opening_products', '-1');
+                        ?>
+                    </label>
+                    <select style="max-width: 100px;" class="form-select" name="ssbhesabfa_set_rpp_for_export_opening_products" id="ssbhesabfa_set_rpp_for_export_opening_products">
+                        <option value="-1"  <?php if(!get_option('ssbhesabfa_set_rpp_for_export_opening_products')) echo 'selected'; ?>><?php echo __('select', 'ssbhesabfa');?></option>
+                        <option value="50"  <?php if(get_option('ssbhesabfa_set_rpp_for_export_opening_products') == '50') echo 'selected'; ?>>50</option>
+                        <option value="100" <?php if(get_option('ssbhesabfa_set_rpp_for_export_opening_products') == '100') echo 'selected'; ?>>100</option>
+                        <option value="150" <?php if(get_option('ssbhesabfa_set_rpp_for_export_opening_products') == '150') echo 'selected'; ?>>150</option>
+                        <option value="200" <?php if(get_option('ssbhesabfa_set_rpp_for_export_opening_products') == '200') echo 'selected'; ?>>200</option>
+                        <option value="300" <?php if(get_option('ssbhesabfa_set_rpp_for_export_opening_products') == '300') echo 'selected'; ?>>300</option>
+                        <option value="400" <?php if(get_option('ssbhesabfa_set_rpp_for_export_opening_products') == '400') echo 'selected'; ?>>400</option>
+                        <option value="500" <?php if(get_option('ssbhesabfa_set_rpp_for_export_opening_products') == '500') echo 'selected'; ?>>500</option>
+                    </select>
+                    <span><?php echo __("Plugin Default", "ssbhesabfa"); ?>: 500</span>
+                </div>
+            </div>
+            <p class="submit hesabfa-p">
+                <input type="submit" name="ssbhesabfa_integration" class="button-primary"
+                       value="<?php esc_attr_e( 'Save changes', 'ssbhesabfa' ); ?>"/>
+            </p>
         </form>
         <?php
+        if(get_option('ssbhesabfa_debug_mode_checkbox') == 'yes' || get_option('ssbhesabfa_debug_mode_checkbox') == '1') {
+            Ssbhesabfa_Admin_Functions::enableDebugMode();
+        } elseif(get_option('ssbhesabfa_debug_mode_checkbox') == 'no' || get_option('ssbhesabfa_debug_mode_checkbox') == '0') {
+            Ssbhesabfa_Admin_Functions::disableDebugMode();
+        }
+
+        if(isset($_POST["ssbhesabfa_integration"])) {
+            if(isset($_POST['ssbhesabfa_set_rpp_for_sync_products_into_hesabfa'])) update_option('ssbhesabfa_set_rpp_for_sync_products_into_hesabfa', $_POST['ssbhesabfa_set_rpp_for_sync_products_into_hesabfa']);
+            if(isset($_POST['ssbhesabfa_set_rpp_for_sync_products_into_woocommerce'])) update_option('ssbhesabfa_set_rpp_for_sync_products_into_woocommerce', $_POST['ssbhesabfa_set_rpp_for_sync_products_into_woocommerce']);
+            if(isset($_POST['ssbhesabfa_set_rpp_for_import_products'])) update_option('ssbhesabfa_set_rpp_for_import_products', $_POST['ssbhesabfa_set_rpp_for_import_products']);
+            if(isset($_POST['ssbhesabfa_set_rpp_for_export_products'])) update_option('ssbhesabfa_set_rpp_for_export_products', $_POST['ssbhesabfa_set_rpp_for_export_products']);
+            if(isset($_POST['ssbhesabfa_set_rpp_for_export_opening_products'])) update_option('ssbhesabfa_set_rpp_for_export_opening_products', $_POST['ssbhesabfa_set_rpp_for_export_opening_products']);
+            header('refresh:0');
+        }
     }
 //==============================================================================================
     public static function ssbhesabfa_extra_setting_save_field() {
@@ -1214,6 +1360,18 @@ class Ssbhesabfa_Setting {
 			echo '<p class="hesabfa-p">' . __( 'Update failed. Please check the log file.', 'ssbhesabfa' );
 			echo '</div>';
 		}
+
+        // Sync - Bulk product with filter update in Hesabfa
+        $productUpdateWithFilterResult = ( isset( $_GET['$productUpdateWithFilterResult'] ) ) ? wc_clean( $_GET['$productUpdateWithFilterResult'] ) : null;
+        if ( ! is_null( $productUpdateWithFilterResult ) && $productUpdateWithFilterResult == 'true' ) {
+            echo '<div class="updated">';
+            echo '<p class="hesabfa-p">' . __( 'Update completed successfully.', 'ssbhesabfa' );
+            echo '</div>';
+        } elseif ( ! is_null( $productUpdateWithFilterResult ) && ! $productUpdateWithFilterResult == 'false' ) {
+            echo '<div class="error">';
+            echo '<p class="hesabfa-p">' . __( 'Update failed. Please check the log file.', 'ssbhesabfa' );
+            echo '</div>';
+        }
 		?>
 
         <div class="notice notice-info mt-3">
@@ -1264,7 +1422,7 @@ class Ssbhesabfa_Setting {
                         <?php
                             if(get_option('ssbhesabfa_item_update_price') == 'no' && get_option('ssbhesabfa_item_update_quantity') == 'no') { ?>
                                 <button disabled class="button button-primary hesabfa-f" id="ssbhesabfa-sync-products-submit"
-                                name="ssbhesabfa-sync-products-submit"><?php echo __( 'Sync Products Quantity and Price', 'ssbhesabfa' ); ?></button>
+                                        name="ssbhesabfa-sync-products-submit"><?php echo __( 'Sync Products Quantity and Price', 'ssbhesabfa' ); ?></button>
                            <?php } else {
                         ?>
                         <button class="button button-primary hesabfa-f" id="ssbhesabfa-sync-products-submit"
@@ -1351,6 +1509,36 @@ class Ssbhesabfa_Setting {
                             شود.
                         </li>
                         <li>در این عملیات موجودی کالا در حسابفا تغییری نمی کند و بروز رسانی نمی شود.</li>
+                    </ul>
+                </div>
+            </div>
+        </form>
+
+        <form
+            class="card hesabfa-card hesabfa-f" name="ssbhesabfa_update_products_with_filter" id="ssbhesabfa_update_products_with_filter" autocomplete="off" method="post"
+            action="<?php echo admin_url( 'admin.php?page=ssbhesabfa-option&tab=sync' ); ?>"
+        >
+            <div>
+                <div>
+                    <label for="ssbhesabfa-update-products-with-filter-submit"></label>
+                    <div>
+                        <input style="min-width: 250px;" type="text" id="ssbhesabfa-update-products-offset" name="ssbhesabfa-update-products-offset" placeholder="<?php echo __('Start ID', 'ssbhesabfa'); ?>" />
+                        <br><br>
+                        <input style="min-width: 250px;" type="text" id="ssbhesabfa-update-products-rpp" name="ssbhesabfa-update-products-rpp" placeholder="<?php echo __('End ID', 'ssbhesabfa'); ?>"  />
+                        <br><br>
+                        <button class="button button-primary hesabfa-f" id="ssbhesabfa-update-products-with-filter-submit"
+                                name="ssbhesabfa-update-products-with-filter-submit"><?php echo __( 'Update Products in Hesabfa based on store with filter', 'ssbhesabfa' ); ?></button>
+                    </div>
+                </div>
+                <p class="hesabfa-p mt-2"><?php echo __( 'Update products in hesabfa based on products definition in store.', 'ssbhesabfa' ); ?></p>
+                <div class="p-2 hesabfa-f">
+                    <label class="fw-bold mb-2">نکات مهم:</label>
+                    <ul>
+                        <li>با انجام این عملیات ویژگی محصولات مثل نام و قیمت در حسابفا، بر اساس فروشگاه در بازه ID مشخص شده بروزرسانی می
+                            شود.
+                        </li>
+                        <li>در این عملیات موجودی کالا در حسابفا تغییری نمی کند و بروز رسانی نمی شود.</li>
+                        <li>بازه ID نباید بیشتر از 200 عدد باشد.</li>
                     </ul>
                 </div>
             </div>

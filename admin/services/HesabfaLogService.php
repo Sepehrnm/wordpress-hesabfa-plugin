@@ -53,5 +53,4 @@ class HesabfaLogService
     {
         return WP_CONTENT_DIR . '/ssbhesabfa-' . date("20y-m-d") . '.txt';
     }
-
 }

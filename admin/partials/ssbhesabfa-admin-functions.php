@@ -6,7 +6,7 @@ include_once(plugin_dir_path(__DIR__) . 'services/HesabfaWpFaService.php');
 
 /**
  * @class      Ssbhesabfa_Admin_Functions
- * @version    2.0.72
+ * @version    2.0.74
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin/functions
@@ -135,8 +135,6 @@ class Ssbhesabfa_Admin_Functions
         $response = $hesabfa->contactSave($hesabfaCustomer);
 
         if ($response->Success) {
-//            HesabfaLogService::writeLogObj($response);
-
             $wpFaService = new HesabfaWpFaService();
             $wpFaService->saveCustomer($response->Result);
             return $response->Result->Code;
@@ -354,9 +352,6 @@ class Ssbhesabfa_Admin_Functions
         if ($order_shipping_method)
             $note .= "\n" . __('Shipping method', 'ssbhesabfa') . ": " . $order_shipping_method;
 
-
-        //freight new feature (2.0.68)
-
         global $freightOption, $freightItemCode;
         $freightOption = get_option("ssbhesabfa_invoice_freight");
 
@@ -364,16 +359,10 @@ class Ssbhesabfa_Admin_Functions
             $freightItemCode = get_option('ssbhesabfa_invoice_freight_code');
             if(!isset($freightItemCode) || !$freightItemCode) HesabfaLogService::writeLogStr("کد هزینه حمل و نقل تعریف نشده است");
 
-            //convert persian digits to english digits
-
             $newNumbers = range(0, 9);
-            // 1. Persian HTML decimal
             $persianDecimal = array('&#1776;', '&#1777;', '&#1778;', '&#1779;', '&#1780;', '&#1781;', '&#1782;', '&#1783;', '&#1784;', '&#1785;');
-            // 2. Arabic HTML decimal
             $arabicDecimal = array('&#1632;', '&#1633;', '&#1634;', '&#1635;', '&#1636;', '&#1637;', '&#1638;', '&#1639;', '&#1640;', '&#1641;');
-            // 3. Arabic Numeric
             $arabic = array('٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩');
-            // 4. Persian Numeric
             $persian = array('۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹');
 
             $string =  str_replace($persianDecimal, $newNumbers, $freightItemCode);
@@ -588,16 +577,10 @@ class Ssbhesabfa_Admin_Functions
             } elseif (get_option('ssbhesabfa_payment_option') == 'yes') {
                 $defaultBankCode = get_option('ssbhesabfa_default_payment_method_code');
 
-                //convert persian digits to english digits
-
                 $newNumbers = range(0, 9);
-                // 1. Persian HTML decimal
                 $persianDecimal = array('&#1776;', '&#1777;', '&#1778;', '&#1779;', '&#1780;', '&#1781;', '&#1782;', '&#1783;', '&#1784;', '&#1785;');
-                // 2. Arabic HTML decimal
                 $arabicDecimal = array('&#1632;', '&#1633;', '&#1634;', '&#1635;', '&#1636;', '&#1637;', '&#1638;', '&#1639;', '&#1640;', '&#1641;');
-                // 3. Arabic Numeric
                 $arabic = array('٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩');
-                // 4. Persian Numeric
                 $persian = array('۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹');
 
                 $string =  str_replace($persianDecimal, $newNumbers, $defaultBankCode);
@@ -685,10 +668,11 @@ class Ssbhesabfa_Admin_Functions
     {
         HesabfaLogService::writeLogStr("===== استخراج محصولات =====" . "\n" . "===== Export Products =====");
         $wpFaService = new HesabfaWpFaService();
+        $extraSettingRPP = get_option("ssbhesabfa_set_rpp_for_export_products");
+        if($extraSettingRPP != '-1') $rpp=$extraSettingRPP; else $rpp=500;
 
         $result = array();
         $result["error"] = false;
-        $rpp = 500;
         global $wpdb;
 
         if ($batch == 1) {
@@ -767,10 +751,11 @@ class Ssbhesabfa_Admin_Functions
     {
         HesabfaLogService::writeLogStr("===== ورود محصولات =====" . "\n" . "===== Import Products =====");
         $wpFaService = new HesabfaWpFaService();
+        $extraSettingRPP = get_option("ssbhesabfa_set_rpp_for_import_products");
+        if($extraSettingRPP != '-1') $rpp=$extraSettingRPP; else $rpp=100;
 
         $result = array();
         $result["error"] = false;
-        $rpp = 100;
         global $wpdb;
         $hesabfa = new Ssbhesabfa_Api();
         $filters = array(array("Property" => "ItemType", "Operator" => "=", "Value" => 0));
@@ -878,7 +863,9 @@ class Ssbhesabfa_Admin_Functions
 
         $result = array();
         $result["error"] = false;
-        $rpp = 500;
+        $extraSettingRPP = get_option("ssbhesabfa_set_rpp_for_export_opening_products");
+        if($extraSettingRPP != '-1') $rpp = $extraSettingRPP; else $rpp = 500;
+
         global $wpdb;
 
         if ($batch == 1) {
@@ -1101,10 +1088,11 @@ class Ssbhesabfa_Admin_Functions
             "===== Sync products price and quantity from hesabfa to store: part $batch =====");
             $result = array();
             $result["error"] = false;
+            $extraSettingRPP = get_option("ssbhesabfa_set_rpp_for_sync_products_into_woocommerce");
+            if($extraSettingRPP != '-1') $rpp=$extraSettingRPP; else $rpp=200;
 
             $hesabfa = new Ssbhesabfa_Api();
             $filters = array(array("Property" => "ItemType", "Operator" => "=", "Value" => 0));
-            $rpp = 200;
 
             if ($batch == 1) {
                 $response = $hesabfa->itemGetItems(array('Take' => 1, 'Filters' => $filters));
@@ -1223,7 +1211,8 @@ class Ssbhesabfa_Admin_Functions
         HesabfaLogService::writeLogStr("===== بروزرسانی محصولات در حسابفا بر اساس فروشگاه =====" . "\n" . "===== Update Products In Hesabfa Based On Store =====");
         $result = array();
         $result["error"] = false;
-        $rpp = 500;
+        $extraSettingRPP = get_option('ssbhesabfa_set_rpp_for_sync_products_into_hesabfa');
+        if($extraSettingRPP != '-1') $rpp = get_option('ssbhesabfa_set_rpp_for_sync_products_into_hesabfa'); else $rpp = 500;
         global $wpdb;
 
         if ($batch == 1) {
@@ -1245,6 +1234,45 @@ class Ssbhesabfa_Admin_Functions
         $result["batch"] = $batch;
         $result["totalBatch"] = $totalBatch;
         $result["total"] = $total;
+        return $result;
+    }
+//========================================================================================================================
+    public static function updateProductsInHesabfaBasedOnStoreWithFilter($offset=0, $rpp=0)
+    {
+        HesabfaLogService::writeLogStr("===== بروزرسانی فیلتر دار محصولات در حسابفا بر اساس فروشگاه =====" . "\n" . "===== Update Products With Filter In Hesabfa Based On Store =====");
+        $result = array();
+        $result["error"] = false;
+
+        global $wpdb;
+        if($offset != 0 && $rpp != 0) {
+            if(abs($rpp - $offset) <= 200) {
+                if($rpp > $offset) {
+                    $products = $wpdb->get_results("SELECT * FROM `" . $wpdb->prefix . "posts`                                                                
+                                            WHERE ID BETWEEN $offset AND $rpp AND post_type = 'product' AND post_status IN('publish','private') ORDER BY 'ID' ASC");
+
+                    $products_id_array = array();
+                    foreach ($products as $product)
+                        $products_id_array[] = $product->ID;
+                    $response = (new Ssbhesabfa_Admin_Functions)->setItems($products_id_array);
+                    if(!$response) $result['error'] = true;
+                } else {
+                    $products = $wpdb->get_results("SELECT * FROM `" . $wpdb->prefix . "posts`                                                                
+                                            WHERE ID BETWEEN $rpp AND $offset AND post_type = 'product' AND post_status IN('publish','private') ORDER BY 'ID' ASC");
+
+                    $products_id_array = array();
+                    foreach ($products as $product)
+                        $products_id_array[] = $product->ID;
+                    $response = (new Ssbhesabfa_Admin_Functions)->setItems($products_id_array);
+                    if(!$response) $result['error'] = true;
+                }
+            } else {
+                $result['error'] = true;
+                echo '<script>alert("بازه ID نباید بیشتر از 200 عدد باشد")</script>';
+            }
+        } else {
+            echo '<script>alert("کد کالای معتبر وارد نمایید")</script>';
+        }
+
         return $result;
     }
 //========================================================================================================================
@@ -1358,4 +1386,13 @@ class Ssbhesabfa_Admin_Functions
 
         return $result;
     }
+//==============================================================================================
+    public static function enableDebugMode() {
+        update_option('ssbhesabfa_debug_mode', 1);
+    }
+
+    public static function disableDebugMode() {
+        update_option('ssbhesabfa_debug_mode', 0);
+    }
+//==============================================================================================
 }

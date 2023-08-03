@@ -389,10 +389,69 @@ jQuery(function ($) {
             }
         });
     }
+
+//=====================================================================================================================
+
+    // $(function () {
+    //     // AJAX - Sync Products with ID filter
+    //     $('#ssbhesabfa_update_products_with_filter').submit(function (e) {
+    //
+    //         // Show processing status
+    //         var submitButton = $('#ssbhesabfa-update-products-with-filter-submit');
+    //         submitButton.removeClass('button-primary');
+    //         submitButton.html('<i class="ofwc-spinner"></i> بروزرسانی محصولات...');
+    //     });
+    // });
+
+
+
+    $(function () {
+        // AJAX - Sync Products
+        $('#ssbhesabfa_update_products_with_filter').submit(function () {
+            let submitButton = $('#ssbhesabfa-update-products-with-filter-submit');
+            let offset = document.getElementById("ssbhesabfa-update-products-offset").value;
+            let rpp = document.getElementById("ssbhesabfa-update-products-rpp").value;
+            submitButton.removeClass('button-primary');
+            submitButton.html('<i class="ofwc-spinner"></i> بروزرسانی محصولات لطفا صبر کنید...');
+            $('#ssbhesabfa-update-products-with-filter-submit').attr('disabled', 'disabled');
+
+            updateProductsWithFilter(offset, rpp);
+
+            return false;
+        });
+    });
+//=====================================================================================================================
+    function updateProductsWithFilter(offset, rpp) {
+        var data = {
+            'action': 'adminUpdateProductsWithFilter',
+            'offset': offset,
+            'rpp': rpp,
+        };
+        if(offset && rpp) {
+            $.post(ajaxurl, data, function (response) {
+                if ('failed' !== response) {
+                    const res = JSON.parse(response);
+                    if(!res.error) {
+                        top.location.replace(res.redirectUrl);
+                    }
+                } else {
+                    alert('خطا در بروزرسانی محصولات');
+                    return false;
+                }
+            });
+        } else {
+            alert('فیلد ها را به درستی وارد نمایید');
+            submitButton.addClass('button-primary');
+            submitButton.html('بروزرسانی محصولات در حسابفا بر اساس فروشگاه در بازه ID مشخص شده');
+            $('#ssbhesabfa-update-products-with-filter-submit').removeAttr('disabled');
+            return false;
+        }
+    }
+
 //=====================================================================================================================
     $(function () {
         // AJAX - Clean log
-        $('#ssbhesabfa_clean_log').submit(function () {
+        $('#ssbhesabfa_clean_log').submit(function (e) {
             // show processing status
             $('#ssbhesabfa-log-clean-submit').attr('disabled', 'disabled');
             $('#ssbhesabfa-log-clean-submit').removeClass('button-primary');

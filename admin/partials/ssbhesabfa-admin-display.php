@@ -2,7 +2,7 @@
 
 /**
  * @class      Ssbhesabfa_Admin_Display
- * @version    2.0.72
+ * @version    2.0.74
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin/display
@@ -254,16 +254,16 @@ class Ssbhesabfa_Admin_Display
         global $wpdb;
         $rows = $wpdb->get_results("SELECT post.ID,post.post_title,post.post_parent,post_excerpt,wc.sku FROM `" . $wpdb->prefix . "posts` as post
                                 LEFT OUTER JOIN `" . $wpdb->prefix . "wc_product_meta_lookup` as wc
-                                ON post.id =  wc.product_id                                
+                                ON post.id =  wc.product_id
                                 WHERE post.post_type IN('product','product_variation') AND post.post_status IN('publish','private')
                                 ORDER BY post.post_title ASC LIMIT $offset,$rpp");
 
         $totalCount = $wpdb->get_var("SELECT COUNT(*) FROM `" . $wpdb->prefix . "posts` as post
                                 LEFT OUTER JOIN `" . $wpdb->prefix . "wc_product_meta_lookup` as wc
-                                ON post.id =  wc.product_id                                
+                                ON post.id =  wc.product_id
                                 WHERE post.post_type IN('product','product_variation') AND post.post_status IN('publish','private')");
 
-        $links = $wpdb->get_results("SELECT * FROM `" . $wpdb->prefix . "ssbhesabfa`                              
+        $links = $wpdb->get_results("SELECT * FROM `" . $wpdb->prefix . "ssbhesabfa`
                                 WHERE obj_type ='product'");
 
         foreach ($rows as $r) {
@@ -290,7 +290,7 @@ class Ssbhesabfa_Admin_Display
      */
     public static function hesabfa_plugin_page()
     {
-        $iconsArray = ['home', 'cog', 'box-open', 'users', 'file-invoice-dollar', 'money-check-alt', 'file-export', 'sync-alt', 'file-alt'];
+        $iconsArray = ['home', 'cog', 'box-open', 'users', 'file-invoice-dollar', 'money-check-alt', 'file-export', 'sync-alt', 'file-alt', 'cog'];
         if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_option('active_plugins')))) {
             $setting_tabs = apply_filters('ssbhesabfa_setting_tab', array(
                 'home' => __('Home', 'ssbhesabfa'),
@@ -301,7 +301,8 @@ class Ssbhesabfa_Admin_Display
                 'payment' => __('Payment Methods', 'ssbhesabfa'),
                 'export' => __('Import and export data', 'ssbhesabfa'),
                 'sync' => __('Sync', 'ssbhesabfa'),
-                'log' => __('Log', 'ssbhesabfa')
+                'log' => __('Log', 'ssbhesabfa'),
+                'extra' => __('Extra Settings', 'ssbhesabfa')
             ));
             $current_tab = (isset($_GET['tab'])) ? wc_clean($_GET['tab']) : 'home';
             self::hesabfa_plugin_header();

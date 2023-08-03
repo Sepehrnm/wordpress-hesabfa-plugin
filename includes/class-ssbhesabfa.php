@@ -10,7 +10,7 @@
  * version of the plugin.
  *
  * @class      Ssbhesabfa
- * @version    2.0.72
+ * @version    2.0.74
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/includes
@@ -261,6 +261,7 @@ class Ssbhesabfa
             $this->loader->add_filter('wp_ajax_adminSyncProducts', $plugin_admin, 'adminSyncProductsCallback');
             $this->loader->add_filter('wp_ajax_adminSyncOrders', $plugin_admin, 'adminSyncOrdersCallback');
             $this->loader->add_filter('wp_ajax_adminUpdateProducts', $plugin_admin, 'adminUpdateProductsCallback');
+            $this->loader->add_filter('wp_ajax_adminUpdateProductsWithFilter', $plugin_admin, 'adminUpdateProductsWithFilterCallback');
             $this->loader->add_filter('wp_ajax_adminSubmitInvoice', $plugin_admin, 'adminSubmitInvoiceCallback');
 
             /*
