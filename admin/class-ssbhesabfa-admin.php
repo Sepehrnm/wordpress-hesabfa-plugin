@@ -67,11 +67,9 @@ class Ssbhesabfa_Admin
                     ADD `id_ps_attribute` INT(11) UNSIGNED NOT NULL DEFAULT 0 AFTER `id_ps`;";
 
             if (!$wpdb->query($sql)) {
-                //LOG into the log file
                 HesabfaLogService::log(array("Cannot alter table $table_name. Current DB Version: $current_db_ver"));
             } else {
                 update_option('ssbhesabfa_db_version', 1.1);
-                //LOG into the log file
                 HesabfaLogService::log(array("Alter table $table_name. Current DB Version: $current_db_ver"));
             }
         }

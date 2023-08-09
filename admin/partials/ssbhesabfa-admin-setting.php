@@ -211,9 +211,6 @@ class Ssbhesabfa_Setting {
                 if (defined('SSBHESABFA_VERSION')) {
                     $plugin_version = constant('SSBHESABFA_VERSION');
                 }
-
-                $peakMemoryUsage = memory_get_peak_usage();
-                $peakMemoryUsage = round($peakMemoryUsage / 1048576, 2);
                 $server_php_version  = phpversion();
                 $plugin_php_version = '8.1';
 
@@ -229,7 +226,6 @@ class Ssbhesabfa_Setting {
                         </thead>
                         <tbody>
                             <tr style="direction: ltr;">
-                                <td>' . $peakMemoryUsage . ' MB</td>
                                 <td>' . $plugin_version . '</td>
                                 <td>' . $server_php_version . '</td>                                
                                 <td>' . $plugin_php_version . '</td>                                
