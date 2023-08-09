@@ -218,7 +218,6 @@ class Ssbhesabfa_Setting {
                     '<table style="width: 98%;" class="table table-stripped">
                         <thead>
                             <tr style="direction: ltr;">
-                                <th>Peak Memory Usage</th>
                                 <th>Plugin Version</th>
                                 <th>Server PHP Version</th>
                                 <th>Plugin PHP Version Tested Up To</th>
