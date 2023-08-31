@@ -449,6 +449,9 @@ class Ssbhesabfa_Admin
 //==========================================================================================================================
     public function adminSubmitInvoiceCallback()
     {
+        HesabfaLogService::writeLogStr("==== ثبت دستی فاکتور ====" . "\n" .
+        '===== Submit Invoice Manually =====');
+
         if (is_admin() && (defined('DOING_AJAX') || DOING_AJAX)) {
 
             $orderId = wc_clean($_POST['orderId']);
@@ -465,7 +468,6 @@ class Ssbhesabfa_Admin
 //=========================================================================================================================
     public function adminSyncProductsManuallyCallback()
     {
-        //LOG into the log file
         HesabfaLogService::writeLogStr('===== همگام سازی دستی محصولات =====' . "\n" .
         '===== Sync Products Manually =====');
 
