@@ -6,7 +6,7 @@ include_once(plugin_dir_path(__DIR__) . 'services/HesabfaWpFaService.php');
 
 /**
  * @class      Ssbhesabfa_Admin_Functions
- * @version    2.0.74
+ * @version    2.0.80
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin/functions
@@ -291,7 +291,13 @@ class Ssbhesabfa_Admin_Functions
                 break;
             }
 
-            $wcProduct = new WC_Product($product['product_id']);
+//            $wcProduct = new WC_Product($product['product_id']);
+
+            if($product['variation_id']) {
+                $wcProduct = wc_get_product($product['variation_id']);
+            } else {
+                $wcProduct = wc_get_product($product['product_id']);
+            }
 
             global $discount, $price;
             if( $wcProduct->is_on_sale() && get_option('ssbhesabfa_set_special_sale_as_discount') === 'yes' ) {

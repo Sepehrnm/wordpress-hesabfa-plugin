@@ -2,7 +2,7 @@
 Contributors: saeedsb, hamidprime, sepehr-najafi
 Tags: accounting cloud hesabfa
 Requires at least: 5.2
-Tested up to: 6.2.2
+Tested up to: 6.3
 Requires PHP: 5.6
 Stable tag: 2.0.74
 License: GPLv2 or later
@@ -365,4 +365,5 @@ by clicking update stock and price button in hesabfa tab in product edit page
 = 2.0.74 - 03.08.2023 =
 * sync products based on woocommerce with ID filter added
 * extra setting tab added
+* Variation special sale bug fixed
 * request amounts per batch option added
