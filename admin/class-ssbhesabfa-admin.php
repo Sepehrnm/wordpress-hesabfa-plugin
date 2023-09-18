@@ -7,7 +7,7 @@ include_once(plugin_dir_path(__DIR__) . 'admin/services/HesabfaWpFaService.php')
  * The admin-specific functionality of the plugin.
  *
  * @class      Ssbhesabfa_Admin
- * @version    2.0.74
+ * @version    2.0.75
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin
@@ -502,7 +502,7 @@ class Ssbhesabfa_Admin
 //=========================================================================================================================
     public function adminClearPluginDataCallback()
     {
-        //LOG into the log file
+
         HesabfaLogService::writeLogStr('===== پاک کردن دیتای افزونه =====' . "\n" .
         '===== Clear Plugin Data =====');
         if (is_admin() && (defined('DOING_AJAX') || DOING_AJAX)) {
@@ -511,7 +511,7 @@ class Ssbhesabfa_Admin
             $hesabfaApi = new Ssbhesabfa_Api();
             $result = $hesabfaApi->fixClearTags();
             if (!$result->Success) {
-                //LOG into the log file
+
                 HesabfaLogService::log(array("ssbhesabfa - Cannot clear tags. Error Message: " . (string)$changes->ErrorMessage . ". Error Code: " . (string)$changes->ErrorCode));
             }
 
@@ -529,7 +529,7 @@ class Ssbhesabfa_Admin
 //=========================================================================================================================
     public function adminInstallPluginDataCallback()
     {
-        //LOG into the log file
+
         HesabfaLogService::writeLogStr('===== نصب دیتای افزونه =====' . "\n" .
         '===== Install Plugin Data =====');
         if (is_admin() && (defined('DOING_AJAX') || DOING_AJAX)) {
@@ -633,7 +633,7 @@ class Ssbhesabfa_Admin
         if ( $action !== 'submit_invoice_in_hesabfa' )
             return $redirect_to; // Exit
 
-        //LOG into the log file
+
         HesabfaLogService::writeLogStr("===== ثبت فاکتور سفارشات انتخاب شده =====" . "\n" .
         "===== Submit selected orders invoice =====");
 
@@ -741,7 +741,7 @@ class Ssbhesabfa_Admin
             global $wpdb;
             $wpdb->delete($wpdb->prefix . 'ssbhesabfa', array('id_ps' => $id_customer));
 
-            //LOG into the log file
+
             HesabfaLogService::log(array(" مشتری حذف گردید. شناسه مشتری: $id_customer" . "\n" . "Customer deleted. Customer ID: $id_customer"));
         }
     }
@@ -749,12 +749,11 @@ class Ssbhesabfa_Admin
     //Invoice
     public function ssbhesabfa_hook_order_status_change($id_order, $from, $to)
     {
-        //LOG into the log file
         HesabfaLogService::writeLogStr("===== هوک وضعیت سفارش =====" . "\n" . "===== Order Status Hook =====");
         $function = new Ssbhesabfa_Admin_Functions();
 
         foreach (get_option('ssbhesabfa_invoice_status') as $status) {
-            //LOG into the log file
+
             HesabfaLogService::writeLogStr(" وضعیت : $status" . "\n" . "status: $status");
 
             if ($status == $to) {
@@ -810,7 +809,7 @@ class Ssbhesabfa_Admin
 //=========================================================================================================================
     public function ssbhesabfa_hook_save_product_variation($id_attribute)
     {
-        //LOG into the log file
+
         HesabfaLogService::writeLogStr("=== هوک ثبت تغییرات محصول حسابفا ===" . "\n" . "=== ssbhesabfa_hook_save_product_variation ===");
 
         //change hesabfa item code
@@ -831,7 +830,7 @@ class Ssbhesabfa_Admin
                 }
 
                 echo '<div class="error"><p>' . __('The new Item code already used for another Item', 'ssbhesabfa') . '</p></div>';
-                //LOG into the log file
+
                 HesabfaLogService::log(array("کد آیتم جدید قبلاً برای آیتم دیگری استفاده شده است. شناسه محصول: $id_product" . "\n" .
                 "The new Item code already used for another Item. Product ID: $id_product"));
             } else {
@@ -868,7 +867,7 @@ class Ssbhesabfa_Admin
     //ToDo: check why base product is not deleted
     public function ssbhesabfa_hook_delete_product($id_product)
     {
-        //LOG into the log file
+
         HesabfaLogService::writeLogStr("===== هوک حذف محصول =====" . "\n" . "===== Product Delete Hook =====");
 
         $func = new Ssbhesabfa_Admin_Functions();
@@ -913,7 +912,7 @@ class Ssbhesabfa_Admin
             $hesabfaApi->itemDelete($row->id_hesabfa);
 
             $wpdb->delete($wpdb->prefix . 'ssbhesabfa', array('id' => $row->id));
-            //LOG into the log file
+
             HesabfaLogService::log(array("تنوع محصول پاک شد. شناسه محصول: $row->id_ps-$id_attribute" . "\n" . "Product variation deleted. Product ID: $row->id_ps-$id_attribute"));
         }
     }
@@ -947,7 +946,7 @@ class Ssbhesabfa_Admin
             if (is_object($row)) {
                 //ToDo: show error to customer in BO
                 echo '<div class="error"><p>' . __('The new Item code already used for another Item', 'ssbhesabfa') . '</p></div>';
-                //LOG into the log file
+
                 HesabfaLogService::log(array("کد آیتم جدید قبلاً برای آیتم دیگری استفاده شده است. شناسه محصول: $post_id" . "\n" . "The new Item code already used for another Item. Product ID: $post_id"));
             } else {
                 $row2 = $wpdb->get_row("SELECT * FROM `" . $wpdb->prefix . "ssbhesabfa` WHERE `id_ps` = $post_id AND `obj_type` = 'product' AND `id_ps_attribute` = 0");

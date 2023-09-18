@@ -2,9 +2,9 @@
 Contributors: saeedsb, hamidprime, sepehr-najafi
 Tags: accounting cloud hesabfa
 Requires at least: 5.2
-Tested up to: 6.3
+Tested up to: 6.3.1
 Requires PHP: 5.6
-Stable tag: 2.0.74
+Stable tag: 2.0.75
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -368,3 +368,6 @@ by clicking update stock and price button in hesabfa tab in product edit page
 * variation special sale bug fixed
 * request amounts per batch option added
 * manually submit invoice log added
+
+= 2.0.75 - 12.09.2023 =
+* bug fix: price bug fixed

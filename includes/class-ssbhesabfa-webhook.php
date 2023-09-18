@@ -64,18 +64,6 @@ class Ssbhesabfa_Webhook
                                 break;
                             }
 
-                            if($item->Action == 52) {
-                                $updatedItem = $hesabfaApi->itemGet($item->Extra);
-                                $wpFaService = new HesabfaWpFaService();
-                                $wpFa = $wpFaService->getWpFaByHesabfaId('product', $updatedItem->Result->Code);
-
-                                $newPrice = Ssbhesabfa_Admin_Functions::getPriceInWooCommerceDefaultCurrency($updatedItem->Result->SellPrice);
-
-                                if (get_option('ssbhesabfa_item_update_price') == 'yes') {
-                                    update_post_meta($wpFa->idWp, '_regular_price', $newPrice);
-                                }
-                            }
-
                             $this->itemsObjectId[] = $item->ObjectId;
                             break;
                         case 'Contact':

@@ -6,7 +6,7 @@ include_once(plugin_dir_path(__DIR__) . 'services/HesabfaWpFaService.php');
 
 /**
  * @class      Ssbhesabfa_Admin_Functions
- * @version    2.0.80
+ * @version    2.0.75
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin/functions
@@ -269,7 +269,7 @@ class Ssbhesabfa_Admin_Functions
 
         if (!empty($notDefinedItems)) {
             if (!$this->setItems($notDefinedItems)) {
-                HesabfaLogService::writeLogStr("نمی توان فاکتور را اضافه/به روز کرد. محصولات تنظیم نشد. شناسه سفارش: $id_order" . "\n" .
+                HesabfaLogService::writeLogStr("نمی توان فاکتور را اضافه/به روز کرد. محصولات تنظیم نشدند. شناسه سفارش: $id_order" . "\n" .
                 "Cannot add/update Invoice. Failed to set products. Order ID: $id_order");
                 return false;
             }
