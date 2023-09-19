@@ -371,3 +371,6 @@ by clicking update stock and price button in hesabfa tab in product edit page
 
 = 2.0.75 - 12.09.2023 =
 * bug fix: price bug fixed
+
+= 2.0.76 - 19.09.2023 =
+* bug fix: Stock management bug fixed
