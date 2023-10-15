@@ -7,7 +7,7 @@ include_once(plugin_dir_path(__DIR__) . 'admin/services/HesabfaWpFaService.php')
  * The admin-specific functionality of the plugin.
  *
  * @class      Ssbhesabfa_Admin
- * @version    2.0.76
+ * @version    2.0.78
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin
@@ -1079,7 +1079,7 @@ class Ssbhesabfa_Admin
                                    class="button hesabfa-item-delete-link"></td>
                         <td><input type="button" value="بروزرسانی" data-id="<?php echo $item["Id"] ?>"
                                    class="button button-primary hesabfa-item-update"></td>
-                        <td id="hesabfa-item-price-<?php echo $item["Id"] ?>"><?php echo $item["SellPrice"] ?></td>
+                        <td id="hesabfa-item-price-<?php echo $item["Id"] ?>"><?php echo Ssbhesabfa_Admin_Functions::getPriceInWooCommerceDefaultCurrency($item["SellPrice"]) ?></td>
                         <td id="hesabfa-item-quantity-<?php echo $item["Id"] ?>"><?php echo $item["Quantity"] ?></td>
                     </tr>
                     <?php
@@ -1106,36 +1106,30 @@ class Ssbhesabfa_Admin
     }
 //======
     function admin_products_hesabfaId_column_content( $column ){
-        global $post;
         $funcs = new Ssbhesabfa_Admin_Functions();
         $items = array();
-//        $id_product = $post->ID;
         $id_product = get_the_ID();
         $product = new WC_Product($id_product);
 
         $items[] = ssbhesabfaItemService::mapProduct($product, $id_product, false);
-        $items[0]["Quantity"] = $product->get_stock_quantity();
-        $items[0]["Id"] = $id_product;
         $i = 1;
 
         $variations = $funcs->getProductVariations($id_product);
         if ($variations) {
             foreach ($variations as $variation) {
                 $items[] = ssbhesabfaItemService::mapProductVariation($product, $variation, $id_product, false);
-                $items[$i]["Quantity"] = $variation->get_stock_quantity();
-                $items[$i]["Id"] = $variation->get_id();
                 $i++;
             }
         }
 
-        echo '<div><form>';
+        echo '<div>';
         foreach ($items as $item) {
             if ( $column == 'hesabfaID' ) {
                 $hesabfaId = $item["Code"];
                 echo "<span class='button button-secondary'>" . $hesabfaId . " " . "</span>";
             }
         }
-        echo '</div></form>';
+        echo '</div>';
     }
 //=========================================================================================================================
     function adminChangeProductCodeCallback()

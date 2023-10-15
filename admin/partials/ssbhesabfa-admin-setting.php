@@ -4,7 +4,7 @@ include_once( plugin_dir_path( __DIR__ ) . 'services/HesabfaLogService.php' );
 error_reporting(0);
 /**
  * @class      Ssbhesabfa_Setting
- * @version    2.0.76
+ * @version    2.0.78
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin/setting
@@ -284,11 +284,6 @@ class Ssbhesabfa_Setting {
                         <option value="-1"  <?php if(!get_option('ssbhesabfa_set_rpp_for_import_products')) echo 'selected'; ?>><?php echo __('select', 'ssbhesabfa');?></option>
                         <option value="50"  <?php if(get_option('ssbhesabfa_set_rpp_for_import_products') == '50') echo 'selected'; ?>>50</option>
                         <option value="100" <?php if(get_option('ssbhesabfa_set_rpp_for_import_products') == '100') echo 'selected'; ?>>100</option>
-                        <option value="150" <?php if(get_option('ssbhesabfa_set_rpp_for_import_products') == '150') echo 'selected'; ?>>150</option>
-                        <option value="200" <?php if(get_option('ssbhesabfa_set_rpp_for_import_products') == '200') echo 'selected'; ?>>200</option>
-                        <option value="300" <?php if(get_option('ssbhesabfa_set_rpp_for_import_products') == '300') echo 'selected'; ?>>300</option>
-                        <option value="400" <?php if(get_option('ssbhesabfa_set_rpp_for_import_products') == '400') echo 'selected'; ?>>400</option>
-                        <option value="500" <?php if(get_option('ssbhesabfa_set_rpp_for_import_products') == '500') echo 'selected'; ?>>500</option>
                     </select>
                     <span><?php echo __("Plugin Default", "ssbhesabfa"); ?>: 100</span>
                 </div>

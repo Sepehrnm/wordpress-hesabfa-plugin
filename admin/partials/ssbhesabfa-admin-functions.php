@@ -6,7 +6,7 @@ include_once(plugin_dir_path(__DIR__) . 'services/HesabfaWpFaService.php');
 
 /**
  * @class      Ssbhesabfa_Admin_Functions
- * @version    2.0.76
+ * @version    2.0.78
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin/functions
@@ -854,7 +854,7 @@ class Ssbhesabfa_Admin_Functions
             $result["error"] = true;
             return $result;
         };
-//        sleep(2);
+        sleep(2);
 
         $result["batch"] = $batch;
         $result["totalBatch"] = $totalBatch;
@@ -1338,6 +1338,8 @@ class Ssbhesabfa_Admin_Functions
     private static function setItemNewPrice($product, $item, $id_attribute, $id_product, array $result): array
     {
         $option_sale_price = get_option('ssbhesabfa_item_update_sale_price', 0);
+        $woocommerce_currency = get_woocommerce_currency();
+        $hesabfa_currency = get_option('ssbhesabfa_hesabfa_default_currency');
 
         $old_price = $product->get_regular_price() ? $product->get_regular_price() : $product->get_price();
         $old_price = Ssbhesabfa_Admin_Functions::getPriceInHesabfaDefaultCurrency($old_price);
@@ -1359,7 +1361,10 @@ class Ssbhesabfa_Admin_Functions
                     update_post_meta($post_id, '_sale_price', round(($sale_price * $new_price) / $old_price));
                     update_post_meta($post_id, '_price', round(($sale_price * $new_price) / $old_price));
                 } else {
-                    update_post_meta($post_id, '_price', $sale_price);
+                    if($woocommerce_currency == 'IRT' && $hesabfa_currency == 'IRR') update_post_meta($post_id, '_price', ($sale_price/10));
+                    elseif($woocommerce_currency == 'IRR' && $hesabfa_currency == 'IRT') update_post_meta($post_id, '_price', ($sale_price*10));
+                    elseif($woocommerce_currency == 'IRR' && $hesabfa_currency == 'IRR') update_post_meta($post_id, '_price', $sale_price);
+                    elseif($woocommerce_currency == 'IRT' && $hesabfa_currency == 'IRT') update_post_meta($post_id, '_price', $sale_price);
                 }
             }
 
