@@ -144,13 +144,11 @@ class HesabfaWpFaService
         if (!$wpFa) {
             $wpFa = WpFa::newWpFa(0, 'product', (int)$item->Code, (int)$json->id_product, (int)$json->id_attribute);
             $wpFaService->save($wpFa);
-            HesabfaLogService::log(array("آیتم با موفقیت اضافه گردید. کد آیتم: " . (string)$item->Code . ". شناسه محصول: $json->id_product-$json->id_attribute" . "\n" .
-            "Item successfully added. Item code: " . (string)$item->Code . ". Product ID: $json->id_product-$json->id_attribute"));
+            HesabfaLogService::log(array("Item successfully added. Item code: " . (string)$item->Code . ". Product ID: $json->id_product-$json->id_attribute"));
         } else {
             $wpFa->idHesabfa = (int)$item->Code;
             $wpFaService->update($wpFa);
-            HesabfaLogService::log(array("آیتم با موفقیت بروزرسانی شد. کد آیتم: " . (string)$item->Code . ". شناسه محصول: $json->id_product-$json->id_attribute" . "\n" .
-            "Item successfully updated. Item code: " . (string)$item->Code . ". Product ID: $json->id_product-$json->id_attribute"));
+            HesabfaLogService::log(array("Item successfully updated. Item code: " . (string)$item->Code . ". Product ID: $json->id_product-$json->id_attribute"));
         }
         return true;
     }
@@ -169,16 +167,14 @@ class HesabfaWpFaService
                 'obj_type' => 'customer',
                 'id_ps' => (int)$json->id_customer
             ));
-            HesabfaLogService::writeLogStr("مشتری با موفقیت اضافه گردید. کد مشتری: " . (string)$customer->Code . ". شناسه مشتری: $json->id_customer" . "\n" .
-            "Customer successfully added. Customer code: " . (string)$customer->Code . ". Customer ID: $json->id_customer");
+            HesabfaLogService::writeLogStr("Customer successfully added. Customer code: " . (string)$customer->Code . ". Customer ID: $json->id_customer");
         } else {
             $wpdb->update($wpdb->prefix . 'ssbhesabfa', array(
                 'id_hesabfa' => (int)$customer->Code,
                 'obj_type' => 'customer',
                 'id_ps' => (int)$json->id_customer,
             ), array('id' => $id));
-            HesabfaLogService::writeLogStr("مشتری با موفقیت بروزرسانی شد. کد مشتری: " . (string)$customer->Code . ". شناسه مشتری: $json->id_customer" . "\n" .
-            "Customer successfully updated. Customer code: " . (string)$customer->Code . ". Customer ID: $json->id_customer");
+            HesabfaLogService::writeLogStr("Customer successfully updated. Customer code: " . (string)$customer->Code . ". Customer ID: $json->id_customer");
         }
         return true;
     }
@@ -198,11 +194,9 @@ class HesabfaWpFaService
                 'id_ps' => (int)$json->id_order,
             ));
             if ($objType == 'order')
-                LogService::writeLogStr("صورتحساب با موفقیت اضافه گردید. شماره صورتحساب: " . (string)$invoice->Number . ", شناسه سفارش: " . $json->id_order . "\n" .
-                "Invoice successfully added. invoice number: " . (string)$invoice->Number . ", order id: " . $json->id_order);
+                LogService::writeLogStr("Invoice successfully added. invoice number: " . (string)$invoice->Number . ", order id: " . $json->id_order);
             else
-                LogService::writeLogStr("صورتحساب بازگشتی اضافه گردید. کد مشتری: " . (string)$invoice->Number . ", شناسه سفارش: " . $json->id_order . "\n" .
-                "Return Invoice successfully added. Customer code: " . (string)$invoice->Number . ", order id: " . $json->id_order);
+                LogService::writeLogStr("Return Invoice successfully added. Customer code: " . (string)$invoice->Number . ", order id: " . $json->id_order);
         } else {
             Db::getInstance()->update('ps_hesabfa', array(
                 'id_hesabfa' => $invoiceNumber,
@@ -211,11 +205,9 @@ class HesabfaWpFaService
             ), array('id' => $id), 0, true, true);
             //check if it is order or return order
             if ($objType == 'order')
-                LogService::writeLogStr("صورتحساب با موفقیت بروزرسانی شد. شماره صورتحساب: " . (string)$invoice->Number . ", شناسه سفارش: " . $json->id_order . "\n" .
-                "Invoice successfully updated. invoice number: " . (string)$invoice->Number . ", order id: " . $json->id_order);
+                LogService::writeLogStr("Invoice successfully updated. invoice number: " . (string)$invoice->Number . ", order id: " . $json->id_order);
             else
-                LogService::writeLogStr("صورتحساب بازگشتی با موفقیت بروزرسانی شد. کد مشتری: " . (string)$invoice->Number . ", شناسه سفارش: " . $json->id_order . "\n" .
-                "Return Invoice successfully updated. Customer code: " . (string)$invoice->Number . ", order id: " . $json->id_order);
+                LogService::writeLogStr("Return Invoice successfully updated. Customer code: " . (string)$invoice->Number . ", order id: " . $json->id_order);
         }
 
         return true;

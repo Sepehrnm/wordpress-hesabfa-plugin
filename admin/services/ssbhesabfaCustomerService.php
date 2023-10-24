@@ -60,10 +60,9 @@ class ssbhesabfaCustomerService
                     'Note' => __('Customer ID in OnlineStore: ', 'ssbhesabfa') . $id_customer,
                 );
                 break;
-
             case 'billing':
-                $country_name = self::$countries[$customer->get_billing_country()];
-                $state_name = self::$states[$customer->get_billing_country()][$customer->get_billing_state()];
+                $country_name = self::$countries[$order->get_billing_country()];
+                $state_name = self::$states[$order->get_billing_country()][$order->get_billing_state()];
                 $fullAddress = $order->get_billing_address_1() . '-' . $order->get_billing_address_2();
 
                 $hesabfaCustomer = array(
@@ -89,8 +88,8 @@ class ssbhesabfaCustomerService
                 );
                 break;
             case 'shipping':
-                $country_name = self::$countries[$customer->get_shipping_country()];
-                $state_name = self::$states[$customer->get_shipping_country()][$customer->get_shipping_state()];
+                $country_name = self::$countries[$order->get_shipping_country()];
+                $state_name = self::$states[$order->get_shipping_country()][$order->get_shipping_state()];
                 $fullAddress = $order->get_shipping_address_1() . ' - ' . $order->get_shipping_address_2();
 
                 $hesabfaCustomer = array(
@@ -123,6 +122,7 @@ class ssbhesabfaCustomerService
     public static function mapGuestCustomer($code, $id_order): array
     {
         $order = new WC_Order($id_order);
+
         $name = $order->get_billing_first_name() . ' ' . $order->get_billing_last_name();
         if (empty($order->get_billing_first_name()) && empty($order->get_billing_last_name())) {
             $name = __('Guest Customer', 'ssbhesabfa');
@@ -136,8 +136,17 @@ class ssbhesabfaCustomerService
 	    $RegistrationNumber = $checkout_fields['RegistrationNumber'];
 	    $Website = $checkout_fields['Website'];
 
-        $country_name = self::$countries[$order->get_billing_country()];
-        $state_name = self::$states[$order->get_billing_country()][$order->get_billing_state()];
+//        $country_name = self::$countries[$order->get_billing_country()];
+//        $state_name = self::$states[$order->get_billing_state()];
+
+
+        WC()->countries->countries[ $order->shipping_country ];
+        $country_name = WC()->countries->countries[ $order->get_billing_country() ];
+        $states = WC()->countries->get_states( $order->get_billing_country() );
+        $state_name = $states[ $order->get_billing_state() ];
+        if(!$state_name) $state_name = WC()->countries->states[$order->billing_country][$order->billing_state];
+        if(!$state_name) $state_name = $order->get_billing_state();
+
         $fullAddress = $order->get_billing_address_1() . '-' . $order->get_billing_address_2();
 
         $hesabfaCustomer = array(
@@ -217,13 +226,11 @@ class ssbhesabfaCustomerService
 
 	    // add additional fields to checkout
         if($add_additional_fileds == '1') {
-            // add fields form by hesabfa
             $fields['NationalCode'] = get_post_meta( $id_order, $NationalCode, true) ?? null;
             $fields['EconomicCode'] = get_post_meta( $id_order, $EconomicCode, true) ?? null;
             $fields['RegistrationNumber'] = get_post_meta( $id_order, $RegistrationNumber, true) ?? null;
             $fields['Website'] = get_post_meta( $id_order, $Website, true) ?? null;
         } elseif($add_additional_fileds == '2') {
-            // add fields by other ways and get meta
             $NationalCode = get_option('ssbhesabfa_contact_NationalCode_text_hesabfa');
             $EconomicCode = get_option('ssbhesabfa_contact_EconomicCode_text_hesabfa');
             $RegistrationNumber = get_option('ssbhesabfa_contact_RegistrationNumber_text_hesabfa');

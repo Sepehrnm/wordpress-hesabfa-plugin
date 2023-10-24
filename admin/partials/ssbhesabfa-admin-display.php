@@ -2,7 +2,7 @@
 
 /**
  * @class      Ssbhesabfa_Admin_Display
- * @version    2.0.78
+ * @version    2.0.80
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin/display
@@ -18,39 +18,25 @@ class Ssbhesabfa_Admin_Display
      */
     public function __construct()
     {
-        //add_action('admin_menu', array(__CLASS__, 'hesabfa_add_settings_menu'));
         add_action('admin_menu', array(__CLASS__, 'hesabfa_add_menu'));
     }
-
 
     /**
      * Hook in methods
      * @since    1.0.0
      * @access   static
      */
-//    public static function init()
-//    {
-//        //add_action('admin_menu', array(__CLASS__, 'hesabfa_add_settings_menu'));
-//        add_action('admin_menu', array(__CLASS__, 'hesabfa_add_menu'));
-//    }
 
     /**
      * @since    1.0.0
      * @access   public
      */
-    public static function hesabfa_add_settings_menu()
-    {
-        //add_options_page(__('Hesabfa Options', 'ssbhesabfa'), __('Hesabfa', 'ssbhesabfa'), 'manage_options', 'ssbhesabfa-option', array(__CLASS__, 'ssbhesabfa_option'));
-    }
 
     static function hesabfa_add_menu()
     {
         $iconUrl = plugins_url('/hesabfa-accounting/admin/img/menu-icon.png');
         add_menu_page("حسابفا", "حسابفا", "manage_options", "ssbhesabfa-option", array(__CLASS__, 'hesabfa_plugin_page'), $iconUrl, null);
         add_submenu_page("ssbhesabfa-option", "تنظیمات حسابفا", "تنظیمات حسابفا", "manage_options", 'ssbhesabfa-option', array(__CLASS__, 'hesabfa_plugin_page'));
-//        add_submenu_page("ssbhesabfa-option", "همسان سازی دستی کالاها", "همسان سازی دستی کالاها", "manage_options", 'hesabfa-sync-products-manually', array(__CLASS__, 'hesabfa_plugin_sync_products_manually'));
-        //add_submenu_page("ssbhesabfa-option", "کدهای تکراری", "کدهای تکراری", "manage_options", 'hesabfa-repeated-products', array(__CLASS__, 'hesabfa_plugin_repeated_products'));
-        //add_submenu_page("ssbhesabfa-option", "ابزارها", "ابزارها", "manage_options", 'hesabfa-tools', array(__CLASS__, 'hesabfa_plugin_tools'));
     }
 
     function hesabfa_plugin_sync_products_manually()
@@ -355,5 +341,4 @@ class Ssbhesabfa_Admin_Display
 //========================================================================================================================================
 }
 
-//Ssbhesabfa_Admin_Display::init();
 new Ssbhesabfa_Admin_Display();

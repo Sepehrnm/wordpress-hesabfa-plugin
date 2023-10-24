@@ -15,13 +15,13 @@ if (!defined( 'WP_UNINSTALL_PLUGIN')) {
 }
 
 include_once(plugin_dir_path(__DIR__) . 'admin/services/HesabfaLogService.php');
-
 require 'includes/class-ssbhesabfa-api.php';
+
 // delete tags in hesabfa
 $hesabfaApi = new Ssbhesabfa_Api();
 $result = $hesabfaApi->fixClearTags();
 if (!$result->Success) {
-    HesabfaLogService::log(array("ssbhesabfa - Cannot clear tags. Error Message: " . (string)$changes->ErrorMessage . ". Error Code: " . (string)$changes->ErrorCode));
+    HesabfaLogService::log(array("ssbhesabfa - Cannot clear tags. Error Message: " . (string)$result->ErrorMessage . ". Error Code: " . (string)$result->ErrorCode));
 }
 
 global $wpdb;

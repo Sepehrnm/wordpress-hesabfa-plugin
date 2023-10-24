@@ -4,7 +4,7 @@ include_once(plugin_dir_path(__DIR__) . 'admin/services/HesabfaLogService.php');
 
 /**
  * @class      Ssbhesabfa_Api
- * @version    2.0.78
+ * @version    2.0.80
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/api
@@ -35,8 +35,7 @@ class Ssbhesabfa_Api
 
         //Debug mode
         if (get_option('ssbhesabfa_debug_mode')) {
-            //LOG into the log file
-            HesabfaLogService::log(array("دیباگ مود - متد: $method. تاریخ: " . print_r($data, true) . "\n" . "Debug Mode - Data: " . print_r($data, true)));
+            HesabfaLogService::log(array("Debug Mode - Data: " . print_r($data, true)));
         }
 
         $options = array(
@@ -59,8 +58,7 @@ class Ssbhesabfa_Api
 
         //Debug mode
         if (get_option('ssbhesabfa_debug_mode')) {
-            //LOG into the log file
-            HesabfaLogService::log(array("دیباگ مود - نتیجه: " . print_r($result, true) . "\n" . "Debug Mode - Result: " . print_r($result, true)));
+            HesabfaLogService::log(array("Debug Mode - Result: " . print_r($result, true)));
         }
 
         //fix API limit request - Maximum request per minutes is 60 times,
