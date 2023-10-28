@@ -1364,6 +1364,47 @@ class Ssbhesabfa_Admin_Functions
 
         return $result;
     }
+//=========================================================================================================================
+    function CheckNationalCode($NationalCode): void
+    {
+        $identicalDigits = ['1111111111', '2222222222', '3333333333', '4444444444', '5555555555', '6666666666', '7777777777', '8888888888', '9999999999'];
+
+        if(strlen($NationalCode) === 10) {
+            $summation = 0;
+            $j = 10;
+            for($i = 0 ; $i < 9 ; $i++) {
+                $digit = substr($NationalCode, $i, 1);
+                $temp = $digit * $j;
+                $j -= 1;
+                $summation += $temp;
+            }
+            $controlDigit = substr($NationalCode, 9, 1);
+            $retrieve = $summation % 11;
+
+            if(in_array($NationalCode, $identicalDigits) === false) {
+                if($retrieve < 2) {
+                    if($controlDigit != $retrieve) {
+                        wc_add_notice(__('please enter a valid national code', 'ssbhesabfa'), 'error');
+                    }
+                } else {
+                    if($controlDigit != (11 - $retrieve)) {
+                        wc_add_notice(__('please enter a valid national code', 'ssbhesabfa'), 'error');
+                    }
+                }
+            }
+        } else {
+            wc_add_notice(__('please enter a valid national code', 'ssbhesabfa'), 'error');
+        }
+    }
+//=========================================================================================================================
+    function CheckWebsite($Website): void
+    {
+        if (filter_var($Website, FILTER_VALIDATE_URL)) {
+            //
+        } else {
+            wc_add_notice(__('please enter a valid Website URL', 'ssbhesabfa'), 'error');
+        }
+    }
 //==============================================================================================
     public static function enableDebugMode() {
         update_option('ssbhesabfa_debug_mode', 1);

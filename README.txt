@@ -380,7 +380,7 @@ by clicking update stock and price button in hesabfa tab in product edit page
 * bug fix: shipping address bug fixed
 * codes refactored
 
-= 2.0.80 - 00.00.2023 =
+= 2.0.80 - 28.10.2023 =
 * unnecessary files removed
 * bug fix: fix woocommerce state bug
 * persian log removed
