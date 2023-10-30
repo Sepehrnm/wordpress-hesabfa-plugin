@@ -5,7 +5,7 @@ error_reporting(0);
 $_POST["ssbhesabfa_find_log_date"] = '';
 /**
  * @class      Ssbhesabfa_Setting
- * @version    2.0.80
+ * @version    2.0.81
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin/setting
@@ -752,6 +752,13 @@ class Ssbhesabfa_Setting {
 		);
 
         $fields[] = array(
+            'title'   => __( "Invoice Salesman Percentage", 'ssbhesabfa' ),
+            'id'      => 'ssbhesabfa_invoice_salesman_percentage',
+            'type'    => 'text',
+            'placeholder' => __("Invoice Salesman Percentage", 'ssbhesabfa'),
+        );
+
+        $fields[] = array(
             'title' => '',
             'desc' => __('Save invoice in draft mode in Hesabfa', 'ssbhesabfa'),
             'id' => 'ssbhesabfa_invoice_draft_save_in_hesabfa',
@@ -798,7 +805,7 @@ class Ssbhesabfa_Setting {
 		$Html_output              = new Ssbhesabfa_Html_output();
 		?>
         <style>
-            #ssbhesabfa_invoice_freight_code {
+            #ssbhesabfa_invoice_freight_code, #ssbhesabfa_invoice_salesman_percentage {
                 min-width: 250px;
             }
         </style>

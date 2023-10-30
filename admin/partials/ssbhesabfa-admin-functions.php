@@ -6,7 +6,7 @@ include_once(plugin_dir_path(__DIR__) . 'services/HesabfaWpFaService.php');
 
 /**
  * @class      Ssbhesabfa_Admin_Functions
- * @version    2.0.80
+ * @version    2.0.81
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin/functions
@@ -404,8 +404,10 @@ class Ssbhesabfa_Admin_Functions
 
         $invoice_project = get_option('ssbhesabfa_invoice_project', -1);
         $invoice_salesman = get_option('ssbhesabfa_invoice_salesman', -1);
+        $invoice_salesman_percentage = get_option('ssbhesabfa_invoice_salesman_percentage', 0);
         if ($invoice_project != -1) $data['Project'] = $invoice_project;
         if ($invoice_salesman != -1) $data['SalesmanCode'] = $invoice_salesman;
+        if($invoice_salesman_percentage != 0) $data['SalesmanPercent'] = $invoice_salesman_percentage;
 
         $hesabfa = new Ssbhesabfa_Api();
         $response = $hesabfa->invoiceSave($data);

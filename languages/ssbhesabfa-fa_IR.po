@@ -873,6 +873,9 @@ msgstr "روش حمل و نقل"
 msgid "Invoice's Salesman"
 msgstr "فروشنده فاکتور"
 
+msgid "Invoice Salesman Percentage"
+msgstr "درصد پورسانت فروشنده فاکتور"
+
 msgid "Invoice's Project"
 msgstr "پروژه فاکتور"
 
