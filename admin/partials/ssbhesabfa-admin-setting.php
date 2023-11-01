@@ -2,10 +2,9 @@
 
 include_once( plugin_dir_path( __DIR__ ) . 'services/HesabfaLogService.php' );
 error_reporting(0);
-$_POST["ssbhesabfa_find_log_date"] = '';
 /**
  * @class      Ssbhesabfa_Setting
- * @version    2.0.81
+ * @version    2.0.83
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin/setting
@@ -979,6 +978,16 @@ class Ssbhesabfa_Setting {
 			'id'    => 'ssbhesabfa_account_login_token',
 			'type'  => 'text',
 		);
+
+        $fields[] = array(
+            'title' => __( 'API Address', 'ssbhesabfa' ),
+            'id'    => 'ssbhesabfa_api_address',
+            'type'  => 'select',
+            'options' => array(
+                "0" => "api.hesabfa.com",
+                "1" => "api.hesabfa.ir"
+            )
+        );
 
 		$fields[] = array( 'type' => 'sectionend', 'id' => 'api_options' );
 

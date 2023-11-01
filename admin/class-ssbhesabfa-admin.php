@@ -7,7 +7,7 @@ include_once(plugin_dir_path(__DIR__) . 'admin/services/HesabfaWpFaService.php')
  * The admin-specific functionality of the plugin.
  *
  * @class      Ssbhesabfa_Admin
- * @version    2.0.81
+ * @version    2.0.83
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin
@@ -1283,7 +1283,6 @@ class Ssbhesabfa_Admin
                 }
             }
 
-            //Call API
             $api = new Ssbhesabfa_Api();
             $filters = array(array("Property" => "Code", "Operator" => "in", "Value" => $codes));
             $response = $api->itemGetItems(array('Filters' => $filters));
