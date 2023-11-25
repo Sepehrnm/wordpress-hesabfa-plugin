@@ -5,6 +5,11 @@ class HesabfaLogService
     public static function writeLogStr($str)
     {
         $fileName = WP_CONTENT_DIR . '/ssbhesabfa-' . date("20y-m-d") . '.txt';
+
+        $dateTime = new DateTimeImmutable( 'now', wp_timezone() );
+        $date = $dateTime->format('[Y-m-d H:i:s] ');
+        $str = $date . $str;
+
         $str = mb_convert_encoding($str, 'UTF-8');
         file_put_contents($fileName, PHP_EOL . $str, FILE_APPEND);
     }
@@ -22,13 +27,16 @@ class HesabfaLogService
         $fileName = WP_CONTENT_DIR . '/ssbhesabfa-' . date("20y-m-d") . '.txt';
         $log = '';
 
+        $dateTime = new DateTimeImmutable( 'now', wp_timezone() );
+        $date = $dateTime->format('[Y-m-d H:i:s] ');
+
         foreach ($params as $message) {
             if (is_array($message) || is_object($message)) {
-                $log .= date('[r] ') . print_r($message, true) . "\n";
+                $log .= $date . print_r($message, true) . "\n";
             } elseif (is_bool($message)) {
-                $log .= date('[r] ') . ($message ? 'true' : 'false') . "\n";
+                $log .= $date . ($message ? 'true' : 'false') . "\n";
             } else {
-                $log .= date('[r] ') . $message . "\n";
+                $log .= $date . $message . "\n";
             }
         }
 

@@ -21,7 +21,7 @@ class Ssbhesabfa_Webhook
 
     public function __construct()
     {
-        HesabfaLogService::writeLogStr("==== Calling Webhook ====");
+        HesabfaLogService::writeLogStr("Calling Webhook");
         $wpFaService = new HesabfaWpFaService();
 
         $hesabfaApi = new Ssbhesabfa_Api();

@@ -6,7 +6,7 @@ include_once(plugin_dir_path(__DIR__) . 'services/HesabfaWpFaService.php');
 
 /**
  * @class      Ssbhesabfa_Admin_Functions
- * @version    2.0.83
+ * @version    2.0.90
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin/functions
@@ -354,16 +354,7 @@ class Ssbhesabfa_Admin_Functions
             $freightItemCode = get_option('ssbhesabfa_invoice_freight_code');
             if(!isset($freightItemCode) || !$freightItemCode) HesabfaLogService::writeLogStr("کد هزینه حمل و نقل تعریف نشده است" . "\n" . "Freight service code is not set");
 
-            $newNumbers = range(0, 9);
-            $persianDecimal = array('&#1776;', '&#1777;', '&#1778;', '&#1779;', '&#1780;', '&#1781;', '&#1782;', '&#1783;', '&#1784;', '&#1785;');
-            $arabicDecimal = array('&#1632;', '&#1633;', '&#1634;', '&#1635;', '&#1636;', '&#1637;', '&#1638;', '&#1639;', '&#1640;', '&#1641;');
-            $arabic = array('٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩');
-            $persian = array('۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹');
-
-            $string =  str_replace($persianDecimal, $newNumbers, $freightItemCode);
-            $string =  str_replace($arabicDecimal, $newNumbers, $string);
-            $string =  str_replace($arabic, $newNumbers, $string);
-            $freightItemCode = str_replace($persian, $newNumbers, $string);
+            $freightItemCode = $this->convertPersianDigitsToEnglish($freightItemCode);
 
             if($this->getPriceInHesabfaDefaultCurrency($order->get_shipping_total()) != 0) {
                 $invoiceItem = array(
@@ -407,7 +398,7 @@ class Ssbhesabfa_Admin_Functions
         $invoice_salesman_percentage = get_option('ssbhesabfa_invoice_salesman_percentage', 0);
         if ($invoice_project != -1) $data['Project'] = $invoice_project;
         if ($invoice_salesman != -1) $data['SalesmanCode'] = $invoice_salesman;
-        if($invoice_salesman_percentage != 0) $data['SalesmanPercent'] = $invoice_salesman_percentage;
+        if($invoice_salesman_percentage != 0) $data['SalesmanPercent'] = $this->convertPersianDigitsToEnglish($invoice_salesman_percentage);
 
         $hesabfa = new Ssbhesabfa_Api();
         $response = $hesabfa->invoiceSave($data);
@@ -567,19 +558,7 @@ class Ssbhesabfa_Admin_Functions
                         $financialData = array('cashCode' => $payTempValue);break;
                 }
             } elseif (get_option('ssbhesabfa_payment_option') == 'yes') {
-                $defaultBankCode = get_option('ssbhesabfa_default_payment_method_code');
-
-                $newNumbers = range(0, 9);
-                $persianDecimal = array('&#1776;', '&#1777;', '&#1778;', '&#1779;', '&#1780;', '&#1781;', '&#1782;', '&#1783;', '&#1784;', '&#1785;');
-                $arabicDecimal = array('&#1632;', '&#1633;', '&#1634;', '&#1635;', '&#1636;', '&#1637;', '&#1638;', '&#1639;', '&#1640;', '&#1641;');
-                $arabic = array('٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩');
-                $persian = array('۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹');
-
-                $string =  str_replace($persianDecimal, $newNumbers, $defaultBankCode);
-                $string =  str_replace($arabicDecimal, $newNumbers, $string);
-                $string =  str_replace($arabic, $newNumbers, $string);
-                $defaultBankCode = str_replace($persian, $newNumbers, $string);
-
+                $defaultBankCode = $this->convertPersianDigitsToEnglish(get_option('ssbhesabfa_default_payment_method_code'));
                 $financialData = array('bankCode' => $defaultBankCode);
             }
 
@@ -588,12 +567,25 @@ class Ssbhesabfa_Admin_Functions
                 $date_obj = $order->get_date_modified();
             }
 
+            global $accountPath;
+
+            if(get_option("ssbhesabfa_cash_in_transit") == "1" || get_option("ssbhesabfa_cash_in_transit") == "yes") {
+                $func = new Ssbhesabfa_Admin_Functions();
+                $cashInTransitFullPath = $func->getCashInTransitFullPath();
+                if(!$cashInTransitFullPath) {
+                    HesabfaLogService::writeLogStr("Cash in Transit is not Defined in Hesabfa ---- وجوه در راه در حسابفا یافت نشد");
+                    return false;
+                } else {
+                    $accountPath = array("accountPath" => $cashInTransitFullPath);
+                }
+            }
+
             $response = $hesabfa->invoiceGet($number);
             if ($response->Success) {
                 if ($response->Result->Paid > 0) {
                     // payment submited before
                 } else {
-                    $response = $hesabfa->invoiceSavePayment($number, $financialData, $date_obj->date('Y-m-d H:i:s'), $this->getPriceInHesabfaDefaultCurrency($order->get_total()), $transaction_id);
+                    $response = $hesabfa->invoiceSavePayment($number, $financialData, $accountPath, $date_obj->date('Y-m-d H:i:s'), $this->getPriceInHesabfaDefaultCurrency($order->get_total()), $transaction_id);
 
                     if ($response->Success) {
                         HesabfaLogService::log(array("Hesabfa invoice payment added. Order ID: $id_order"));
@@ -612,6 +604,17 @@ class Ssbhesabfa_Admin_Functions
             HesabfaLogService::log(array("Cannot add Hesabfa Invoice payment - Bank Code not defined. Order ID: $id_order"));
             return false;
         }
+    }
+//========================================================================================================================
+    public function getCashInTransitFullPath() {
+        $api = new Ssbhesabfa_Api();
+        $accounts = $api->settingGetAccounts();
+        foreach ($accounts->Result as $account) {
+            if($account->Name == "وجوه در راه") {
+                return $account->FullPath;
+            }
+        }
+        return false;
     }
 //========================================================================================================================
     public function getInvoiceNumberByOrderId($id_order)
@@ -654,7 +657,7 @@ class Ssbhesabfa_Admin_Functions
 //========================================================================================================================
     public function exportProducts($batch, $totalBatch, $total, $updateCount)
     {
-        HesabfaLogService::writeLogStr("===== Export Products =====");
+        HesabfaLogService::writeLogStr("Export Products");
         $wpFaService = new HesabfaWpFaService();
         $extraSettingRPP = get_option("ssbhesabfa_set_rpp_for_export_products");
         if($extraSettingRPP != '-1') $rpp=$extraSettingRPP; else $rpp=500;
@@ -735,7 +738,7 @@ class Ssbhesabfa_Admin_Functions
 //========================================================================================================================
     public function importProducts($batch, $totalBatch, $total, $updateCount)
     {
-        HesabfaLogService::writeLogStr("===== Import Products =====");
+        HesabfaLogService::writeLogStr("Import Products");
         $wpFaService = new HesabfaWpFaService();
         $extraSettingRPP = get_option("ssbhesabfa_set_rpp_for_import_products");
         if($extraSettingRPP != '-1') $rpp=$extraSettingRPP; else $rpp=100;
@@ -933,7 +936,7 @@ class Ssbhesabfa_Admin_Functions
 //========================================================================================================================
     public function exportCustomers($batch, $totalBatch, $total, $updateCount)
     {
-        HesabfaLogService::writeLogStr("==== Export Customers ====");
+        HesabfaLogService::writeLogStr("Export Customers");
         $wpFaService = new HesabfaWpFaService();
 
         $result = array();
@@ -991,7 +994,7 @@ class Ssbhesabfa_Admin_Functions
     public function syncOrders($from_date, $batch, $totalBatch, $total, $updateCount)
     {
 
-        HesabfaLogService::writeLogStr("===== Sync Orders =====");
+        HesabfaLogService::writeLogStr("Sync Orders");
         $wpFaService = new HesabfaWpFaService();
 
         $result = array();
@@ -1065,7 +1068,7 @@ class Ssbhesabfa_Admin_Functions
     public function syncProducts($batch, $totalBatch, $total)
     {
         try {
-            HesabfaLogService::writeLogStr("===== Sync products price and quantity from hesabfa to store: part $batch =====");
+            HesabfaLogService::writeLogStr("Sync products price and quantity from hesabfa to store: part $batch");
             $result = array();
             $result["error"] = false;
             $extraSettingRPP = get_option("ssbhesabfa_set_rpp_for_sync_products_into_woocommerce");
@@ -1121,7 +1124,7 @@ class Ssbhesabfa_Admin_Functions
 //========================================================================================================================
     public function syncProductsManually($data)
     {
-        HesabfaLogService::writeLogStr('===== Sync Products Manually =====');
+        HesabfaLogService::writeLogStr('Sync Products Manually');
 
         $hesabfa_item_codes = array();
         foreach ($data as $d) {
@@ -1186,7 +1189,7 @@ class Ssbhesabfa_Admin_Functions
 //========================================================================================================================
     public function updateProductsInHesabfaBasedOnStore($batch, $totalBatch, $total)
     {
-        HesabfaLogService::writeLogStr("===== Update Products In Hesabfa Based On Store =====");
+        HesabfaLogService::writeLogStr("Update Products In Hesabfa Based On Store");
         $result = array();
         $result["error"] = false;
         $extraSettingRPP = get_option('ssbhesabfa_set_rpp_for_sync_products_into_hesabfa');
@@ -1217,7 +1220,7 @@ class Ssbhesabfa_Admin_Functions
 //========================================================================================================================
     public static function updateProductsInHesabfaBasedOnStoreWithFilter($offset=0, $rpp=0)
     {
-        HesabfaLogService::writeLogStr("===== Update Products With Filter In Hesabfa Based On Store =====");
+        HesabfaLogService::writeLogStr("Update Products With Filter In Hesabfa Based On Store");
         $result = array();
         $result["error"] = false;
 
@@ -1414,6 +1417,20 @@ class Ssbhesabfa_Admin_Functions
 
     public static function disableDebugMode() {
         update_option('ssbhesabfa_debug_mode', 0);
+    }
+//==============================================================================================
+    public function convertPersianDigitsToEnglish($inputString) : int {
+        $newNumbers = range(0, 9);
+        $persianDecimal = array('&#1776;', '&#1777;', '&#1778;', '&#1779;', '&#1780;', '&#1781;', '&#1782;', '&#1783;', '&#1784;', '&#1785;');
+        $arabicDecimal  = array('&#1632;', '&#1633;', '&#1634;', '&#1635;', '&#1636;', '&#1637;', '&#1638;', '&#1639;', '&#1640;', '&#1641;');
+        $arabic  = array('٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩');
+        $persian = array('۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹');
+
+        $string =  str_replace($persianDecimal, $newNumbers, $inputString);
+        $string =  str_replace($arabicDecimal, $newNumbers, $string);
+        $string =  str_replace($persian, $newNumbers, $string);
+
+        return str_replace($arabic, $newNumbers, $string);
     }
 //==============================================================================================
 }

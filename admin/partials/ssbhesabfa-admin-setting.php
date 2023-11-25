@@ -4,7 +4,7 @@ include_once( plugin_dir_path( __DIR__ ) . 'services/HesabfaLogService.php' );
 error_reporting(0);
 /**
  * @class      Ssbhesabfa_Setting
- * @version    2.0.83
+ * @version    2.0.90
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin/setting
@@ -646,7 +646,7 @@ class Ssbhesabfa_Setting {
 
 		if ($_POST) {
 
-            HesabfaLogService::writeLogStr( "========== customer settings save =============" );
+            HesabfaLogService::writeLogStr( "customer settings save" );
 
             $add_fields = wc_clean( $_POST['addFieldsRadio'] );;
 
@@ -807,6 +807,9 @@ class Ssbhesabfa_Setting {
             #ssbhesabfa_invoice_freight_code, #ssbhesabfa_invoice_salesman_percentage {
                 min-width: 250px;
             }
+            #ssbhesabfa_invoice_transaction_fee {
+                width: fit-content;
+            }
         </style>
         <div class="alert alert-warning hesabfa-f">
             <strong>توجه</strong><br>
@@ -827,6 +830,7 @@ class Ssbhesabfa_Setting {
             </p>
             <?php
                 if(get_option('ssbhesabfa_invoice_freight') == 1 && !(get_option('ssbhesabfa_invoice_freight_code'))) {
+                    HesabfaLogService::writeLogStr("Invoice Freight Service Code is not Defined in Hesabfa ---- کد خدمت حمل و نقل تعریف نشده است");
                     echo '<script>alert("کد خدمت حمل و نقل تعریف نشده است")</script>';
                 }
             ?>
@@ -893,6 +897,22 @@ class Ssbhesabfa_Setting {
         );
 
         $fields[] = array(
+            'title'   => __( "Invoice Transaction Fee Percentage", 'ssbhesabfa' ),
+            'id'      => 'ssbhesabfa_invoice_transaction_fee',
+            'type'    => 'text',
+            'placeholder' => __("Invoice Transaction Fee Percentage", 'ssbhesabfa'),
+            'default' => '0'
+        );
+
+        $fields[] = array(
+            'title'   => __( "Submit Cash in Transit", 'ssbhesabfa' ),
+            'id'      => 'ssbhesabfa_cash_in_transit',
+            'desc' => __( "Submit Invoice Receipt Cash in Transit", 'ssbhesabfa' ),
+            'type'    => 'checkbox',
+            'default' => 'no'
+        );
+
+        $fields[] = array(
           'title' => __('Default Bank Code', 'ssbhesabfa'),
           'id' => 'ssbhesabfa_default_payment_method_code',
           'type' => 'text',
@@ -931,6 +951,18 @@ class Ssbhesabfa_Setting {
             <?php
             if(get_option('ssbhesabfa_payment_option') == 'yes') {
                 if(!(get_option('ssbhesabfa_default_payment_method_code'))) echo '<script>alert("کد بانک پیش فرض تعریف نشده است")</script>';
+            }
+
+            if(get_option("ssbhesabfa_cash_in_transit") == "yes" || get_option("ssbhesabfa_cash_in_transit") == "1") {
+                $func = new Ssbhesabfa_Admin_Functions();
+                $cashInTransitFullPath = $func->getCashInTransitFullPath();
+                if(!$cashInTransitFullPath) {
+                    HesabfaLogService::writeLogStr("Cash in Transit is not Defined in Hesabfa ---- وجوه در راه در حسابفا یافت نشد");
+                    echo '
+                        <script>
+                            alert("وجوه در راه در حسابفا یافت نشد");
+                        </script>';
+                }
             }
             ?>
         </form>
@@ -1993,7 +2025,7 @@ class Ssbhesabfa_Setting {
                     }
                     if (is_file($file)) {
                         if (unlink($file)) {
-                            HesabfaLogService::writeLogStr("=====Selected Log File deleted=====");
+                            HesabfaLogService::writeLogStr("Selected Log File Deleted");
                             header("refresh:0");
                         } else {
                             HesabfaLogService::writeLogStr("Unable to delete the file");
@@ -2016,7 +2048,7 @@ class Ssbhesabfa_Setting {
                                 $endObj = DateTime::createFromFormat('Y-m-d', $endDate);
 
                                 if ($dateObj >= $startObj && $dateObj <= $endObj) {
-                                     HesabfaLogService::writeLogStr("=====Log Files deleted=====");
+                                     HesabfaLogService::writeLogStr("Log Files deleted");
                                      unlink($file);
                                 }
                             }

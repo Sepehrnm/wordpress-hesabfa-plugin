@@ -4,7 +4,7 @@ include_once(plugin_dir_path(__DIR__) . 'admin/services/HesabfaLogService.php');
 
 /**
  * @class      Ssbhesabfa_Api
- * @version    2.0.83
+ * @version    2.0.90
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/api
@@ -323,8 +323,19 @@ class Ssbhesabfa_Api
         return $this->apiRequest($method, $data);
     }
 //================================================================================================
-    public function invoiceSavePayment($number, $financialData, $date, $amount, $transactionNumber = null, $description = null, $transactionFee = 0)
+    public function invoiceSavePayment($number, $financialData, $accountPath, $date, $amount, $transactionNumber = null, $description = null, $transactionFee = 0)
     {
+        if(get_option('ssbhesabfa_invoice_transaction_fee') && get_option('ssbhesabfa_invoice_transaction_fee') > 0) {
+            $transactionFeeOption = get_option('ssbhesabfa_invoice_transaction_fee');
+
+            $func = new Ssbhesabfa_Admin_Functions();
+            $transactionFeeOption = $func->convertPersianDigitsToEnglish($transactionFeeOption);
+
+            if($transactionFeeOption<100 && $transactionFeeOption>0) $transactionFeeOption /= 100;
+            $transactionFee = $amount * $transactionFeeOption;
+            if($transactionFee < 1) $transactionFee = 0;
+        }
+
         $method = 'invoice/savepayment';
         $data = array(
             'number' => (int)$number,
@@ -334,7 +345,9 @@ class Ssbhesabfa_Api
             'description' => $description,
             'transactionFee' => $transactionFee,
         );
+
         $data = array_merge($data, $financialData);
+        if($accountPath != []) $data = array_merge($data, $accountPath);
 
         return $this->apiRequest($method, $data);
     }
@@ -399,6 +412,12 @@ class Ssbhesabfa_Api
             'start' => $start,
         );
         return $this->apiRequest($method, $data);
+    }
+//================================================================================================
+    public function settingGetAccounts()
+    {
+        $method = 'setting/GetAccounts';
+        return $this->apiRequest($method);
     }
 //================================================================================================
     public function settingGetBanks()

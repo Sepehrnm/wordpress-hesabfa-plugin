@@ -879,6 +879,15 @@ msgstr "درصد پورسانت فروشنده فاکتور"
 msgid "Invoice's Project"
 msgstr "پروژه فاکتور"
 
+msgid "Submit Cash in Transit"
+msgstr "ثبت در وجوه در راه"
+
+msgid "Submit Invoice Receipt Cash in Transit"
+msgstr "ثبت رسید دریافت فاکتور در وجوه در راه"
+
+msgid "Invoice Transaction Fee Percentage"
+msgstr "درصد کارمزد تراکنش"
+
 msgid "Plugin Tutorial Video"
 msgstr "ویدیوی خودآموز افزونه"
 

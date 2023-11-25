@@ -7,7 +7,7 @@ include_once(plugin_dir_path(__DIR__) . 'admin/services/HesabfaWpFaService.php')
  * The admin-specific functionality of the plugin.
  *
  * @class      Ssbhesabfa_Admin
- * @version    2.0.83
+ * @version    2.0.90
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin
@@ -448,7 +448,7 @@ class Ssbhesabfa_Admin
 //==========================================================================================================================
     public function adminSubmitInvoiceCallback()
     {
-        HesabfaLogService::writeLogStr('===== Submit Invoice Manually =====');
+        HesabfaLogService::writeLogStr('Submit Invoice Manually');
 
         if (is_admin() && (defined('DOING_AJAX') || DOING_AJAX)) {
 
@@ -466,7 +466,7 @@ class Ssbhesabfa_Admin
 //=========================================================================================================================
     public function adminSyncProductsManuallyCallback()
     {
-        HesabfaLogService::writeLogStr('===== Sync Products Manually =====');
+        HesabfaLogService::writeLogStr('Sync Products Manually');
 
         if (is_admin() && (defined('DOING_AJAX') || DOING_AJAX)) {
 
@@ -500,7 +500,7 @@ class Ssbhesabfa_Admin
     public function adminClearPluginDataCallback()
     {
 
-        HesabfaLogService::writeLogStr('===== Clear Plugin Data =====');
+        HesabfaLogService::writeLogStr('Clear Plugin Data');
         if (is_admin() && (defined('DOING_AJAX') || DOING_AJAX)) {
 
             //Call API
@@ -526,7 +526,7 @@ class Ssbhesabfa_Admin
     public function adminInstallPluginDataCallback()
     {
 
-        HesabfaLogService::writeLogStr('===== Install Plugin Data =====');
+        HesabfaLogService::writeLogStr('Install Plugin Data');
         if (is_admin() && (defined('DOING_AJAX') || DOING_AJAX)) {
 
             // create table and settings
@@ -555,7 +555,7 @@ class Ssbhesabfa_Admin
         $diff = $nowDateTime->diff($syncChangesLastDate);
 
         if ($diff->i >= 3) {
-            HesabfaLogService::writeLogStr('===== Sync Changes Automatically =====');
+            HesabfaLogService::writeLogStr('Sync Changes Automatically');
             update_option('ssbhesabfa_sync_changes_last_date', new DateTime());
             require_once plugin_dir_path(dirname(__FILE__)) . 'includes/class-ssbhesabfa-webhook.php';
             new Ssbhesabfa_Webhook();
@@ -626,7 +626,7 @@ class Ssbhesabfa_Admin
             return $redirect_to; // Exit
 
 
-        HesabfaLogService::writeLogStr("===== Submit selected orders invoice =====");
+        HesabfaLogService::writeLogStr("Submit selected orders invoice");
 
         if(count($post_ids) > 10)
             return $redirect_to = add_query_arg( array(
@@ -740,7 +740,7 @@ class Ssbhesabfa_Admin
     //Invoice
     public function ssbhesabfa_hook_order_status_change($id_order, $from, $to)
     {
-        HesabfaLogService::writeLogStr("===== Order Status Hook =====");
+        HesabfaLogService::writeLogStr("Order Status Hook");
         $function = new Ssbhesabfa_Admin_Functions();
 
         foreach (get_option('ssbhesabfa_invoice_status') as $status) {
@@ -801,7 +801,7 @@ class Ssbhesabfa_Admin
     public function ssbhesabfa_hook_save_product_variation($id_attribute)
     {
 
-        HesabfaLogService::writeLogStr("=== ssbhesabfa_hook_save_product_variation ===");
+        HesabfaLogService::writeLogStr("ssbhesabfa_hook_save_product_variation");
 
         //change hesabfa item code
         $variable_field_id = "ssbhesabfa_hesabfa_item_code_" . $id_attribute;
@@ -858,7 +858,7 @@ class Ssbhesabfa_Admin
     public function ssbhesabfa_hook_delete_product($id_product)
     {
 
-        HesabfaLogService::writeLogStr("===== Product Delete Hook =====");
+        HesabfaLogService::writeLogStr("Product Delete Hook");
 
         $func = new Ssbhesabfa_Admin_Functions();
         $wpFaService = new HesabfaWpFaService();
