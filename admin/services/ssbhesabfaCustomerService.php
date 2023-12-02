@@ -10,7 +10,7 @@ class ssbhesabfaCustomerService
         self::getCountriesAndStates();
 
         $customer = new WC_Customer($id_customer);
-        $order = new WC_Order($id_order);
+        $order = wc_get_order($id_order);
         $firstName = $customer->get_first_name() ? $customer->get_first_name() : $customer->get_billing_first_name();
         $lastName = $customer->get_last_name() ? $customer->get_last_name() : $customer->get_billing_last_name();
         $name = $firstName . ' ' . $lastName;
@@ -34,32 +34,7 @@ class ssbhesabfaCustomerService
 
         switch ($type) {
             case 'first':
-                $country_name = self::$countries[$customer->get_billing_country()];
-                $state_name = self::$states[$customer->get_billing_country()][$customer->get_billing_state()];
-                $fullAddress = $customer->get_billing_address_1() . '-' . $customer->get_billing_address_2();
-
-                $hesabfaCustomer = array(
-                    'Code' => $code,
-                    'Name' => $name,
-                    'FirstName' => Ssbhesabfa_Validation::contactFirstNameValidation($firstName),
-                    'LastName' => Ssbhesabfa_Validation::contactLastNameValidation($lastName),
-                    'ContactType' => 1,
-                    'NodeFamily' => $nodeFamily,
-                    'NationalCode' => $NationalCode,
-                    'EconomicCode' => $EconomicCode,
-                    'RegistrationNumber' => $RegistrationNumber,
-                    'Website' => $Website,
-                    'Address' => Ssbhesabfa_Validation::contactAddressValidation($fullAddress),
-                    'City' => Ssbhesabfa_Validation::contactCityValidation($customer->get_billing_city()),
-                    'State' => Ssbhesabfa_Validation::contactStateValidation($state_name),
-                    'Country' => Ssbhesabfa_Validation::contactCountryValidation($country_name),
-                    'PostalCode' => Ssbhesabfa_Validation::contactPostalCodeValidation($customer->get_billing_postcode()),
-                    'Phone' => Ssbhesabfa_Validation::contactPhoneValidation($customer->get_billing_phone()),
-                    'Email' => Ssbhesabfa_Validation::contactEmailValidation($customer->get_email()),
-                    'Tag' => json_encode(array('id_customer' => $id_customer)),
-                    'Note' => __('Customer ID in OnlineStore: ', 'ssbhesabfa') . $id_customer,
-                );
-                break;
+                //
             case 'billing':
                 $country_name = self::$countries[$order->get_billing_country()];
                 $state_name = self::$states[$order->get_billing_country()][$order->get_billing_state()];
@@ -121,7 +96,7 @@ class ssbhesabfaCustomerService
 //===========================================================================================================
     public static function mapGuestCustomer($code, $id_order): array
     {
-        $order = new WC_Order($id_order);
+        $order = wc_get_order($id_order);
 
         $name = $order->get_billing_first_name() . ' ' . $order->get_billing_last_name();
         if (empty($order->get_billing_first_name()) && empty($order->get_billing_last_name())) {

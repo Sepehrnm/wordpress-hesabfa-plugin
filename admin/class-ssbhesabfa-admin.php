@@ -7,7 +7,7 @@ include_once(plugin_dir_path(__DIR__) . 'admin/services/HesabfaWpFaService.php')
  * The admin-specific functionality of the plugin.
  *
  * @class      Ssbhesabfa_Admin
- * @version    2.0.90
+ * @version    2.0.92
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin
@@ -540,7 +540,7 @@ class Ssbhesabfa_Admin
     public function ssbhesabfa_init_internal()
     {
         add_rewrite_rule('ssbhesabfa-webhook.php$', 'index.php?ssbhesabfa_webhook=1', 'top');
-        $this->checkForSyncChanges();
+        //$this->checkForSyncChanges();
     }
 //=========================================================================================================================
     private function checkForSyncChanges()
@@ -1007,12 +1007,13 @@ class Ssbhesabfa_Admin
 //=========================================================================================================================
     function add_hesabfa_product_data_fields()
     {
-        global $woocommerce, $post;
+        global $woocommerce, $post, $product;
 
         $funcs = new Ssbhesabfa_Admin_Functions();
         $items = array();
         $id_product = $post->ID;
-        $product = new WC_Product($id_product);
+//        $product = new WC_Product($id_product);
+        $product = wc_get_product($id_product);
 
         if ($product->get_status() === "auto-draft") {
             ?>
@@ -1059,18 +1060,18 @@ class Ssbhesabfa_Admin
                 foreach ($items as $item) {
                     ?>
                     <tr>
-                        <td><?php echo $item["Name"] ?></td>
-                        <td><input type="text" value="<?php echo $item["Code"] ?>"
-                                   id="hesabfa-item-<?php echo $item["Id"] ?>" style="width: 75px;"
-                                   class="hesabfa-item-code" data-id="<?php echo $item["Id"] ?>"></td>
-                        <td><input type="button" value="ذخیره" data-id="<?php echo $item["Id"] ?>"
+                        <td><?php echo $item["Name"]; ?></td>
+                        <td><input type="text" value="<?php echo $item["Code"]; ?>"
+                                   id="hesabfa-item-<?php echo $item["Id"]; ?>" style="width: 75px;"
+                                   class="hesabfa-item-code" data-id="<?php echo $item["Id"]; ?>"></td>
+                        <td><input type="button" value="ذخیره" data-id="<?php echo $item["Id"]; ?>"
                                    class="button hesabfa-item-save"></td>
-                        <td><input type="button" value="حذف ارتباط" data-id="<?php echo $item["Id"] ?>"
+                        <td><input type="button" value="حذف ارتباط" data-id="<?php echo $item["Id"]; ?>"
                                    class="button hesabfa-item-delete-link"></td>
-                        <td><input type="button" value="بروزرسانی" data-id="<?php echo $item["Id"] ?>"
+                        <td><input type="button" value="بروزرسانی" data-id="<?php echo $item["Id"]; ?>"
                                    class="button button-primary hesabfa-item-update"></td>
-                        <td id="hesabfa-item-price-<?php echo $item["Id"] ?>"><?php echo Ssbhesabfa_Admin_Functions::getPriceInWooCommerceDefaultCurrency($item["SellPrice"]) ?></td>
-                        <td id="hesabfa-item-quantity-<?php echo $item["Id"] ?>"><?php echo $item["Quantity"] ?></td>
+                        <td id="hesabfa-item-price-<?php echo $item["Id"] ?>"><?php echo Ssbhesabfa_Admin_Functions::getPriceInWooCommerceDefaultCurrency($item["SellPrice"]); ?></td>
+                        <td id="hesabfa-item-quantity-<?php echo $item["Id"] ?>"><?php echo $item["Quantity"]; ?></td>
                     </tr>
                     <?php
                 }
@@ -1099,7 +1100,8 @@ class Ssbhesabfa_Admin
         $funcs = new Ssbhesabfa_Admin_Functions();
         $items = array();
         $id_product = get_the_ID();
-        $product = new WC_Product($id_product);
+//        $product = new WC_Product($id_product);
+        $product = wc_get_product($id_product);
 
         $items[] = ssbhesabfaItemService::mapProduct($product, $id_product, false);
         $i = 1;

@@ -6,7 +6,7 @@ include_once(plugin_dir_path(__DIR__) . 'services/HesabfaWpFaService.php');
 
 /**
  * @class      Ssbhesabfa_Admin_Functions
- * @version    2.0.90
+ * @version    2.0.92
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin/functions
@@ -144,7 +144,9 @@ class Ssbhesabfa_Admin_Functions
     {
         if (!isset($id_order)) return false;
 
-        $order = new WC_Order($id_order);
+        //$order = new WC_Order($id_order);
+        $order = wc_get_order($id_order);
+
         $contactCode = $this->getContactCodeByPhoneOrEmail($order->get_billing_phone(), $order->get_billing_email());
 
         $hesabfaCustomer = ssbhesabfaCustomerService::mapGuestCustomer($contactCode, $id_order);
@@ -214,7 +216,8 @@ class Ssbhesabfa_Admin_Functions
             }
         }
 
-        $order = new WC_Order($id_order);
+//        $order = new WC_Order($id_order);
+        $order = wc_get_order($id_order);
 
         $dokanOption = get_option("ssbhesabfa_invoice_dokan", 0);
 
@@ -400,7 +403,12 @@ class Ssbhesabfa_Admin_Functions
         if ($invoice_salesman != -1) $data['SalesmanCode'] = $invoice_salesman;
         if($invoice_salesman_percentage != 0) $data['SalesmanPercent'] = $this->convertPersianDigitsToEnglish($invoice_salesman_percentage);
 
+//        $GUID = $this->getGUID($id_order);
+
         $hesabfa = new Ssbhesabfa_Api();
+//        if($number) $response = $hesabfa->invoiceSave($data, '');
+//        else $response = $hesabfa->invoiceSave($data, $GUID);
+
         $response = $hesabfa->invoiceSave($data);
 
         if ($response->Success) {
@@ -530,7 +538,8 @@ class Ssbhesabfa_Admin_Functions
             return false;
         }
 
-        $order = new WC_Order($id_order);
+        //$order = new WC_Order($id_order);
+        $order = wc_get_order($id_order);
 
         if ($order->get_total() <= 0) {
             return true;
@@ -1033,7 +1042,8 @@ class Ssbhesabfa_Admin_Functions
 
         $id_orders = array();
         foreach ($orders as $order) {
-            $order = new WC_Order($order->ID);
+            //$order = new WC_Order($order->ID);
+            $order = wc_get_order($order->ID);
 
             $id_order = $order->get_id();
             $id_obj = $wpFaService->getWpFaId('order', $id_order);
@@ -1294,6 +1304,10 @@ class Ssbhesabfa_Admin_Functions
         $product = wc_get_product($id_product);
         $variation = $id_attribute != 0 ? wc_get_product($id_attribute) : null;
 
+
+//        $product = new WC_Product($id_product);
+//        $variation = $id_attribute != 0 ? new WC_Product($id_attribute) : null;
+
         $result = array();
         $result["newPrice"] = null;
         $result["newQuantity"] = null;
@@ -1309,65 +1323,73 @@ class Ssbhesabfa_Admin_Functions
         return $result;
     }
 //========================================================================================================================
-    private static function setItemNewPrice($product, $item, $id_attribute, $id_product, array $result): array
+    private static function setItemNewPrice($product, $item, $id_attribute, $id_product, array $result)
     {
-        $option_sale_price = get_option('ssbhesabfa_item_update_sale_price', 0);
-        $woocommerce_currency = get_woocommerce_currency();
-        $hesabfa_currency = get_option('ssbhesabfa_hesabfa_default_currency');
+        try {
+            $option_sale_price = get_option('ssbhesabfa_item_update_sale_price', 0);
+            $woocommerce_currency = get_woocommerce_currency();
+            $hesabfa_currency = get_option('ssbhesabfa_hesabfa_default_currency');
 
-        $old_price = $product->get_regular_price() ? $product->get_regular_price() : $product->get_price();
-        $old_price = Ssbhesabfa_Admin_Functions::getPriceInHesabfaDefaultCurrency($old_price);
+            $old_price = $product->get_regular_price() ? $product->get_regular_price() : $product->get_price();
+            $old_price = Ssbhesabfa_Admin_Functions::getPriceInHesabfaDefaultCurrency($old_price);
 
-        $post_id = $id_attribute && $id_attribute > 0 ? $id_attribute : $id_product;
+            $post_id = $id_attribute && $id_attribute > 0 ? $id_attribute : $id_product;
 
-        if ($item->SellPrice != $old_price) {
-            $new_price = Ssbhesabfa_Admin_Functions::getPriceInWooCommerceDefaultCurrency($item->SellPrice);
-            update_post_meta($post_id, '_regular_price', $new_price);
-            update_post_meta($post_id, '_price', $new_price);
+            if ($item->SellPrice != $old_price) {
+                $new_price = Ssbhesabfa_Admin_Functions::getPriceInWooCommerceDefaultCurrency($item->SellPrice);
+                update_post_meta($post_id, '_regular_price', $new_price);
+                update_post_meta($post_id, '_price', $new_price);
 
 
-            $sale_price = $product->get_sale_price();
-            if ($sale_price && is_numeric($sale_price)) {
-                $sale_price = Ssbhesabfa_Admin_Functions::getPriceInHesabfaDefaultCurrency($sale_price);
-                if (+$option_sale_price === 1) {
-                    update_post_meta($post_id, '_sale_price', null);
-                } elseif (+$option_sale_price === 2) {
-                    update_post_meta($post_id, '_sale_price', round(($sale_price * $new_price) / $old_price));
-                    update_post_meta($post_id, '_price', round(($sale_price * $new_price) / $old_price));
-                } else {
-                    if($woocommerce_currency == 'IRT' && $hesabfa_currency == 'IRR') update_post_meta($post_id, '_price', ($sale_price/10));
-                    elseif($woocommerce_currency == 'IRR' && $hesabfa_currency == 'IRT') update_post_meta($post_id, '_price', ($sale_price*10));
-                    elseif($woocommerce_currency == 'IRR' && $hesabfa_currency == 'IRR') update_post_meta($post_id, '_price', $sale_price);
-                    elseif($woocommerce_currency == 'IRT' && $hesabfa_currency == 'IRT') update_post_meta($post_id, '_price', $sale_price);
+                $sale_price = $product->get_sale_price();
+                if ($sale_price && is_numeric($sale_price)) {
+                    $sale_price = Ssbhesabfa_Admin_Functions::getPriceInHesabfaDefaultCurrency($sale_price);
+                    if (+$option_sale_price === 1) {
+                        update_post_meta($post_id, '_sale_price', null);
+                    } elseif (+$option_sale_price === 2) {
+                        update_post_meta($post_id, '_sale_price', round(($sale_price * $new_price) / $old_price));
+                        update_post_meta($post_id, '_price', round(($sale_price * $new_price) / $old_price));
+                    } else {
+                        if($woocommerce_currency == 'IRT' && $hesabfa_currency == 'IRR') update_post_meta($post_id, '_price', ($sale_price/10));
+                        elseif($woocommerce_currency == 'IRR' && $hesabfa_currency == 'IRT') update_post_meta($post_id, '_price', ($sale_price*10));
+                        elseif($woocommerce_currency == 'IRR' && $hesabfa_currency == 'IRR') update_post_meta($post_id, '_price', $sale_price);
+                        elseif($woocommerce_currency == 'IRT' && $hesabfa_currency == 'IRT') update_post_meta($post_id, '_price', $sale_price);
+                    }
                 }
+
+                HesabfaLogService::log(array("product ID $id_product-$id_attribute Price changed. Old Price: $old_price. New Price: $new_price"));
+                $result["newPrice"] = $new_price;
             }
 
-            HesabfaLogService::log(array("product ID $id_product-$id_attribute Price changed. Old Price: $old_price. New Price: $new_price"));
-            $result["newPrice"] = $new_price;
+            return $result;
+        } catch (Error $error) {
+            HesabfaLogService::writeLogStr("Error in Set Item New Price -> $error");
         }
-
-        return $result;
     }
 //========================================================================================================================
-    private static function setItemNewQuantity($product, $item, $id_product, $id_attribute, array $result): array
+    private static function setItemNewQuantity($product, $item, $id_product, $id_attribute, array $result)
     {
-        $old_quantity = $product->get_stock_quantity();
-        if ($item->Stock != $old_quantity) {
-            $new_quantity = $item->Stock;
-            if (!$new_quantity) $new_quantity = 0;
+        try {
+            $old_quantity = $product->get_stock_quantity();
+            if ($item->Stock != $old_quantity) {
+                $new_quantity = $item->Stock;
+                if (!$new_quantity) $new_quantity = 0;
 
-            $new_stock_status = ($new_quantity > 0) ? "instock" : "outofstock";
+                $new_stock_status = ($new_quantity > 0) ? "instock" : "outofstock";
 
-            $post_id = ($id_attribute && $id_attribute > 0) ? $id_attribute : $id_product;
+                $post_id = ($id_attribute && $id_attribute > 0) ? $id_attribute : $id_product;
 
-            update_post_meta($post_id, '_stock', $new_quantity);
-            wc_update_product_stock_status($post_id, $new_stock_status);
+                update_post_meta($post_id, '_stock', $new_quantity);
+                wc_update_product_stock_status($post_id, $new_stock_status);
 
-            HesabfaLogService::log(array("product ID $id_product-$id_attribute quantity changed. Old quantity: $old_quantity. New quantity: $new_quantity"));
-            $result["newQuantity"] = $new_quantity;
+                HesabfaLogService::log(array("product ID $id_product-$id_attribute quantity changed. Old quantity: $old_quantity. New quantity: $new_quantity"));
+                $result["newQuantity"] = $new_quantity;
+            }
+
+            return $result;
+        } catch (Error $error) {
+            HesabfaLogService::writeLogStr("Error in Set Item New Price -> $error");
         }
-
-        return $result;
     }
 //=========================================================================================================================
     function CheckNationalCode($NationalCode): void
@@ -1410,15 +1432,15 @@ class Ssbhesabfa_Admin_Functions
             wc_add_notice(__('please enter a valid Website URL', 'ssbhesabfa'), 'error');
         }
     }
-//==============================================================================================
-    public static function enableDebugMode() {
+//=========================================================================================================================
+    public static function enableDebugMode(): void {
         update_option('ssbhesabfa_debug_mode', 1);
     }
 
-    public static function disableDebugMode() {
+    public static function disableDebugMode(): void {
         update_option('ssbhesabfa_debug_mode', 0);
     }
-//==============================================================================================
+//=========================================================================================================================
     public function convertPersianDigitsToEnglish($inputString) : int {
         $newNumbers = range(0, 9);
         $persianDecimal = array('&#1776;', '&#1777;', '&#1778;', '&#1779;', '&#1780;', '&#1781;', '&#1782;', '&#1783;', '&#1784;', '&#1785;');
@@ -1432,5 +1454,47 @@ class Ssbhesabfa_Admin_Functions
 
         return str_replace($arabic, $newNumbers, $string);
     }
-//==============================================================================================
+//=========================================================================================================================
+    function generateGUID() : string {
+        $characters = '0123456789ABCDEF';
+        $guid = '';
+
+        for ($i = 0; $i < 32; $i++) {
+            $guid .= $characters[mt_rand(0, 15)];
+            if ($i == 7 || $i == 11 || $i == 15 || $i == 19) {
+                $guid .= '-';
+            }
+        }
+
+        return $guid;
+    }
+//=========================================================================================================================
+    public function getGUID($id_order) : string {
+        if (get_option("$id_order") == 0 || !get_option("$id_order")) {
+            $GUID = $this->generateGUID();
+            $dateTime = new DateTimeImmutable('now', wp_timezone());
+            $date = $dateTime->format('[Y-m-d H:i:s] ');
+
+            add_option("$id_order", "$date" . $GUID);
+        } else {
+            $GUID = get_option("$id_order");
+
+            $dateTime = new DateTimeImmutable('now', wp_timezone());
+            $date = $dateTime->format('[Y-m-d H:i:s] ');
+
+            $GUIDdate = substr($GUID, 0, 20);
+            if (strtotime($date) - strtotime($GUIDdate) < 24 * 60 * 60) {
+                // GUID is still valid, continue processing
+            } else {
+                // GUID expired, reset the option to allow saving a new invoice
+                $GUID = $this->generateGUID();
+                $dateTime = new DateTimeImmutable('now', wp_timezone());
+                $date = $dateTime->format('[Y-m-d H:i:s] ');
+
+                update_option("$id_order", "$date" . $GUID);
+            }
+        }
+        return substr(get_option("$id_order"), 22, );
+    }
+//=========================================================================================================================
 }

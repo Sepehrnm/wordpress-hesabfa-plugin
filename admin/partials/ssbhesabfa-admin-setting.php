@@ -4,7 +4,7 @@ include_once( plugin_dir_path( __DIR__ ) . 'services/HesabfaLogService.php' );
 error_reporting(0);
 /**
  * @class      Ssbhesabfa_Setting
- * @version    2.0.90
+ * @version    2.0.92
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin/setting
@@ -1953,6 +1953,7 @@ class Ssbhesabfa_Setting {
 
                 $URL = WP_CONTENT_DIR . '/ssbhesabfa-' . date("20y-m-d") . '.txt';
                 $logFileContent = HesabfaLogService::readLog($URL);
+            }
 
                 echo '<div id="logFileContainer" style="display: flex; justify-content: space-between; flex-direction: column;">'.
                     '<div style="direction: ltr;display: flex; flex-direction: column; align-items: center;">
@@ -1969,7 +1970,7 @@ class Ssbhesabfa_Setting {
                         </form>
                     </div>';
 				echo '<textarea id="textarea" rows="35" style="width: 100%; box-sizing: border-box; direction: ltr; margin-left: 10px; background-color: whitesmoke">' . $logFileContent . '</textarea>';
-                echo '</div>';}
+                echo '</div>';
 //---------------------------------------
                 if(isset($_POST["changeLogFile"])) {
                     echo
@@ -2067,8 +2068,10 @@ class Ssbhesabfa_Setting {
                     if ( file_exists( WP_CONTENT_DIR . '/ssbhesabfa-' . $_POST["ssbhesabfa_find_log_date"] . '.txt' ) &&
                         ( filesize( WP_CONTENT_DIR . '/ssbhesabfa-' . $_POST["ssbhesabfa_find_log_date"] . '.txt' ) / 1000 ) < 1000 ) {
                             $logFileContent = HesabfaLogService::readLog($URL);
+                    }
 
-                            echo '<div id="logFileContainer" style="display: flex; justify-content: space-between; flex-direction: column;">'.
+
+                    echo '<div id="logFileContainer" style="display: flex; justify-content: space-between; flex-direction: column;">'.
                                 '<div style="direction: ltr;display: flex; flex-direction: column; align-items: center;">
                                 <h3>' . __("Log History", "ssbhesabfa") . '</h3>
                                 <form method="post">
@@ -2084,7 +2087,6 @@ class Ssbhesabfa_Setting {
                             </div>';
                             echo '<textarea id="textarea" rows="35" style="width: 100%; box-sizing: border-box; direction: ltr; margin-left: 10px; background-color: whitesmoke">' . $logFileContent . '</textarea>';
                             echo '</div>';
-                    }
                 }
 			?>
         </div>
