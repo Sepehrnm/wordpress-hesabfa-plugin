@@ -4,7 +4,7 @@ include_once( plugin_dir_path( __DIR__ ) . 'services/HesabfaLogService.php' );
 error_reporting(0);
 /**
  * @class      Ssbhesabfa_Setting
- * @version    2.0.92
+ * @version    2.0.93
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin/setting
@@ -1731,7 +1731,7 @@ class Ssbhesabfa_Setting {
 					update_option( 'ssbhesabfa_business_expired', 0 );
 				}
 
-				HesabfaLogService::log( array("Cannot set Hesabfa webHook. Error Message: response->ErrorMessage. Error Code: $response->ErrorCode") );
+				HesabfaLogService::log( array("Cannot set Hesabfa webHook. Error Message: $response->ErrorMessage. Error Code: $response->ErrorCode") );
 			}
 		} else {
 			update_option( 'ssbhesabfa_live_mode', 0 );

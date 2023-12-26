@@ -4,7 +4,7 @@ include_once(plugin_dir_path(__DIR__) . 'admin/services/HesabfaLogService.php');
 
 /**
  * @class      Ssbhesabfa_Api
- * @version    2.0.92
+ * @version    2.0.93
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/api
@@ -302,14 +302,14 @@ class Ssbhesabfa_Api
         return $this->apiRequest($method, $data);
     }
 //================================================================================================
-    public function invoiceSave($invoice)
+    public function invoiceSave($invoice, $GUID='')
     {
         $method = 'invoice/save';
         $data = array(
             'invoice' => $invoice,
         );
 
-//        if($GUID != '') $data['requestUniqueId'] = $GUID;
+        if($GUID != '') $data['requestUniqueId'] = $GUID;
 
         return $this->apiRequest($method, $data);
     }

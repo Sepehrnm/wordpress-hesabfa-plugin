@@ -10,7 +10,7 @@ class ssbhesabfaCustomerService
         self::getCountriesAndStates();
 
         $customer = new WC_Customer($id_customer);
-        $order = wc_get_order($id_order);
+        $order = new WC_Order($id_order);
         $firstName = $customer->get_first_name() ? $customer->get_first_name() : $customer->get_billing_first_name();
         $lastName = $customer->get_last_name() ? $customer->get_last_name() : $customer->get_billing_last_name();
         $name = $firstName . ' ' . $lastName;
@@ -96,7 +96,7 @@ class ssbhesabfaCustomerService
 //===========================================================================================================
     public static function mapGuestCustomer($code, $id_order): array
     {
-        $order = wc_get_order($id_order);
+        $order = new WC_Order($id_order);
 
         $name = $order->get_billing_first_name() . ' ' . $order->get_billing_last_name();
         if (empty($order->get_billing_first_name()) && empty($order->get_billing_last_name())) {

@@ -183,7 +183,7 @@ class Ssbhesabfa_Webhook
                     $row = $wpdb->get_row("SELECT `id_hesabfa` FROM `" . $wpdb->prefix . "ssbhesabfa` WHERE `id` = $id_obj");
                     if (is_object($row) && $row->id_hesabfa != $number) {
                         $id_hesabfa_old = $row->id_hesabfa;
-                        //ToDo: number must be int in hesabfa, what can I do
+                        //ToDo: number must be int in hesabfa
                         $wpdb->update($wpdb->prefix . 'ssbhesabfa', array('id_hesabfa' => $number), array('id' => $id_obj));
                         HesabfaLogService::log(array("Invoice Number changed. Old Number: $id_hesabfa_old. New ID: $number"));
                     }
