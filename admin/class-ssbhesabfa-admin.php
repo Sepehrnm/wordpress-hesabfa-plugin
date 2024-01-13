@@ -7,7 +7,7 @@ include_once(plugin_dir_path(__DIR__) . 'admin/services/HesabfaWpFaService.php')
  * The admin-specific functionality of the plugin.
  *
  * @class      Ssbhesabfa_Admin
- * @version    2.0.93
+ * @version    2.0.95
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin
@@ -724,7 +724,6 @@ class Ssbhesabfa_Admin
             $row = $wpdb->get_row("SELECT `id_hesabfa` FROM `" . $wpdb->prefix . "ssbhesabfa` WHERE `id` = $id_obj AND `obj_type` = 'customer'");
 
             if (is_object($row)) {
-                //Call API
                 $hesabfaApi = new Ssbhesabfa_Api();
                 $hesabfaApi->contactDelete($row->id_hesabfa);
             }
@@ -803,54 +802,56 @@ class Ssbhesabfa_Admin
 
         HesabfaLogService::writeLogStr("ssbhesabfa_hook_save_product_variation");
 
-        //change hesabfa item code
-        $variable_field_id = "ssbhesabfa_hesabfa_item_code_" . $id_attribute;
-        $code = $_POST[$variable_field_id];
-        $id_product = $_POST['product_id'];
+        if (get_option("ssbhesabfa_do_not_submit_product_automatically", "no") === "yes" || get_option("ssbhesabfa_do_not_submit_product_automatically", "no") == "1") {
+            //change hesabfa item code
+            $variable_field_id = "ssbhesabfa_hesabfa_item_code_" . $id_attribute;
+            $code = $_POST[$variable_field_id];
+            $id_product = $_POST['product_id'];
 
-        if ($code === "")
-            return;
+            if ($code === "")
+                return;
 
-        if (isset($code)) {
-            global $wpdb;
-            $row = $wpdb->get_row("SELECT * FROM `" . $wpdb->prefix . "ssbhesabfa` WHERE `id_hesabfa` = " . $code . " AND `obj_type` = 'product'");
+            if (isset($code)) {
+                global $wpdb;
+                $row = $wpdb->get_row("SELECT * FROM `" . $wpdb->prefix . "ssbhesabfa` WHERE `id_hesabfa` = " . $code . " AND `obj_type` = 'product'");
 
-            if (is_object($row)) {
-                if ($row->id_ps == $id_product && $row->id_ps_attribute == $id_attribute) {
-                    return false;
-                }
+                if (is_object($row)) {
+                    if ($row->id_ps == $id_product && $row->id_ps_attribute == $id_attribute) {
+                        return false;
+                    }
 
-                echo '<div class="error"><p>' . __('The new Item code already used for another Item', 'ssbhesabfa') . '</p></div>';
+                    echo '<div class="error"><p>' . __('The new Item code already used for another Item', 'ssbhesabfa') . '</p></div>';
 
-                HesabfaLogService::log(array("The new Item code already used for another Item. Product ID: $id_product"));
-            } else {
-                $row2 = $wpdb->get_row("SELECT * FROM `" . $wpdb->prefix . "ssbhesabfa` WHERE `id_ps` = $id_product AND `obj_type` = 'product' AND `id_ps_attribute` = $id_attribute");
+                    HesabfaLogService::log(array("The new Item code already used for another Item. Product ID: $id_product"));
+                } else {
+                    $row2 = $wpdb->get_row("SELECT * FROM `" . $wpdb->prefix . "ssbhesabfa` WHERE `id_ps` = $id_product AND `obj_type` = 'product' AND `id_ps_attribute` = $id_attribute");
 
-                if (is_object($row2)) {
-                    $wpdb->update($wpdb->prefix . 'ssbhesabfa', array(
-                        'id_hesabfa' => (int)$code,
-                    ), array(
-                        'id_ps' => $id_product,
-                        'id_ps_attribute' => $id_attribute,
-                        'obj_type' => 'product',
-                    ));
-                } else if ((int)$code !== 0) {
-                    $wpdb->insert($wpdb->prefix . 'ssbhesabfa', array(
-                        'id_hesabfa' => (int)$code,
-                        'id_ps' => (int)$id_product,
-                        'id_ps_attribute' => $id_attribute,
-                        'obj_type' => 'product',
-                    ));
+                    if (is_object($row2)) {
+                        $wpdb->update($wpdb->prefix . 'ssbhesabfa', array(
+                            'id_hesabfa' => (int)$code,
+                        ), array(
+                            'id_ps' => $id_product,
+                            'id_ps_attribute' => $id_attribute,
+                            'obj_type' => 'product',
+                        ));
+                    } else if ((int)$code !== 0) {
+                        $wpdb->insert($wpdb->prefix . 'ssbhesabfa', array(
+                            'id_hesabfa' => (int)$code,
+                            'id_ps' => (int)$id_product,
+                            'id_ps_attribute' => $id_attribute,
+                            'obj_type' => 'product',
+                        ));
+                    }
                 }
             }
-        }
 
-        //add attribute if not exists
-        $func = new Ssbhesabfa_Admin_Functions();
-        $wpFaService = new HesabfaWpFaService();
-        $code = $wpFaService->getProductCodeByWpId($id_product, $id_attribute);
-        if ($code == null) {
-            $func->setItems(array($id_product));
+            //add attribute if not exists
+            $func = new Ssbhesabfa_Admin_Functions();
+            $wpFaService = new HesabfaWpFaService();
+            $code = $wpFaService->getProductCodeByWpId($id_product, $id_attribute);
+            if ($code == null) {
+                $func->setItems(array($id_product));
+            }
         }
     }
 //=========================================================================================================================

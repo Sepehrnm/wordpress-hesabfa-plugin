@@ -6,7 +6,7 @@ include_once(plugin_dir_path(__DIR__) . 'services/HesabfaWpFaService.php');
 
 /**
  * @class      Ssbhesabfa_Admin_Functions
- * @version    2.0.93
+ * @version    2.0.95
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin/functions
@@ -1538,6 +1538,20 @@ class Ssbhesabfa_Admin_Functions
         }
 
         return substr(get_option($id_order), 20);
+    }
+//=========================================================================================================================
+    public function getWoocommerceIdBasedOnHesabfaId($hesabfaId) {
+        global $wpdb;
+        $row = $wpdb->get_row("SELECT `id_ps`, `id_ps_attribute` FROM `" . $wpdb->prefix . "ssbhesabfa` WHERE `id_hesabfa` = $hesabfaId AND `obj_type` = 'product'");
+        return $row;
+    }
+//=========================================================================================================================
+    public function deleteFromConnectionTableBasedOnWoocommercePosts() {
+        global $wpdb;
+        $sql = "DELETE FROM `" . $wpdb->prefix . "ssbhesabfa`
+        WHERE `id_ps` NOT IN (SELECT `ID` FROM `" . $wpdb->prefix . "posts`);
+        ";
+        $wpdb->query($sql);
     }
 //=========================================================================================================================
 }

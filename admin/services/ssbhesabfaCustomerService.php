@@ -39,6 +39,13 @@ class ssbhesabfaCustomerService
                 $country_name = self::$countries[$order->get_billing_country()];
                 $state_name = self::$states[$order->get_billing_country()][$order->get_billing_state()];
                 $fullAddress = $order->get_billing_address_1() . '-' . $order->get_billing_address_2();
+                if(strlen($fullAddress) < 5) {
+                    $fullAddress = $customer->get_billing_address_1() . '-' . $customer->get_billing_address_2();
+                }
+                if(empty($country_name))
+                    $country_name = self::$countries[$customer->get_billing_country()];
+                if(empty($state_name))
+                    $state_name = self::$states[$customer->get_billing_country()][$customer->get_billing_state()];
 
                 $hesabfaCustomer = array(
                     'Code' => $code,
@@ -66,6 +73,13 @@ class ssbhesabfaCustomerService
                 $country_name = self::$countries[$order->get_shipping_country()];
                 $state_name = self::$states[$order->get_shipping_country()][$order->get_shipping_state()];
                 $fullAddress = $order->get_shipping_address_1() . ' - ' . $order->get_shipping_address_2();
+
+                if(strlen($fullAddress) < 5)
+                    $fullAddress = $customer->get_billing_address_1() . '-' . $customer->get_billing_address_2();
+                if(empty($country_name))
+                    $country_name = self::$countries[$customer->get_billing_country()];
+                if(empty($state_name))
+                    $state_name = self::$states[$customer->get_billing_country()][$customer->get_billing_state()];
 
                 $hesabfaCustomer = array(
                     'Code' => $code,

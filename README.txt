@@ -4,7 +4,7 @@ Tags: accounting cloud hesabfa
 Requires at least: 5.2
 Tested up to: 6.4.2
 Requires PHP: 5.6
-Stable tag: 2.0.93
+Stable tag: 2.0.95
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -403,3 +403,7 @@ by clicking update stock and price button in hesabfa tab in product edit page
 = 2.0.93 - 16.12.2023 =
 * GUID for invoice save feature added
 * Save Stock Method Changed
+
+= 2.0.95 - 08.01.2024 =
+* bug fix: variation bug fixed
+* bug fix: address bug fixed
