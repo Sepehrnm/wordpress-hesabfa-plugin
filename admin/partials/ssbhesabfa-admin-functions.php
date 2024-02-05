@@ -6,7 +6,7 @@ include_once(plugin_dir_path(__DIR__) . 'services/HesabfaWpFaService.php');
 
 /**
  * @class      Ssbhesabfa_Admin_Functions
- * @version    2.0.95
+ * @version    2.0.96
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin/functions
@@ -541,20 +541,20 @@ class Ssbhesabfa_Admin_Functions
         if ($order->get_total() <= 0) {
             return true;
         }
-        $bank_code = $this->getBankCodeByPaymentMethod($order->get_payment_method());
 
-        if ($bank_code == -1) {
-            return true;
-        } elseif ($bank_code != false) {
-            $transaction_id = $order->get_transaction_id();
-            //transaction id cannot be null or empty
-            if ($transaction_id == '') {
-                $transaction_id = '-';
-            }
 
-            $payTempValue = substr($bank_code, 0, 4);
-            global $financialData;
-            if(get_option('ssbhesabfa_payment_option') == 'no') {
+        $transaction_id = $order->get_transaction_id();
+        //transaction id cannot be null or empty
+        if ($transaction_id == '') {
+            $transaction_id = '-';
+        }
+
+        global $financialData;
+        if(get_option('ssbhesabfa_payment_option') == 'no') {
+            $bank_code = $this->getBankCodeByPaymentMethod($order->get_payment_method());
+            if ($bank_code != false) {
+                $payTempValue = substr($bank_code, 0, 4);
+
                 switch($payTempValue) {
                     case 'bank':
                         $payTempValue = substr($bank_code, 4);
@@ -563,51 +563,56 @@ class Ssbhesabfa_Admin_Functions
                         $payTempValue = substr($bank_code, 4);
                         $financialData = array('cashCode' => $payTempValue);break;
                 }
-            } elseif (get_option('ssbhesabfa_payment_option') == 'yes') {
-                $defaultBankCode = $this->convertPersianDigitsToEnglish(get_option('ssbhesabfa_default_payment_method_code'));
-                $financialData = array('bankCode' => $defaultBankCode);
-            }
-
-            $date_obj = $order->get_date_paid();
-            if ($date_obj == null) {
-                $date_obj = $order->get_date_modified();
-            }
-
-            global $accountPath;
-
-            if(get_option("ssbhesabfa_cash_in_transit") == "1" || get_option("ssbhesabfa_cash_in_transit") == "yes") {
-                $func = new Ssbhesabfa_Admin_Functions();
-                $cashInTransitFullPath = $func->getCashInTransitFullPath();
-                if(!$cashInTransitFullPath) {
-                    HesabfaLogService::writeLogStr("Cash in Transit is not Defined in Hesabfa ---- وجوه در راه در حسابفا یافت نشد");
-                    return false;
-                } else {
-                    $accountPath = array("accountPath" => $cashInTransitFullPath);
-                }
-            }
-
-            $response = $hesabfa->invoiceGet($number);
-            if ($response->Success) {
-                if ($response->Result->Paid > 0) {
-                    // payment submited before
-                } else {
-                    $response = $hesabfa->invoiceSavePayment($number, $financialData, $accountPath, $date_obj->date('Y-m-d H:i:s'), $this->getPriceInHesabfaDefaultCurrency($order->get_total()), $transaction_id);
-
-                    if ($response->Success) {
-                        HesabfaLogService::log(array("Hesabfa invoice payment added. Order ID: $id_order"));
-                        return true;
-                    } else {
-                        HesabfaLogService::log(array("Cannot add Hesabfa Invoice payment. Order ID: $id_order. Error Code: " . (string)$response->ErrorCode . ". Error Message: " . (string)$response->ErrorMessage . "."));
-                        return false;
-                    }
-                }
-                return true;
             } else {
-                HesabfaLogService::log(array("Error while trying to get invoice. Invoice Number: $number. Error Code: " . (string)$response->ErrorCode . ". Error Message: " . (string)$response->ErrorMessage . "."));
+                HesabfaLogService::log(array("Cannot add Hesabfa Invoice payment - Bank Code not defined. Order ID: $id_order"));
                 return false;
             }
+        } elseif (get_option('ssbhesabfa_payment_option') == 'yes') {
+            $defaultBankCode = $this->convertPersianDigitsToEnglish(get_option('ssbhesabfa_default_payment_method_code'));
+            if($defaultBankCode != false) {
+                $financialData = array('bankCode' => $defaultBankCode);
+            } else {
+                HesabfaLogService::writeLogStr("Default Bank Code is not Defined");
+                return false;
+            }
+        }
+
+        $date_obj = $order->get_date_paid();
+        if ($date_obj == null) {
+            $date_obj = $order->get_date_modified();
+        }
+
+        global $accountPath;
+
+        if(get_option("ssbhesabfa_cash_in_transit") == "1" || get_option("ssbhesabfa_cash_in_transit") == "yes") {
+            $func = new Ssbhesabfa_Admin_Functions();
+            $cashInTransitFullPath = $func->getCashInTransitFullPath();
+            if(!$cashInTransitFullPath) {
+                HesabfaLogService::writeLogStr("Cash in Transit is not Defined in Hesabfa ---- وجوه در راه در حسابفا یافت نشد");
+                return false;
+            } else {
+                $accountPath = array("accountPath" => $cashInTransitFullPath);
+            }
+        }
+
+        $response = $hesabfa->invoiceGet($number);
+        if ($response->Success) {
+            if ($response->Result->Paid > 0) {
+                // payment submited before
+            } else {
+                $response = $hesabfa->invoiceSavePayment($number, $financialData, $accountPath, $date_obj->date('Y-m-d H:i:s'), $this->getPriceInHesabfaDefaultCurrency($order->get_total()), $transaction_id);
+
+                if ($response->Success) {
+                    HesabfaLogService::log(array("Hesabfa invoice payment added. Order ID: $id_order"));
+                    return true;
+                } else {
+                    HesabfaLogService::log(array("Cannot add Hesabfa Invoice payment. Order ID: $id_order. Error Code: " . (string)$response->ErrorCode . ". Error Message: " . (string)$response->ErrorMessage . "."));
+                    return false;
+                }
+            }
+            return true;
         } else {
-            HesabfaLogService::log(array("Cannot add Hesabfa Invoice payment - Bank Code not defined. Order ID: $id_order"));
+            HesabfaLogService::log(array("Error while trying to get invoice. Invoice Number: $number. Error Code: " . (string)$response->ErrorCode . ". Error Message: " . (string)$response->ErrorMessage . "."));
             return false;
         }
     }

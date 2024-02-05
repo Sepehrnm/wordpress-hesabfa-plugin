@@ -4,7 +4,7 @@ include_once( plugin_dir_path( __DIR__ ) . 'services/HesabfaLogService.php' );
 error_reporting(0);
 /**
  * @class      Ssbhesabfa_Setting
- * @version    2.0.95
+ * @version    2.0.96
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin/setting
@@ -875,7 +875,6 @@ class Ssbhesabfa_Setting {
 			),
 		);
 
-
         foreach ( $available_payment_gateways as $gateway ) {
             $fields[] = array(
                 'title'   => $gateway->title,
@@ -883,6 +882,20 @@ class Ssbhesabfa_Setting {
                 'type'    => 'select',
                 'options' => $payInputValue
             );
+        }
+
+        $plugins = get_plugins();
+        foreach ($plugins as $plugin_file => $plugin_info) {
+            if ($plugin_file === 'snapppay-woocommerce-gateway /index.php') {
+                if(is_plugin_active('snapppay-woocommerce-gateway /index.php')) {
+                    $fields[] = array(
+                        'title'   => 'پرداخت اسنپ پی',
+                        'id'      => 'ssbhesabfa_payment_method_snapppay',
+                        'type'    => 'select',
+                        'options' => $payInputValue
+                    );
+                }
+            }
         }
 
         $fields[] = array(
