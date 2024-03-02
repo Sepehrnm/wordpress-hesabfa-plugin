@@ -10,7 +10,7 @@
  * version of the plugin.
  *
  * @class      Ssbhesabfa
- * @version    2.0.96
+ * @version    2.0.97
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/includes
@@ -64,7 +64,7 @@ class Ssbhesabfa
         if (defined('SSBHESABFA_VERSION')) {
             $this->version = SSBHESABFA_VERSION;
         } else {
-            $this->version = '2.0.96';
+            $this->version = '2.0.97';
         }
         $this->plugin_name = 'ssbhesabfa';
 
@@ -162,8 +162,8 @@ class Ssbhesabfa
         $this->loader->add_filter('query_vars', $plugin_admin, 'ssbhesabfa_query_vars');
         $this->loader->add_action('parse_request', $plugin_admin, 'ssbhesabfa_parse_request');
 
-        $this->loader->add_action('wp_ajax_nopriv_handle_webhook_request', $plugin_admin, 'handle_webhook_request');
-        $this->loader->add_action('wp_ajax_handle_webhook_request', $plugin_admin, 'handle_webhook_request');
+        $this->loader->add_action('wp_ajax_nopriv_handle_webhook_request', $plugin_admin, 'ssbhesabfa_parse_request');
+        $this->loader->add_action('wp_ajax_handle_webhook_request', $plugin_admin, 'ssbhesabfa_parse_request');
 
         if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_option('active_plugins')))) {
 

@@ -4,7 +4,7 @@ Tags: accounting cloud hesabfa
 Requires at least: 5.2
 Tested up to: 6.4.3
 Requires PHP: 5.6
-Stable tag: 2.0.96
+Stable tag: 2.0.97
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -410,3 +410,7 @@ by clicking update stock and price button in hesabfa tab in product edit page
 
 = 2.0.96 - 05.02.2024 =
 * snapp pay added to gateways
+
+= 2.0.97 - 02.03.2024 =
+* bug fix: postal code bug fixed
+* add feature: jaayegah-woocommerce-plugin added and city fixed
