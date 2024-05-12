@@ -77,6 +77,10 @@ msgstr ""
 msgid "Extra Settings"
 msgstr "تنظیمات پیشرفته"
 
+#: admin/partials/ssbhesabfa-admin-display.php:338
+msgid "Sync Last Change ID"
+msgstr "بروزرسانی ID آخرین تغییر"
+
 #: admin/partials/ssbhesabfa-admin-display.php:28
 msgid "Hesabfa Options"
 msgstr "تنظیمات افزونه حسابفا"
@@ -885,8 +889,8 @@ msgstr "ثبت در وجوه در راه"
 msgid "Submit Invoice Receipt Cash in Transit"
 msgstr "ثبت رسید دریافت فاکتور در وجوه در راه"
 
-msgid "Invoice Transaction Fee Percentage"
-msgstr "درصد کارمزد تراکنش"
+msgid "Default Invoice Transaction Fee Percentage"
+msgstr "درصد کارمزد تراکنش به صورت پیش فرض"
 
 msgid "Plugin Tutorial Video"
 msgstr "ویدیوی خودآموز افزونه"

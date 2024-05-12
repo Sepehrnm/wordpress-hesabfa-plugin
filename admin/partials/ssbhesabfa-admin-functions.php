@@ -6,7 +6,7 @@ include_once(plugin_dir_path(__DIR__) . 'services/HesabfaWpFaService.php');
 
 /**
  * @class      Ssbhesabfa_Admin_Functions
- * @version    2.0.97
+ * @version    2.0.98
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin/functions
@@ -110,7 +110,15 @@ class Ssbhesabfa_Admin_Functions
         }
 
         global $wpdb;
-        $row = $wpdb->get_row("SELECT `id_hesabfa` FROM " . $wpdb->prefix . "ssbhesabfa WHERE `id_ps` = $id_customer AND `obj_type` = 'customer'");
+        //$row = $wpdb->get_row("SELECT `id_hesabfa` FROM " . $wpdb->prefix . "ssbhesabfa WHERE `id_ps` = $id_customer AND `obj_type` = 'customer'");
+
+        $row = $wpdb->get_row(
+            $wpdb->prepare(
+                "SELECT `id_hesabfa` FROM {$wpdb->prefix}ssbhesabfa 
+                WHERE `id_ps` = %d AND `obj_type` = 'customer'",
+                $id_customer
+            )
+        );
 
         if (is_object($row)) {
             return $row->id_hesabfa;
@@ -600,7 +608,13 @@ class Ssbhesabfa_Admin_Functions
             if ($response->Result->Paid > 0) {
                 // payment submited before
             } else {
-                $response = $hesabfa->invoiceSavePayment($number, $financialData, $accountPath, $date_obj->date('Y-m-d H:i:s'), $this->getPriceInHesabfaDefaultCurrency($order->get_total()), $transaction_id);
+                $paymentMethod = $order->get_payment_method();
+                if(isset($paymentMethod)) {
+                    if(get_option("ssbhesabfa_payment_transaction_fee_$paymentMethod") > 0) $transactionFee = $this->formatTransactionFee(get_option("ssbhesabfa_payment_transaction_fee_$paymentMethod"), $this->getPriceInHesabfaDefaultCurrency($order->get_total()));
+                    else $transactionFee = $this->formatTransactionFee(get_option("ssbhesabfa_invoice_transaction_fee"), $this->getPriceInHesabfaDefaultCurrency($order->get_total()));
+                }
+                if(isset($transactionFee)) $response = $hesabfa->invoiceSavePayment($number, $financialData, $accountPath, $date_obj->date('Y-m-d H:i:s'), $this->getPriceInHesabfaDefaultCurrency($order->get_total()), $transaction_id,'', $transactionFee);
+                else $response = $hesabfa->invoiceSavePayment($number, $financialData, $accountPath, $date_obj->date('Y-m-d H:i:s'), $this->getPriceInHesabfaDefaultCurrency($order->get_total()), $transaction_id,'', 0);
 
                 if ($response->Success) {
                     HesabfaLogService::log(array("Hesabfa invoice payment added. Order ID: $id_order"));
@@ -683,14 +697,33 @@ class Ssbhesabfa_Admin_Functions
             global $wpdb;
 
             if ($batch == 1) {
-                $total = $wpdb->get_var("SELECT COUNT(*) FROM `" . $wpdb->prefix . "posts`                                                                
-                                    WHERE post_type = 'product' AND post_status IN('publish','private')");
+//                $total = $wpdb->get_var("SELECT COUNT(*) FROM `" . $wpdb->prefix . "posts`
+//                                    WHERE post_type = 'product' AND post_status IN('publish','private')");
+
+	            $total = $wpdb->get_var(
+		            $wpdb->prepare(
+			            "SELECT COUNT(*) FROM {$wpdb->posts}
+						        WHERE post_type = 'product' AND post_status IN ('publish', 'private')"
+		            )
+	            );
+
                 $totalBatch = ceil($total / $rpp);
             }
 
             $offset = ($batch - 1) * $rpp;
-            $products = $wpdb->get_results("SELECT ID FROM `" . $wpdb->prefix . "posts`                                                                
-                                    WHERE post_type = 'product' AND post_status IN('publish','private') ORDER BY 'ID' ASC LIMIT $offset,$rpp");
+//            $products = $wpdb->get_results("SELECT ID FROM `" . $wpdb->prefix . "posts`
+//                                    WHERE post_type = 'product' AND post_status IN('publish','private') ORDER BY 'ID' ASC LIMIT $offset,$rpp");
+
+	        $products = $wpdb->get_results(
+		        $wpdb->prepare(
+			        "SELECT ID FROM {$wpdb->posts}
+				        WHERE post_type = 'product' AND post_status IN ('publish', 'private')
+				        ORDER BY ID ASC
+				        LIMIT %d, %d",
+				        $offset,
+				        $rpp
+		        )
+	        );
 
             $items = array();
 
@@ -808,30 +841,30 @@ class Ssbhesabfa_Admin_Functions
                         ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"], $clearedName);
 
                     // add product to database
-                    $wpdb->insert($wpdb->prefix . 'posts', array(
-                        'post_author' => get_current_user_id(),
-                        'post_date' => date("Y-m-d H:i:s"),
-                        'post_date_gmt' => date("Y-m-d H:i:s"),
-                        'post_content' => '',
-                        'post_title' => $item->Name,
-                        'post_excerpt' => '',
-                        'post_status' => 'private',
-                        'comment_status' => 'open',
-                        'ping_status' => 'closed',
-                        'post_password' => '',
-                        'post_name' => $clearedName,
-                        'to_ping' => '',
-                        'pinged' => '',
-                        'post_modified' => date("Y-m-d H:i:s"),
-                        'post_modified_gmt' => date("Y-m-d H:i:s"),
-                        'post_content_filtered' => '',
-                        'post_parent' => 0,
-                        'guid' => get_site_url() . '/product/' . $clearedName . '/',
-                        'menu_order' => 0,
-                        'post_type' => 'product',
-                        'post_mime_type' => '',
-                        'comment_count' => 0,
-                    ));
+	                $wpdb->insert($wpdb->posts, array(
+		                'post_author'           => get_current_user_id(),
+		                'post_date'             => current_time('mysql'),
+		                'post_date_gmt'         => current_time('mysql', 1),
+		                'post_content'          => '',
+		                'post_title'            => $item->Name,
+		                'post_excerpt'          => '',
+		                'post_status'           => 'private',
+		                'comment_status'        => 'open',
+		                'ping_status'           => 'closed',
+		                'post_password'         => '',
+		                'post_name'             => $clearedName,
+		                'to_ping'               => '',
+		                'pinged'                => '',
+		                'post_modified'         => current_time('mysql'),
+		                'post_modified_gmt'     => current_time('mysql', 1),
+		                'post_content_filtered' => '',
+		                'post_parent'           => 0,
+		                'guid'                  => home_url('/product/' . $clearedName . '/'),
+		                'menu_order'            => 0,
+		                'post_type'             => 'product',
+		                'post_mime_type'        => '',
+		                'comment_count'         => 0,
+	                ));
 
                     $postId = $wpdb->insert_id;
                     $id_product_array[] = $postId;
@@ -891,17 +924,28 @@ class Ssbhesabfa_Admin_Functions
 
             global $wpdb;
 
-            if ($batch == 1) {
-                $total = $wpdb->get_var("SELECT COUNT(*) FROM `" . $wpdb->prefix . "posts`                                                                
-                                    WHERE post_type = 'product' AND post_status IN('publish','private')");
-                $totalBatch = ceil($total / $rpp);
-            }
+	        if ($batch == 1) {
+		        $total = $wpdb->get_var(
+			        $wpdb->prepare(
+				        "SELECT COUNT(*) FROM {$wpdb->posts}
+            					WHERE post_type = 'product' AND post_status IN ('publish', 'private')"
+			        )
+		        );
+		        $totalBatch = ceil($total / $rpp);
+	        }
 
             $offset = ($batch - 1) * $rpp;
 
-            $products = $wpdb->get_results("SELECT ID FROM `" . $wpdb->prefix . "posts`                                                                
-                                    WHERE post_type = 'product' AND post_status IN('publish','private') ORDER BY 'ID' ASC
-                                    LIMIT $offset,$rpp");
+	        $products = $wpdb->get_results(
+		        $wpdb->prepare(
+			        "SELECT ID FROM {$wpdb->posts}
+					        WHERE post_type = 'product' AND post_status IN ('publish', 'private')
+					        ORDER BY ID ASC
+					        LIMIT %d, %d",
+			        $offset,
+			        $rpp
+		        )
+	        );
 
             $items = array();
 
@@ -1030,9 +1074,8 @@ class Ssbhesabfa_Admin_Functions
         return $result;
     }
 //========================================================================================================================
-    public function syncOrders($from_date, $batch, $totalBatch, $total, $updateCount)
+    public function syncOrders($from_date, $end_date, $batch, $totalBatch, $total, $updateCount)
     {
-
         HesabfaLogService::writeLogStr("Sync Orders");
         $wpFaService = new HesabfaWpFaService();
 
@@ -1046,21 +1089,46 @@ class Ssbhesabfa_Admin_Functions
             return $result;
         }
 
+        if (!isset($end_date) || empty($end_date)) {
+            $result['error'] = 'inputDateError';
+            return $result;
+        }
+
         if (!$this->isDateInFiscalYear($from_date)) {
             $result['error'] = 'fiscalYearError';
             return $result;
         }
 
+        if (!$this->isDateInFiscalYear($end_date)) {
+            $result['error'] = 'fiscalYearError';
+            return $result;
+        }
+
         if ($batch == 1) {
-            $total = $wpdb->get_var("SELECT COUNT(*) FROM `" . $wpdb->prefix . "posts`
-                                WHERE post_type = 'shop_order' AND post_date >= '" . $from_date . "'");
+            if (get_option('woocommerce_custom_orders_table_enabled') === 'yes') {
+                $total = $wpdb->get_var("SELECT COUNT(*) FROM `" . $wpdb->prefix . "wc_orders`
+                                   WHERE type = 'shop_order' AND date_created_gmt >= '" . $from_date . "' AND date_created_gmt <= '". $end_date ."'");
+            } else {
+                $total = $wpdb->get_var("SELECT COUNT(*) FROM `" . $wpdb->prefix . "posts`
+                                WHERE post_type = 'shop_order' AND post_date >= '" . $from_date . "' AND post_date <= '". $end_date ."'");
+            }
             $totalBatch = ceil($total / $rpp);
         }
 
         $offset = ($batch - 1) * $rpp;
-        $orders = $wpdb->get_results("SELECT ID FROM `" . $wpdb->prefix . "posts`
-                                WHERE post_type = 'shop_order' AND post_date >= '" . $from_date . "'
-                                ORDER BY ID ASC LIMIT $offset,$rpp");
+
+        if (get_option('woocommerce_custom_orders_table_enabled') === 'yes') {
+          $orders = $wpdb->get_results("SELECT ID FROM `" . $wpdb->prefix . "wc_orders`
+            WHERE type = 'shop_order' AND date_created_gmt >= '" . $from_date . "'
+            AND date_created_gmt <= '". $end_date ."'
+            ORDER BY ID ASC LIMIT $offset,$rpp");
+        } else {
+            $orders = $wpdb->get_results("SELECT ID FROM `" . $wpdb->prefix . "posts`
+                WHERE post_type = 'shop_order' AND post_date >= '" . $from_date . "'
+                AND post_date <= '". $end_date ."'
+                ORDER BY ID ASC LIMIT $offset,$rpp");
+        }
+
         HesabfaLogService::writeLogStr("Orders count: " . count($orders));
 
         $statusesToSubmitInvoice = get_option('ssbhesabfa_invoice_status');
@@ -1095,7 +1163,6 @@ class Ssbhesabfa_Admin_Functions
                     }
                 }
             }
-
         }
 
         $result["batch"] = $batch;
@@ -1250,14 +1317,31 @@ class Ssbhesabfa_Admin_Functions
         global $wpdb;
 
         if ($batch == 1) {
-            $total = $wpdb->get_var("SELECT COUNT(*) FROM `" . $wpdb->prefix . "posts`                                                                
-                                WHERE post_type = 'product' AND post_status IN('publish','private')");
+            //$total = $wpdb->get_var("SELECT COUNT(*) FROM `" . $wpdb->prefix . "posts` WHERE post_type = 'product' AND post_status IN('publish','private')");
+
+            $total = $wpdb->get_var(
+                $wpdb->prepare(
+                    "SELECT COUNT(*) FROM {$wpdb->posts}
+                    WHERE post_type = 'product' AND post_status IN ('publish', 'private')"
+                )
+            );
             $totalBatch = ceil($total / $rpp);
         }
 
         $offset = ($batch - 1) * $rpp;
-        $products = $wpdb->get_results("SELECT ID FROM `" . $wpdb->prefix . "posts`                                                                
-                                WHERE post_type = 'product' AND post_status IN('publish','private') ORDER BY 'ID' ASC LIMIT $offset,$rpp");
+//        $products = $wpdb->get_results("SELECT ID FROM `" . $wpdb->prefix . "posts`
+//                                WHERE post_type = 'product' AND post_status IN('publish','private') ORDER BY 'ID' ASC LIMIT $offset,$rpp");
+
+        $products = $wpdb->get_results(
+            $wpdb->prepare(
+                "SELECT ID FROM {$wpdb->posts}
+                WHERE post_type = 'product' AND post_status IN ('publish', 'private')
+                ORDER BY ID ASC
+                LIMIT %d, %d",
+                $offset,
+                $rpp
+            )
+        );
 
         $products_id_array = array();
         foreach ($products as $product)
@@ -1281,8 +1365,20 @@ class Ssbhesabfa_Admin_Functions
         if($offset != 0 && $rpp != 0) {
             if(abs($rpp - $offset) <= 200) {
                 if($rpp > $offset) {
-                    $products = $wpdb->get_results("SELECT * FROM `" . $wpdb->prefix . "posts`                                                                
-                                            WHERE ID BETWEEN $offset AND $rpp AND post_type = 'product' AND post_status IN('publish','private') ORDER BY 'ID' ASC");
+//                    $products = $wpdb->get_results("SELECT * FROM `" . $wpdb->prefix . "posts`
+//                                            WHERE ID BETWEEN $offset AND $rpp AND post_type = 'product' AND post_status IN('publish','private') ORDER BY 'ID' ASC");
+
+                    $products = $wpdb->get_results(
+                        $wpdb->prepare(
+                            "SELECT * FROM {$wpdb->posts}
+                            WHERE ID BETWEEN %d AND %d
+                            AND post_type = 'product'
+                            AND post_status IN ('publish', 'private')
+                            ORDER BY ID ASC",
+                            $offset,
+                            $rpp
+                        )
+                    );
 
                     $products_id_array = array();
                     foreach ($products as $product)
@@ -1290,8 +1386,20 @@ class Ssbhesabfa_Admin_Functions
                     $response = (new Ssbhesabfa_Admin_Functions)->setItems($products_id_array);
                     if(!$response) $result['error'] = true;
                 } else {
-                    $products = $wpdb->get_results("SELECT * FROM `" . $wpdb->prefix . "posts`                                                                
-                                            WHERE ID BETWEEN $rpp AND $offset AND post_type = 'product' AND post_status IN('publish','private') ORDER BY 'ID' ASC");
+//                    $products = $wpdb->get_results("SELECT * FROM `" . $wpdb->prefix . "posts`
+//                                            WHERE ID BETWEEN $rpp AND $offset AND post_type = 'product' AND post_status IN('publish','private') ORDER BY 'ID' ASC");
+
+                    $products = $wpdb->get_results(
+                        $wpdb->prepare(
+                            "SELECT * FROM {$wpdb->posts}
+                            WHERE ID BETWEEN %d AND %d
+                            AND post_type = 'product'
+                            AND post_status IN ('publish', 'private')
+                            ORDER BY ID ASC",
+                            $rpp,
+                            $offset
+                        )
+                    );
 
                     $products_id_array = array();
                     foreach ($products as $product)
@@ -1337,7 +1445,16 @@ class Ssbhesabfa_Admin_Functions
             return false;
         }
 
-        $found = $wpdb->get_var("SELECT COUNT(*) FROM `" . $wpdb->prefix . "posts` WHERE ID = $id_product");
+        //$found = $wpdb->get_var("SELECT COUNT(*) FROM `" . $wpdb->prefix . "posts` WHERE ID = $id_product");
+
+        $found = $wpdb->get_var(
+            $wpdb->prepare(
+                "SELECT COUNT(*) FROM {$wpdb->posts}
+                WHERE ID = %d",
+                $id_product
+            )
+        );
+
 
         if (!$found) {
             HesabfaLogService::writeLogStr("product not found in woocommerce.code: $item->Code, product id: $id_product, variation id: $id_attribute");
@@ -1438,11 +1555,28 @@ class Ssbhesabfa_Admin_Functions
 
             return $result;
         } catch (Error $error) {
-            HesabfaLogService::writeLogStr("Error in Set Item New Price -> $error");
+            HesabfaLogService::writeLogStr("Error in Set Item New Quantity -> $error");
         }
     }
 //=========================================================================================================================
-    function CheckNationalCode($NationalCode): void
+    public static function syncLastChangeID(): bool {
+        try {
+            HesabfaLogService::writeLogStr("Sync Last Change ID");
+            $hesabfaApi = new Ssbhesabfa_Api();
+            $lastChange = $hesabfaApi->getLastChangeId();
+
+            if ($lastChange && isset($lastChange->LastId)) {
+                update_option('ssbhesabfa_last_log_check_id', $lastChange->LastId - 1);
+                return true;
+            }
+        } catch (Exception $error) {
+            HesabfaLogService::writeLogStr("Error in syncing last change id -> " . $error->getMessage());
+        }
+
+        return false;
+    }
+//=========================================================================================================================
+    function checkNationalCode($NationalCode): void
     {
         $identicalDigits = ['1111111111', '2222222222', '3333333333', '4444444444', '5555555555', '6666666666', '7777777777', '8888888888', '9999999999'];
 
@@ -1474,7 +1608,7 @@ class Ssbhesabfa_Admin_Functions
         }
     }
 //=========================================================================================================================
-    function CheckWebsite($Website): void
+    function checkWebsite($Website): void
     {
         if (filter_var($Website, FILTER_VALIDATE_URL)) {
             //
@@ -1543,6 +1677,18 @@ class Ssbhesabfa_Admin_Functions
         }
 
         return substr(get_option($id_order), 20);
+    }
+//=========================================================================================================================
+    public function formatTransactionFee($transactionFee, $amount) {
+        if($transactionFee && $transactionFee > 0) {
+            $func = new Ssbhesabfa_Admin_Functions();
+            $transactionFee = $func->convertPersianDigitsToEnglish($transactionFee);
+
+            if($transactionFee<100 && $transactionFee>0) $transactionFee /= 100;
+            $transactionFee *= $amount;
+            if($transactionFee < 1) $transactionFee = 0;
+        }
+        return $transactionFee;
     }
 //=========================================================================================================================
     public function convertCityCodeToName($cityCode) {
@@ -3974,20 +4120,6 @@ class Ssbhesabfa_Admin_Functions
             }
         }
         return false;
-    }
-//=========================================================================================================================
-    public function getWoocommerceIdBasedOnHesabfaId($hesabfaId) {
-        global $wpdb;
-        $row = $wpdb->get_row("SELECT `id_ps`, `id_ps_attribute` FROM `" . $wpdb->prefix . "ssbhesabfa` WHERE `id_hesabfa` = $hesabfaId AND `obj_type` = 'product'");
-        return $row;
-    }
-//=========================================================================================================================
-    public function deleteFromConnectionTableBasedOnWoocommercePosts() {
-        global $wpdb;
-        $sql = "DELETE FROM `" . $wpdb->prefix . "ssbhesabfa`
-        WHERE `id_ps` NOT IN (SELECT `ID` FROM `" . $wpdb->prefix . "posts`);
-        ";
-        $wpdb->query($sql);
     }
 //=========================================================================================================================
 }

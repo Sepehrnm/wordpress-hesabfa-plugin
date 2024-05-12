@@ -2,7 +2,7 @@
 
 /**
  * @class      Ssbhesabfa_Admin_Display
- * @version    2.0.97
+ * @version    2.0.98
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin/display
@@ -177,14 +177,34 @@ class Ssbhesabfa_Admin_Display
     function hesabfa_plugin_repeated_products()
     {
         global $wpdb;
-        $rows = $wpdb->get_results("SELECT id_hesabfa FROM " . $wpdb->prefix . "ssbhesabfa WHERE obj_type = 'product' GROUP BY id_hesabfa HAVING COUNT(id_hesabfa) > 1;");
+        //$rows = $wpdb->get_results("SELECT id_hesabfa FROM " . $wpdb->prefix . "ssbhesabfa WHERE obj_type = 'product' GROUP BY id_hesabfa HAVING COUNT(id_hesabfa) > 1;");
+
+        $rows = $wpdb->get_results(
+            "SELECT id_hesabfa
+            FROM {$wpdb->prefix}ssbhesabfa
+            WHERE obj_type = 'product'
+            GROUP BY id_hesabfa
+            HAVING COUNT(id_hesabfa) > 1"
+        );
+
         $ids = array();
 
         foreach ($rows as $row)
             $ids[] = $row->id_hesabfa;
 
         $idsStr = implode(',', $ids);
-        $rows = $wpdb->get_results("SELECT * FROM " . $wpdb->prefix . "ssbhesabfa WHERE obj_type = 'product' AND id_hesabfa IN ($idsStr) ORDER BY id_hesabfa");
+        //$rows = $wpdb->get_results("SELECT * FROM " . $wpdb->prefix . "ssbhesabfa WHERE obj_type = 'product' AND id_hesabfa IN ($idsStr) ORDER BY id_hesabfa");
+
+        $rows = $wpdb->get_results(
+            $wpdb->prepare(
+                "SELECT *
+                FROM {$wpdb->prefix}ssbhesabfa
+                WHERE obj_type = 'product'
+                AND id_hesabfa IN ($idsStr)
+                ORDER BY id_hesabfa"
+            )
+        );
+
         $i = 0;
 
         self::hesabfa_plugin_header();
@@ -238,19 +258,52 @@ class Ssbhesabfa_Admin_Display
         $offset = ($page - 1) * $rpp;
 
         global $wpdb;
-        $rows = $wpdb->get_results("SELECT post.ID,post.post_title,post.post_parent,post_excerpt,wc.sku FROM `" . $wpdb->prefix . "posts` as post
-                                LEFT OUTER JOIN `" . $wpdb->prefix . "wc_product_meta_lookup` as wc
-                                ON post.id =  wc.product_id
-                                WHERE post.post_type IN('product','product_variation') AND post.post_status IN('publish','private')
-                                ORDER BY post.post_title ASC LIMIT $offset,$rpp");
+//        $rows = $wpdb->get_results("SELECT post.ID,post.post_title,post.post_parent,post_excerpt,wc.sku FROM `" . $wpdb->prefix . "posts` as post
+//                                LEFT OUTER JOIN `" . $wpdb->prefix . "wc_product_meta_lookup` as wc
+//                                ON post.id =  wc.product_id
+//                                WHERE post.post_type IN('product','product_variation') AND post.post_status IN('publish','private')
+//                                ORDER BY post.post_title ASC LIMIT $offset,$rpp");
 
-        $totalCount = $wpdb->get_var("SELECT COUNT(*) FROM `" . $wpdb->prefix . "posts` as post
-                                LEFT OUTER JOIN `" . $wpdb->prefix . "wc_product_meta_lookup` as wc
-                                ON post.id =  wc.product_id
-                                WHERE post.post_type IN('product','product_variation') AND post.post_status IN('publish','private')");
+        $rows = $wpdb->get_results(
+            $wpdb->prepare(
+                "SELECT post.ID, post.post_title, post.post_parent, post.post_excerpt, wc.sku
+                FROM {$wpdb->posts} AS post
+                LEFT OUTER JOIN {$wpdb->prefix}wc_product_meta_lookup AS wc
+                ON post.ID = wc.product_id
+                WHERE post.post_type IN ('product', 'product_variation')
+                AND post.post_status IN ('publish', 'private')
+                ORDER BY post.post_title ASC
+                LIMIT %d, %d",
+                $offset,
+                $rpp
+            )
+        );
 
-        $links = $wpdb->get_results("SELECT * FROM `" . $wpdb->prefix . "ssbhesabfa`
-                                WHERE obj_type ='product'");
+
+
+//        $totalCount = $wpdb->get_var("SELECT COUNT(*) FROM `" . $wpdb->prefix . "posts` as post
+//                                LEFT OUTER JOIN `" . $wpdb->prefix . "wc_product_meta_lookup` as wc
+//                                ON post.id =  wc.product_id
+//                                WHERE post.post_type IN('product','product_variation') AND post.post_status IN('publish','private')");
+
+        $totalCount = $wpdb->get_var(
+            "SELECT COUNT(*)
+            FROM {$wpdb->posts} AS post
+            LEFT OUTER JOIN {$wpdb->prefix}wc_product_meta_lookup AS wc
+            ON post.ID = wc.product_id
+            WHERE post.post_type IN ('product', 'product_variation')
+            AND post.post_status IN ('publish', 'private')"
+        );
+
+
+//        $links = $wpdb->get_results("SELECT * FROM `" . $wpdb->prefix . "ssbhesabfa`
+//                                WHERE obj_type ='product'");
+
+        $links = $wpdb->get_results(
+            "SELECT *
+            FROM {$wpdb->prefix}ssbhesabfa
+            WHERE obj_type = 'product'"
+        );
 
         foreach ($rows as $r) {
             if ($r->post_excerpt)

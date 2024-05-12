@@ -51,6 +51,70 @@ class Ssbhesabfa_Webhook
                             }
                             break;
                         case 'WarehouseReceipt':
+                            if ($item->Action == 261) {
+                                global $wpdb;
+                                $hesabfaApi = new Ssbhesabfa_Api();
+                                $receipt = $hesabfaApi->getWarehouseReceipt($item->ObjectId);
+//                                HesabfaLogService::writeLogObj($receipt->Result->Items);
+                                foreach ($receipt->Result->Items as $receiptItem) {
+                                    $wpFa = $wpFaService->getWpFaByHesabfaId('product', $receiptItem->ItemCode);
+                                    $wpdb->insert($wpdb->prefix . 'ssbhesabfa', array(
+                                        'id_hesabfa' => (int)$item->ObjectId,
+                                        'obj_type' => "receiptItems",
+                                        'id_ps' => $wpFa->idWp,
+                                        'id_ps_attribute' => $wpFa->idWpAttribute
+                                    ));
+                                }
+
+                                if (get_option('ssbhesabfa_item_update_quantity', 'no') == 'no') {
+                                    HesabfaLogService::writeLogStr("Sync Products Quantity is Off");
+                                }
+                            }
+                            if ($item->Action == 263) {
+                                global $wpdb;
+                                $rows = $wpdb->get_results("SELECT * FROM `" . $wpdb->prefix . "ssbhesabfa` WHERE `id_hesabfa` = $item->ObjectId");
+                                $receiptID = $item->ObjectId;
+                                foreach ($rows as $row) {
+                                    $post_id = ($row->id_ps_attribute && $row->id_ps_attribute > 0) ? $row->id_ps_attribute : $row->id_ps;
+                                    //$product = wc_get_product( $post_id );
+
+                                    if (get_option('ssbhesabfa_item_update_quantity', 'no') == 'no') {
+                                        HesabfaLogService::writeLogStr("Sync Products Quantity is Off");
+                                    }
+
+                                    $productId = $row->id_ps;
+                                    $attributeId = $row->id_ps_attribute;
+
+                                    if (get_option('ssbhesabfa_item_update_quantity', 'no') == 'yes')
+                                        update_post_meta($attributeId, '_manage_stock', 'yes');
+
+                                    if ($productId == $attributeId) $attributeId = 0;
+                                    $result = array();
+
+                                    $wpFaService = new HesabfaWpFaService();
+                                    $wpFa = $wpFaService->getWpFa('product', $productId, $attributeId);
+                                    if ($wpFa) {
+
+                                        $api = new Ssbhesabfa_Api();
+                                        $warehouse = get_option('ssbhesabfa_item_update_quantity_based_on', "-1");
+                                        if ($warehouse == "-1")
+                                            $response = $api->itemGet($wpFa->idHesabfa);
+                                        else {
+                                            $response = $api->itemGetQuantity($warehouse, array($wpFa->idHesabfa));
+                                        }
+
+                                        if ($response->Success) {
+                                            $item = $warehouse == "-1" ? $response->Result : $response->Result[0];
+                                            $newProps = Ssbhesabfa_Admin_Functions::setItemChanges($item);
+                                        } else {
+                                            HesabfaLogService::writeLogStr("Product is not defined in Hesabfa");
+                                        }
+                                    }
+                                }
+
+                                $wpdb->delete($wpdb->prefix . 'ssbhesabfa', array('id_hesabfa' => $receiptID));
+                                break;
+                            }
                             $this->warehouseReceiptsObjectId[] = $item->ObjectId;
                             break;
                         case 'Product':

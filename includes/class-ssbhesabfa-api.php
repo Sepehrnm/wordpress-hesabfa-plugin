@@ -4,7 +4,7 @@ include_once(plugin_dir_path(__DIR__) . 'admin/services/HesabfaLogService.php');
 
 /**
  * @class      Ssbhesabfa_Api
- * @version    2.0.97
+ * @version    2.0.98
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/api
@@ -327,17 +327,6 @@ class Ssbhesabfa_Api
 //================================================================================================
     public function invoiceSavePayment($number, $financialData, $accountPath, $date, $amount, $transactionNumber = null, $description = null, $transactionFee = 0)
     {
-        if(get_option('ssbhesabfa_invoice_transaction_fee') && get_option('ssbhesabfa_invoice_transaction_fee') > 0) {
-            $transactionFeeOption = get_option('ssbhesabfa_invoice_transaction_fee');
-
-            $func = new Ssbhesabfa_Admin_Functions();
-            $transactionFeeOption = $func->convertPersianDigitsToEnglish($transactionFeeOption);
-
-            if($transactionFeeOption<100 && $transactionFeeOption>0) $transactionFeeOption /= 100;
-            $transactionFee = $amount * $transactionFeeOption;
-            if($transactionFee < 1) $transactionFee = 0;
-        }
-
         $method = 'invoice/savepayment';
         $data = array(
             'number' => (int)$number,
@@ -390,6 +379,15 @@ class Ssbhesabfa_Api
         $method = 'invoice/getWarehouseReceipt';
         $data = array(
             'idList' => $idList,
+        );
+
+        return $this->apiRequest($method, $data);
+    }
+//================================================================================================
+    public function getWarehouseReceipt($objectId) {
+        $method = 'warehouse/GetById';
+        $data = array(
+            'id' => $objectId,
         );
 
         return $this->apiRequest($method, $data);
@@ -476,6 +474,14 @@ class Ssbhesabfa_Api
     {
         $method = 'setting/getBusinessInfo';
         return $this->apiRequest($method);
+    }
+//=========================================================================================================================
+    public function getLastChangeId($start = 1000000000) {
+        $method = 'setting/GetChanges';
+        $data = array(
+            'start' => $start,
+        );
+        return $this->apiRequest($method, $data);
     }
 //================================================================================================
 }

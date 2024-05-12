@@ -33,7 +33,21 @@ class HesabfaWpFaService
         if (!isset($objType) || !isset($idWp)) return false;
 
         global $wpdb;
-        $row = $wpdb->get_row("SELECT * FROM " . $wpdb->prefix . "ssbhesabfa WHERE `id_ps` = $idWp AND `id_ps_attribute` = $idWpAttribute AND `obj_type` = '$objType'");
+        //$row = $wpdb->get_row("SELECT * FROM " . $wpdb->prefix . "ssbhesabfa WHERE `id_ps` = $idWp AND `id_ps_attribute` = $idWpAttribute AND `obj_type` = '$objType'");
+
+        $row = $wpdb->get_row(
+            $wpdb->prepare(
+                "SELECT *
+                FROM {$wpdb->prefix}ssbhesabfa
+                WHERE `id_ps` = %d
+                AND `id_ps_attribute` = %d
+                AND `obj_type` = %s",
+                $idWp,
+                $idWpAttribute,
+                $objType
+            )
+        );
+
 
         if (isset($row)) return $this->mapWpFa($row);
 
@@ -45,7 +59,19 @@ class HesabfaWpFaService
         if (!isset($objType) || !isset($hesabfaId)) return false;
 
         global $wpdb;
-        $row = $wpdb->get_row("SELECT * FROM " . $wpdb->prefix . "ssbhesabfa WHERE `id_hesabfa` = $hesabfaId AND `obj_type` = '$objType'");
+        //$row = $wpdb->get_row("SELECT * FROM " . $wpdb->prefix . "ssbhesabfa WHERE `id_hesabfa` = $hesabfaId AND `obj_type` = '$objType'");
+
+        $row = $wpdb->get_row(
+            $wpdb->prepare(
+                "SELECT *
+                FROM {$wpdb->prefix}ssbhesabfa
+                WHERE `id_hesabfa` = %d
+                AND `obj_type` = %s",
+                $hesabfaId,
+                $objType
+            )
+        );
+
 
         if (isset($row))
             return $this->mapWpFa($row);
@@ -58,7 +84,20 @@ class HesabfaWpFaService
             return false;
 
         global $wpdb;
-        $row = $wpdb->get_row("SELECT `id` FROM " . $wpdb->prefix . "ssbhesabfa WHERE `id_ps` = $idWp AND `id_ps_attribute` = $idWpAttribute AND `obj_type` = '$objType'");
+        //$row = $wpdb->get_row("SELECT `id` FROM " . $wpdb->prefix . "ssbhesabfa WHERE `id_ps` = $idWp AND `id_ps_attribute` = $idWpAttribute AND `obj_type` = '$objType'");
+
+        $row = $wpdb->get_row(
+            $wpdb->prepare(
+                "SELECT `id`
+                FROM {$wpdb->prefix}ssbhesabfa
+                WHERE `id_ps` = %d
+                AND `id_ps_attribute` = %d
+                AND `obj_type` = %s",
+                $idWp,
+                $idWpAttribute,
+                $objType
+            )
+        );
 
         if (is_object($row))
             return (int)$row->id;
@@ -72,7 +111,19 @@ class HesabfaWpFaService
             return false;
 
         global $wpdb;
-        $row = $wpdb->get_row("SELECT `id` FROM " . $wpdb->prefix . "ssbhesabfa WHERE `id_hesabfa` = $hesabfaId AND `obj_type` = '$objType'");
+        //$row = $wpdb->get_row("SELECT `id` FROM " . $wpdb->prefix . "ssbhesabfa WHERE `id_hesabfa` = $hesabfaId AND `obj_type` = '$objType'");
+
+        $row = $wpdb->get_row(
+            $wpdb->prepare(
+                "SELECT `id`
+                FROM {$wpdb->prefix}ssbhesabfa
+                WHERE `id_hesabfa` = %d
+                AND `obj_type` = %s",
+                $hesabfaId,
+                $objType
+            )
+        );
+
 
         if (isset($row))
             return (int)$row->id;
@@ -110,8 +161,19 @@ class HesabfaWpFaService
     {
         global $wpdb;
 
-        $sql = "SELECT * FROM `" . $wpdb->prefix . "ssbhesabfa` WHERE `obj_type` = 'product' AND `id_ps` = '$idWp'";
+        //$sql = "SELECT * FROM `" . $wpdb->prefix . "ssbhesabfa` WHERE `obj_type` = 'product' AND `id_ps` = '$idWp'";
+        //$result = $wpdb->get_results($sql);
+
+        $sql = $wpdb->prepare(
+            "SELECT *
+            FROM {$wpdb->prefix}ssbhesabfa
+            WHERE `obj_type` = 'product'
+            AND `id_ps` = %d",
+            $idWp
+        );
+
         $result = $wpdb->get_results($sql);
+
 
         $wpFaObjects = array();
         if (isset($result) && is_array($result) && count($result) > 0) {
@@ -162,18 +224,51 @@ class HesabfaWpFaService
         global $wpdb;
 
         if (!$id) {
-            $wpdb->insert($wpdb->prefix . 'ssbhesabfa', array(
-                'id_hesabfa' => (int)$customer->Code,
-                'obj_type' => 'customer',
-                'id_ps' => (int)$json->id_customer
-            ));
+//            $wpdb->insert($wpdb->prefix . 'ssbhesabfa', array(
+//                'id_hesabfa' => (int)$customer->Code,
+//                'obj_type' => 'customer',
+//                'id_ps' => (int)$json->id_customer
+//            ));
+            $wpdb->insert(
+                $wpdb->prefix . 'ssbhesabfa',
+                array(
+                    'id_hesabfa' => (int)$customer->Code,
+                    'obj_type' => 'customer',
+                    'id_ps' => (int)$json->id_customer
+                ),
+                array(
+                    '%d',
+                    '%s',
+                    '%d'
+                )
+            );
+
+
+
             HesabfaLogService::writeLogStr("Customer successfully added. Customer code: " . (string)$customer->Code . ". Customer ID: $json->id_customer");
         } else {
-            $wpdb->update($wpdb->prefix . 'ssbhesabfa', array(
-                'id_hesabfa' => (int)$customer->Code,
-                'obj_type' => 'customer',
-                'id_ps' => (int)$json->id_customer,
-            ), array('id' => $id));
+//            $wpdb->update($wpdb->prefix . 'ssbhesabfa', array(
+//                'id_hesabfa' => (int)$customer->Code,
+//                'obj_type' => 'customer',
+//                'id_ps' => (int)$json->id_customer,
+//            ), array('id' => $id));
+
+            $wpdb->update(
+                $wpdb->prefix . 'ssbhesabfa',
+                array(
+                    'id_hesabfa' => (int)$customer->Code,
+                    'obj_type' => 'customer',
+                    'id_ps' => (int)$json->id_customer,
+                ),
+                array('id' => $id),
+                array(
+                    '%d',
+                    '%s',
+                    '%d'
+                ),
+                array('%d')
+            );
+
             HesabfaLogService::writeLogStr("Customer successfully updated. Customer code: " . (string)$customer->Code . ". Customer ID: $json->id_customer");
         }
         return true;
@@ -188,21 +283,37 @@ class HesabfaWpFaService
         $objType = $orderType == 0 ? 'order' : 'returnOrder';
 
         if (!$id) {
+//            Db::getInstance()->insert('ps_hesabfa', array(
+//                'id_hesabfa' => $invoiceNumber,
+//                'obj_type' => $objType,
+//                'id_ps' => (int)$json->id_order,
+//            ));
+
             Db::getInstance()->insert('ps_hesabfa', array(
                 'id_hesabfa' => $invoiceNumber,
                 'obj_type' => $objType,
                 'id_ps' => (int)$json->id_order,
             ));
+
+
             if ($objType == 'order')
                 LogService::writeLogStr("Invoice successfully added. invoice number: " . (string)$invoice->Number . ", order id: " . $json->id_order);
             else
                 LogService::writeLogStr("Return Invoice successfully added. Customer code: " . (string)$invoice->Number . ", order id: " . $json->id_order);
         } else {
+//            Db::getInstance()->update('ps_hesabfa', array(
+//                'id_hesabfa' => $invoiceNumber,
+//                'obj_type' => $objType,
+//                'id_ps' => (int)$json->id_order,
+//            ), array('id' => $id), 0, true, true);
+
+
             Db::getInstance()->update('ps_hesabfa', array(
                 'id_hesabfa' => $invoiceNumber,
                 'obj_type' => $objType,
                 'id_ps' => (int)$json->id_order,
             ), array('id' => $id), 0, true, true);
+
             //check if it is order or return order
             if ($objType == 'order')
                 LogService::writeLogStr("Invoice successfully updated. invoice number: " . (string)$invoice->Number . ", order id: " . $json->id_order);
@@ -216,35 +327,107 @@ class HesabfaWpFaService
     public function save(WpFa $wpFa)
     {
         global $wpdb;
-        $wpdb->insert($wpdb->prefix . 'ssbhesabfa', array(
-            'id_hesabfa' => $wpFa->idHesabfa,
-            'obj_type' => $wpFa->objType,
-            'id_ps' => (int)$wpFa->idWp,
-            'id_ps_attribute' => (int)$wpFa->idWpAttribute,
-        ));
+//        $wpdb->insert($wpdb->prefix . 'ssbhesabfa', array(
+//            'id_hesabfa' => $wpFa->idHesabfa,
+//            'obj_type' => $wpFa->objType,
+//            'id_ps' => (int)$wpFa->idWp,
+//            'id_ps_attribute' => (int)$wpFa->idWpAttribute,
+//        ));
+        $wpdb->insert(
+            $wpdb->prefix . 'ssbhesabfa',
+            array(
+                'id_hesabfa' => $wpFa->idHesabfa,
+                'obj_type' => $wpFa->objType,
+                'id_ps' => (int)$wpFa->idWp,
+                'id_ps_attribute' => (int)$wpFa->idWpAttribute,
+            ),
+            array(
+                '%s',
+                '%s',
+                '%d',
+                '%d'
+            )
+        );
+
     }
 //=========================================================================================================
+//    public function update(WpFa $wpFa)
+//    {
+//        global $wpdb;
+//        $wpdb->update($wpdb->prefix . 'ssbhesabfa', array(
+//            'id_hesabfa' => $wpFa->idHesabfa,
+//            'obj_type' => $wpFa->objType,
+//            'id_ps' => (int)$wpFa->idWp,
+//            'id_ps_attribute' => (int)$wpFa->idWpAttribute,
+//        ), array('id' => $wpFa->id));
+//    }
+
     public function update(WpFa $wpFa)
     {
         global $wpdb;
-        $wpdb->update($wpdb->prefix . 'ssbhesabfa', array(
-            'id_hesabfa' => $wpFa->idHesabfa,
-            'obj_type' => $wpFa->objType,
-            'id_ps' => (int)$wpFa->idWp,
-            'id_ps_attribute' => (int)$wpFa->idWpAttribute,
-        ), array('id' => $wpFa->id));
+
+        $idHesabfa = isset($wpFa->idHesabfa) ? sanitize_text_field($wpFa->idHesabfa) : '';
+        $objType = isset($wpFa->objType) ? sanitize_text_field($wpFa->objType) : '';
+        $idWp = isset($wpFa->idWp) ? (int)$wpFa->idWp : 0;
+        $idWpAttribute = isset($wpFa->idWpAttribute) ? (int)$wpFa->idWpAttribute : 0;
+
+        $wpdb->update(
+            $wpdb->prefix . 'ssbhesabfa',
+            array(
+                'id_hesabfa' => $idHesabfa,
+                'obj_type' => $objType,
+                'id_ps' => $idWp,
+                'id_ps_attribute' => $idWpAttribute,
+            ),
+            array('id' => $wpFa->id),
+            array(
+                '%s',
+                '%s',
+                '%d',
+                '%d'
+            ),
+            array('%d')
+        );
     }
+
+
 //=========================================================================================================
+//    public function delete(WpFa $wpFa)
+//    {
+//        global $wpdb;
+//        $wpdb->delete($wpdb->prefix . 'ssbhesabfa', array('id' => $wpFa->id));
+//    }
+
     public function delete(WpFa $wpFa)
     {
         global $wpdb;
-        $wpdb->delete($wpdb->prefix . 'ssbhesabfa', array('id' => $wpFa->id));
+
+        $id = isset($wpFa->id) ? (int)$wpFa->id : 0;
+
+        $wpdb->delete(
+            $wpdb->prefix . 'ssbhesabfa',
+            array('id' => $id),
+            array('%d')
+        );
     }
 //=========================================================================================================
+//    public function deleteAll($productId)
+//    {
+//        global $wpdb;
+//        $wpdb->delete($wpdb->prefix . 'ssbhesabfa', array('id_ps' => $productId));
+//    }
     public function deleteAll($productId)
     {
         global $wpdb;
-        $wpdb->delete($wpdb->prefix . 'ssbhesabfa', array('id_ps' => $productId));
+
+        $productId = isset($productId) ? (int)$productId : 0;
+
+        $wpdb->delete(
+            $wpdb->prefix . 'ssbhesabfa',
+            array('id_ps' => $productId),
+            array('%d')
+        );
     }
+
 //=========================================================================================================
 }

@@ -4,7 +4,7 @@ Tags: accounting cloud hesabfa
 Requires at least: 5.2
 Tested up to: 6.4.3
 Requires PHP: 5.6
-Stable tag: 2.0.97
+Stable tag: 2.0.98
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -414,3 +414,8 @@ by clicking update stock and price button in hesabfa tab in product edit page
 = 2.0.97 - 02.03.2024 =
 * bug fix: postal code bug fixed
 * add feature: jaayegah-woocommerce-plugin added and city fixed
+
+= 2.0.98 - 06.04.2024 =
+* add feature: sync last change id feature added
+* bug fix: woocommerce HPOS compatibility added
+* add feature: transaction fee for each payment gateway added

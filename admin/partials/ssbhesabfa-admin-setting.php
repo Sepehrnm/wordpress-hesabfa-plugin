@@ -4,7 +4,7 @@ include_once( plugin_dir_path( __DIR__ ) . 'services/HesabfaLogService.php' );
 error_reporting(0);
 /**
  * @class      Ssbhesabfa_Setting
- * @version    2.0.97
+ * @version    2.0.98
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin/setting
@@ -330,12 +330,26 @@ class Ssbhesabfa_Setting {
                 <input type="submit" name="ssbhesabfa_integration" class="button-primary"
                        value="<?php esc_attr_e( 'Save changes', 'ssbhesabfa' ); ?>"/>
             </p>
+            <hr>
+            <div>
+                <p style="font-weight: bold;">بروزرسانی ID آخرین تغییر. این گزینه تغییرات را به آخرین ID بروزرسانی می کند.</p>
+                <p class="submit hesabfa-p">
+                    <input type="submit" name="ssbhesabfa_sync_last_change_id" id="ssbhesabfa_sync_last_change_id" class="button-primary"
+                           value="<?php esc_attr_e( 'Sync Last Change ID', 'ssbhesabfa' ); ?>"/>
+                </p>
+            </div>
+            <hr>
         </form>
         <?php
         if(get_option('ssbhesabfa_debug_mode_checkbox') == 'yes' || get_option('ssbhesabfa_debug_mode_checkbox') == '1') {
             Ssbhesabfa_Admin_Functions::enableDebugMode();
         } elseif(get_option('ssbhesabfa_debug_mode_checkbox') == 'no' || get_option('ssbhesabfa_debug_mode_checkbox') == '0') {
             Ssbhesabfa_Admin_Functions::disableDebugMode();
+        }
+
+        if(isset($_POST['ssbhesabfa_sync_last_change_id'])) {
+            $func = new Ssbhesabfa_Admin_Functions();
+            $func->syncLastChangeID();
         }
 
         if(isset($_POST["ssbhesabfa_integration"])) {
@@ -884,6 +898,17 @@ class Ssbhesabfa_Setting {
             );
         }
 
+        foreach ( $available_payment_gateways as $gateway ) {
+            $fields[] = array(
+                'title'   => 'درصد کارمزد تراکنش برای ' . $gateway->title,
+                'id'      => 'ssbhesabfa_payment_transaction_fee_' . $gateway->id,
+                'class' => 'payment-transaction-fee',
+                'type'    => 'text',
+                'placeholder' => 'وارد نمایید',
+                'default' => '0',
+            );
+        }
+
         $plugins = get_plugins();
         foreach ($plugins as $plugin_file => $plugin_info) {
             if ($plugin_file === 'snapppay-woocommerce-gateway /index.php') {
@@ -893,6 +918,14 @@ class Ssbhesabfa_Setting {
                         'id'      => 'ssbhesabfa_payment_method_snapppay',
                         'type'    => 'select',
                         'options' => $payInputValue
+                    );
+
+                    $fields[] = array(
+                        'title'   => 'درصد کارمزد تراکنش برای پرداخت اسنپ پی',
+                        'id'      => 'ssbhesabfa_payment_transaction_fee_snapppay',
+                        'type'    => 'text',
+                        'placeholder' => 'وارد نمایید',
+                        'default' => '0',
                     );
                 }
             }
@@ -910,10 +943,11 @@ class Ssbhesabfa_Setting {
         );
 
         $fields[] = array(
-            'title'   => __( "Invoice Transaction Fee Percentage", 'ssbhesabfa' ),
+            'title'   => __( "Default Invoice Transaction Fee Percentage", 'ssbhesabfa' ),
             'id'      => 'ssbhesabfa_invoice_transaction_fee',
             'type'    => 'text',
-            'placeholder' => __("Invoice Transaction Fee Percentage", 'ssbhesabfa'),
+            'class' => 'payment-transaction-fee',
+            'placeholder' => __("Default Invoice Transaction Fee Percentage", 'ssbhesabfa'),
             'default' => '0'
         );
 
@@ -948,12 +982,21 @@ class Ssbhesabfa_Setting {
 		$ssbhesabf_setting_fields = self::ssbhesabfa_payment_setting_fields();
 		$Html_output              = new Ssbhesabfa_Html_output();
 		?>
+        <style>
+            .payment-transaction-fee {
+                max-width: 100px;
+            }
+        </style>
         <div class="alert alert-warning hesabfa-f">
             <strong>توجه</strong><br>
             در اینجا تعیین کنید که رسید دریافت وجه فاکتور در چه وضعیتی ثبت شود
             و در هر روش پرداخت، رسید در چه بانکی و یا صندوقی ثبت شود.
             <br>
             بانک پیش فرض، جهت کاربرانی می باشد که به هر دلیلی روش های پرداخت وکامرس در اینجا نمایش داده نمی شود. در این صورت با انتخاب بانک و ثبت کد آن، تمامی دریافت ها در آن بانک ثبت خواهد شد
+            <br>
+            درصد کارمزد تراکنش برای هر روش پرداخت می تواند تعریف شود(بین 1 تا 100).
+            <br>
+            درصد کارمزد تراکنش پیش فرض زمانی اعمال می شود که درصد یک روش پرداخت یا تعریف نشده باشد و یا صفر باشد.
         </div>
         <form id="ssbhesabfa_form" enctype="multipart/form-data" action="" method="post">
 			<?php $Html_output->init( $ssbhesabf_setting_fields ); ?>
@@ -1510,6 +1553,10 @@ class Ssbhesabfa_Setting {
                     <div>
                         <input type="date" id="ssbhesabfa_sync_order_date" name="ssbhesabfa_sync_order_date" value=""
                                class="datepicker"/>
+                        تا
+                        <input type="date" id="ssbhesabfa_sync_order_end_date" name="ssbhesabfa_sync_order_end_date" value=""
+                               class="datepicker"/>
+
                         <button class="button button-primary hesabfa-f" id="ssbhesabfa-sync-orders-submit"
                                 name="ssbhesabfa-sync-orders-submit"><?php echo __( 'Sync Orders', 'ssbhesabfa' ); ?></button>
                     </div>
@@ -1624,17 +1671,42 @@ class Ssbhesabfa_Setting {
 		}
 	}
 //=============================================================================================
-	public static function getLinkedProductsCount() {
-		global $wpdb;
+//	public static function getLinkedProductsCount() {
+//		global $wpdb;
+//
+//		return $wpdb->get_var( "SELECT COUNT(*) FROM `" . $wpdb->prefix . "ssbhesabfa` WHERE `obj_type` = 'product'" );
+//	}
 
-		return $wpdb->get_var( "SELECT COUNT(*) FROM `" . $wpdb->prefix . "ssbhesabfa` WHERE `obj_type` = 'product'" );
-	}
+
+    public static function getLinkedProductsCount() {
+        global $wpdb;
+
+        return $wpdb->get_var(
+            $wpdb->prepare(
+                "SELECT COUNT(*) FROM {$wpdb->prefix}ssbhesabfa WHERE obj_type = 'product'"
+            )
+        );
+    }
 //=============================================================================================
-	public static function getProductCountsInStore() {
-		global $wpdb;
+//	public static function getProductCountsInStore() {
+//		global $wpdb;
+//
+//		return $wpdb->get_var( "SELECT COUNT(*) FROM `" . $wpdb->prefix . "posts` WHERE `post_type` IN ('product','product_variation') AND `post_status` IN ('publish', 'private', 'draft')  " );
+//	}
 
-		return $wpdb->get_var( "SELECT COUNT(*) FROM `" . $wpdb->prefix . "posts` WHERE `post_type` IN ('product','product_variation') AND `post_status` IN ('publish', 'private', 'draft')  " );
-	}
+    public static function getProductCountsInStore() {
+        global $wpdb;
+
+        return $wpdb->get_var(
+            $wpdb->prepare(
+                "SELECT COUNT(*) 
+            FROM {$wpdb->prefix}posts 
+            WHERE post_type IN ('product', 'product_variation') 
+            AND post_status IN ('publish', 'private', 'draft')"
+            )
+        );
+    }
+
 //=============================================================================================
 	public static function getSubscriptionInfo() {
 		$businessName = '';

@@ -308,15 +308,18 @@ jQuery(function ($) {
 
     function syncOrders(batch, totalBatch, total, updateCount) {
         var date = $('#ssbhesabfa_sync_order_date').val();
+        var endDate = $('#ssbhesabfa_sync_order_end_date').val();
 
         const data = {
             'action': 'adminSyncOrders',
             'date': date,
+            'endDate': endDate,
             'batch': batch,
             'totalBatch': totalBatch,
             'total': total,
-            'updateCount': updateCount
+            'updateCount': updateCount,
         };
+
         $.post(ajaxurl, data, function (response) {
             if (response !== 'failed') {
                 const res = JSON.parse(response);

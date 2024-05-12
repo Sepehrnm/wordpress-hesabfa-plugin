@@ -7,7 +7,7 @@ include_once(plugin_dir_path(__DIR__) . 'admin/services/HesabfaWpFaService.php')
  * The admin-specific functionality of the plugin.
  *
  * @class      Ssbhesabfa_Admin
- * @version    2.0.97
+ * @version    2.0.98
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin
@@ -371,9 +371,10 @@ class Ssbhesabfa_Admin
             $total = wc_clean($_POST['total']);
             $updateCount = wc_clean($_POST['updateCount']);
             $from_date = wc_clean($_POST['date']);
+            $end_date = wc_clean($_POST['endDate']);
 
             $func = new Ssbhesabfa_Admin_Functions();
-            $result = $func->syncOrders($from_date, $batch, $totalBatch, $total, $updateCount);
+            $result = $func->syncOrders($from_date, $end_date, $batch, $totalBatch, $total, $updateCount);
 
             if (!$result['error'])
                 $result["redirectUrl"] = admin_url('admin.php?page=ssbhesabfa-option&tab=sync&orderSyncResult=true&processed=' . $result["updateCount"]);
@@ -451,7 +452,6 @@ class Ssbhesabfa_Admin
         HesabfaLogService::writeLogStr('Submit Invoice Manually');
 
         if (is_admin() && (defined('DOING_AJAX') || DOING_AJAX)) {
-
             $orderId = wc_clean($_POST['orderId']);
 
             $func = new Ssbhesabfa_Admin_Functions();
@@ -540,7 +540,7 @@ class Ssbhesabfa_Admin
     public function ssbhesabfa_init_internal()
     {
         add_rewrite_rule('ssbhesabfa-webhook.php$', 'index.php?ssbhesabfa_webhook=1', 'top');
-//        $this->checkForSyncChanges();
+        //$this->checkForSyncChanges();
     }
 //=========================================================================================================================
     private function checkForSyncChanges()
@@ -585,26 +585,58 @@ class Ssbhesabfa_Admin
 //=========================================================================================================================
     public function custom_orders_list_column_content($column, $post_id)
     {
-        global $wpdb;
 
-        switch ($column) {
-            case 'hesabfa-column-invoice-number' :
-                // Get custom post meta data
-                $row = $wpdb->get_row("SELECT `id_hesabfa` FROM `" . $wpdb->prefix . "ssbhesabfa` WHERE `id_ps` = $post_id AND `obj_type` = 'order'");
+	    global $wpdb;
 
-                //$my_var_one = get_post_meta( $post_id, '_the_meta_key1', true );
-                if (!empty($row))
-                    echo '<mark class="order-status"><span>' . $row->id_hesabfa . '</span></mark>';
-                else
-                    echo '<small></small>';
-                break;
+        if (get_option('woocommerce_custom_orders_table_enabled') == 'yes') {
+            switch ($column) {
+                case 'hesabfa-column-invoice-number':
+                    $product_id = $post_id->ID; // Extract product ID from the object
+    //                $row = $wpdb->get_row("SELECT `id_hesabfa` FROM `" . $wpdb->prefix . "ssbhesabfa` WHERE `id_ps` = $post_id AND `obj_type` = 'order'");
+                    $table_name = $wpdb->prefix . 'ssbhesabfa';
+                    $row = $wpdb->get_row(
+                        $wpdb->prepare(
+                            "SELECT id_hesabfa FROM $table_name WHERE id_ps = %d AND obj_type = 'order'",
+                            $product_id
+                        )
+                    );
 
-            case 'hesabfa-column-submit-invoice' :
-                echo '<a role="button" class="button btn-submit-invoice" ';
-                echo "data-order-id='$post_id'>";
-                echo __('Submit Invoice', 'ssbhesabfa');
-                echo '</a>';
-                break;
+                    if (!empty($row)) {
+                        echo '<mark class="order-status"><span>' . $row->id_hesabfa . '</span></mark>';
+                    } else {
+                        echo '<small></small>';
+                    }
+                    break;
+
+                case 'hesabfa-column-submit-invoice':
+                    // Use the product ID for the data attribute value
+                    $product_id = $post_id->ID;
+                    echo '<a role="button" class="button btn-submit-invoice" ';
+                    echo 'data-order-id="' . $product_id . '">';
+                    echo __('Submit Invoice', 'ssbhesabfa');
+                    echo '</a>';
+                    break;
+            }
+        } else {
+            switch ($column) {
+                case 'hesabfa-column-invoice-number' :
+                    // Get custom post meta data
+                    $row = $wpdb->get_row("SELECT `id_hesabfa` FROM `" . $wpdb->prefix . "ssbhesabfa` WHERE `id_ps` = $post_id AND `obj_type` = 'order'");
+
+                    //$my_var_one = get_post_meta( $post_id, '_the_meta_key1', true );
+                    if (!empty($row))
+                        echo '<mark class="order-status"><span>' . $row->id_hesabfa . '</span></mark>';
+                    else
+                        echo '<small></small>';
+                    break;
+
+                case 'hesabfa-column-submit-invoice' :
+                    echo '<a role="button" class="button btn-submit-invoice" ';
+                    echo "data-order-id='$post_id'>";
+                    echo __('Submit Invoice', 'ssbhesabfa');
+                    echo '</a>';
+                    break;
+            }
         }
     }
 //=========================================================================================================================
@@ -1482,11 +1514,11 @@ class Ssbhesabfa_Admin
             $NationalCode = $_POST['billing_hesabfa_nationalcode'];
             $Website = $_POST['billing_hesabfa_website'];
             if($NationalCode_isRequired) {
-                $func->CheckNationalCode($NationalCode);
+                $func->checkNationalCode($NationalCode);
             }
 
             if($Website_isRequired) {
-                $func->CheckWebsite($Website);
+                $func->checkWebsite($Website);
             }
         }
 	        return $fields;

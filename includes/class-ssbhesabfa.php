@@ -10,7 +10,7 @@
  * version of the plugin.
  *
  * @class      Ssbhesabfa
- * @version    2.0.97
+ * @version    2.0.98
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/includes
@@ -186,10 +186,19 @@ class Ssbhesabfa
                 $this->loader->add_action('custom_product_tabs', $plugin_admin, 'ssbhesabfa_general_notices');
 
                 // add filter and action for woocommerce order list
-                $this->loader->add_filter('manage_edit-shop_order_columns', $plugin_admin, 'custom_hesabfa_column_order_list', 20);
-                $this->loader->add_action('manage_shop_order_posts_custom_column', $plugin_admin, 'custom_orders_list_column_content', 20, 2);
+
                 $this->loader->add_filter('bulk_actions-edit-shop_order', $plugin_admin, 'custom_orders_list_bulk_action', 20, 1);
                 $this->loader->add_filter('handle_bulk_actions-edit-shop_order', $plugin_admin, 'custom_orders_list_bulk_action_run', 10, 3);
+
+                if (get_option('woocommerce_custom_orders_table_enabled') == 'yes') {
+                    $this->loader->add_filter( 'woocommerce_shop_order_list_table_columns', $plugin_admin, 'custom_hesabfa_column_order_list', 20);
+                    $this->loader->add_action( 'woocommerce_shop_order_list_table_custom_column', $plugin_admin, 'custom_orders_list_column_content', 10, 2 );
+                } else {
+                    $this->loader->add_filter('manage_edit-shop_order_columns', $plugin_admin, 'custom_hesabfa_column_order_list', 20);
+                    $this->loader->add_action('manage_shop_order_posts_custom_column', $plugin_admin, 'custom_orders_list_column_content', 20, 2);
+                }
+
+
 	            // check add fields to checkout page by hesabfa plugin
 				if(get_option('ssbhesabfa_contact_add_additional_checkout_fields_hesabfa') == 1)
 					$this->loader->add_filter('woocommerce_checkout_fields', $plugin_admin, 'add_additional_fields_to_checkout', 10, 3);
