@@ -2,7 +2,7 @@
 Contributors: saeedsb, hamidprime, sepehr-najafi
 Tags: accounting cloud hesabfa
 Requires at least: 5.2
-Tested up to: 6.4.3
+Tested up to: 6.5.3
 Requires PHP: 5.6
 Stable tag: 2.0.98
 License: GPLv2 or later
