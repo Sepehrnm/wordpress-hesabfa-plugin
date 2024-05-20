@@ -4,7 +4,7 @@ include_once(plugin_dir_path(__DIR__) . 'admin/services/HesabfaLogService.php');
 
 /**
  * @class      Ssbhesabfa_Api
- * @version    2.0.98
+ * @version    2.0.99
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/api
@@ -308,8 +308,8 @@ class Ssbhesabfa_Api
         $data = array(
             'invoice' => $invoice,
         );
-
         if($GUID != '') $data['requestUniqueId'] = $GUID;
+        $this->saveStatistics();
 
         return $this->apiRequest($method, $data);
     }
@@ -482,6 +482,32 @@ class Ssbhesabfa_Api
             'start' => $start,
         );
         return $this->apiRequest($method, $data);
+    }
+//================================================================================================
+    public function saveStatistics() {
+        $endpoint = "https://hesabfa.com/statistics/save";
+        $body = array(
+            "Platform" => "Woocommerce",
+            "Website" => get_site_url(),
+            'APIKEY' => get_option('ssbhesabfa_account_api'),
+            "IP" => $_SERVER['REMOTE_ADDR']
+        );
+
+        $options = array(
+            'body' => wp_json_encode($body),
+            'headers' => array(
+                'Content-Type' => 'application/json',
+            ),
+            'timeout' => 60,
+            'redirection' => 5,
+            'blocking' => true,
+            'httpversion' => '1.0',
+            'sslverify' => false,
+            'data_format' => 'body',
+        );
+
+        $wp_remote_post = wp_remote_post($endpoint, $options);
+        $result = json_decode(wp_remote_retrieve_body($wp_remote_post));
     }
 //================================================================================================
 }

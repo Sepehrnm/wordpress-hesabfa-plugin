@@ -6,7 +6,7 @@ include_once(plugin_dir_path(__DIR__) . 'services/HesabfaWpFaService.php');
 
 /**
  * @class      Ssbhesabfa_Admin_Functions
- * @version    2.0.98
+ * @version    2.0.99
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin/functions
@@ -609,11 +609,13 @@ class Ssbhesabfa_Admin_Functions
                 // payment submited before
             } else {
                 $paymentMethod = $order->get_payment_method();
+                $transactionFee = 0;
                 if(isset($paymentMethod)) {
                     if(get_option("ssbhesabfa_payment_transaction_fee_$paymentMethod") > 0) $transactionFee = $this->formatTransactionFee(get_option("ssbhesabfa_payment_transaction_fee_$paymentMethod"), $this->getPriceInHesabfaDefaultCurrency($order->get_total()));
                     else $transactionFee = $this->formatTransactionFee(get_option("ssbhesabfa_invoice_transaction_fee"), $this->getPriceInHesabfaDefaultCurrency($order->get_total()));
                 }
-                if(isset($transactionFee)) $response = $hesabfa->invoiceSavePayment($number, $financialData, $accountPath, $date_obj->date('Y-m-d H:i:s'), $this->getPriceInHesabfaDefaultCurrency($order->get_total()), $transaction_id,'', $transactionFee);
+
+                if(isset($transactionFee) && $transactionFee != null) $response = $hesabfa->invoiceSavePayment($number, $financialData, $accountPath, $date_obj->date('Y-m-d H:i:s'), $this->getPriceInHesabfaDefaultCurrency($order->get_total()), $transaction_id,'', $transactionFee);
                 else $response = $hesabfa->invoiceSavePayment($number, $financialData, $accountPath, $date_obj->date('Y-m-d H:i:s'), $this->getPriceInHesabfaDefaultCurrency($order->get_total()), $transaction_id,'', 0);
 
                 if ($response->Success) {
