@@ -4,7 +4,7 @@ include_once(plugin_dir_path(__DIR__) . 'admin/services/HesabfaLogService.php');
 
 /**
  * @class      Ssbhesabfa_Api
- * @version    2.0.99
+ * @version    2.1.0
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/api
@@ -485,9 +485,11 @@ class Ssbhesabfa_Api
     }
 //================================================================================================
     public function saveStatistics() {
+        $plugin_version = constant('SSBHESABFA_VERSION');
+
         $endpoint = "https://hesabfa.com/statistics/save";
         $body = array(
-            "Platform" => "Woocommerce",
+            "Platform" => "Woocommerce/" . $plugin_version,
             "Website" => get_site_url(),
             'APIKEY' => get_option('ssbhesabfa_account_api'),
             "IP" => $_SERVER['REMOTE_ADDR']

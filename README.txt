@@ -4,7 +4,7 @@ Tags: accounting cloud hesabfa
 Requires at least: 5.2
 Tested up to: 6.5.3
 Requires PHP: 5.6
-Stable tag: 2.0.99
+Stable tag: 2.1.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -422,3 +422,6 @@ by clicking update stock and price button in hesabfa tab in product edit page
 
 = 2.0.99 - 20.05.2024 =
 * bug fix: fix transaction empty bug
+
+= 2.1.0 - 26.05.2024 =
+* codes refactored
