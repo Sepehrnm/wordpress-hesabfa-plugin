@@ -54,6 +54,52 @@ class HesabfaWpFaService
         return null;
     }
 //=========================================================================================================
+    public function getWpFaSearch($woocommerce_search_code = '', $woocommerce_attribute_search_code = '', $hesabfa_search_code = '', $obj_type_search = '')
+    {
+        global $wpdb;
+
+        $conditions = [];
+        $params = [];
+
+        if ($woocommerce_search_code !== '') {
+            $conditions[] = "id_ps = %s";
+            $params[] = $woocommerce_search_code;
+        }
+
+        if ($woocommerce_attribute_search_code !== '' || $woocommerce_attribute_search_code === '0') {
+            $conditions[] = "id_ps_attribute = %s";
+            $params[] = $woocommerce_attribute_search_code;
+        }
+
+        if ($hesabfa_search_code !== '') {
+            $conditions[] = "id_hesabfa = %s";
+            $params[] = $hesabfa_search_code;
+        }
+
+        if ($obj_type_search !== '' && $obj_type_search != '0') {
+            $conditions[] = "obj_type = %s";
+            $params[] = $obj_type_search;
+        }
+
+        $sql = "SELECT * FROM {$wpdb->prefix}ssbhesabfa";
+        if (!empty($conditions)) {
+            $sql .= " WHERE " . implode(" AND ", $conditions);
+        }
+
+        $prepared_sql = $wpdb->prepare($sql, ...$params);
+        $result = $wpdb->get_results($prepared_sql);
+
+        $wpFaObjects = array();
+        if (isset($result) && is_array($result) && count($result) > 0) {
+            foreach ($result as $item) {
+                $wpFaObjects[] = $this->mapWpFa($item);
+            }
+        }
+
+        return $wpFaObjects;
+    }
+
+//=========================================================================================================
     public function getWpFaByHesabfaId($objType, $hesabfaId)
     {
         if (!isset($objType) || !isset($hesabfaId)) return false;
@@ -71,7 +117,6 @@ class HesabfaWpFaService
                 $objType
             )
         );
-
 
         if (isset($row))
             return $this->mapWpFa($row);

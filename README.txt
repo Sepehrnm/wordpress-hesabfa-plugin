@@ -2,9 +2,9 @@
 Contributors: saeedsb, hamidprime, sepehr-najafi
 Tags: accounting cloud hesabfa
 Requires at least: 5.2
-Tested up to: 6.5.3
+Tested up to: 6.6.1
 Requires PHP: 5.6
-Stable tag: 2.1.0
+Stable tag: 2.1.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -425,3 +425,13 @@ by clicking update stock and price button in hesabfa tab in product edit page
 
 = 2.1.0 - 26.05.2024 =
 * codes refactored
+
+= 2.1.1 - 18.08.2024 =
+* bug fix: fix save product automatically
+* add feature: add progress statistics to sync orders
+* add feature: add option to remove the titles of the attributes for products when saving/updating
+* add feature: add product manually to hesabfa
+* add feature: add search box for the link table
+* add feature: add do not update titles in hesabfa option in catalog page
+* add feature: add hesabfa code column in woocommerce excel export
+* add feature: add hesabfa gift wrapping service

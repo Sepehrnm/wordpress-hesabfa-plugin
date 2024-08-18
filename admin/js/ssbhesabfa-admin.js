@@ -324,6 +324,7 @@ jQuery(function ($) {
             if (response !== 'failed') {
                 const res = JSON.parse(response);
                 res.batch = parseInt(res.batch);
+                if(res.batch) $('#syncOrdersStatistics').html(`<div>پارت: ${res.batch} از ${res.totalBatch} - تعداد کل: ${res.total}</div>`);
                 if (res.batch < res.totalBatch) {
                     let progress = (res.batch * 100) / res.totalBatch;
                     progress = Math.round(progress);

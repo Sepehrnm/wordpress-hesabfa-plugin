@@ -12,11 +12,14 @@ class ssbhesabfaItemService
         $hesabfaItem = array(
             'Code' => $code,
             'Name' => Ssbhesabfa_Validation::itemNameValidation($product->get_title()),
-            'PurchasesTitle' => Ssbhesabfa_Validation::itemNameValidation($product->get_title()),
-            'SalesTitle' => Ssbhesabfa_Validation::itemNameValidation($product->get_title()),
             'ItemType' => $product->is_virtual() == 1 ? 1 : 0,
             'Tag' => json_encode(array('id_product' => $id, 'id_attribute' => 0))
         );
+
+        if(get_option("ssbhesabfa_do_not_update_titles_in_hesabfa", "no") === "no") {
+            $hesabfaItem['PurchasesTitle'] = Ssbhesabfa_Validation::itemNameValidation($product->get_title());
+            $hesabfaItem['SalesTitle'] = Ssbhesabfa_Validation::itemNameValidation($product->get_title());
+        }
 
         if(!$code || get_option("ssbhesabfa_do_not_update_product_price_in_hesabfa", "no") === "no")
             $hesabfaItem["SellPrice"] = self::getPriceInHesabfaDefaultCurrency($price);
@@ -39,14 +42,19 @@ class ssbhesabfaItemService
 
         $productName = $product->get_title();
         $variationName = $variation->get_attribute_summary();
-        $fullName = Ssbhesabfa_Validation::itemNameValidation($productName . ' - ' . $variationName);
+
+        if(get_option("ssbhesabfa_remove_attributes_titles") == "yes" || get_option("ssbhesabfa_remove_attributes_titles") == "1") {
+            $values = self::getAttributesValues($variationName);
+            $fullName = Ssbhesabfa_Validation::itemNameValidation($productName . ' - ' . implode(", ", $values));
+        } else {
+            $fullName = Ssbhesabfa_Validation::itemNameValidation($productName . ' - ' . $variationName);
+        }
+
         $price = $variation->get_regular_price() ? $variation->get_regular_price() : $variation->get_price();
 
         $hesabfaItem = array(
             'Code' => $code,
             'Name' => $fullName,
-            'PurchasesTitle' => $fullName,
-            'SalesTitle' => $fullName,
             'ItemType' => $variation->is_virtual() == 1 ? 1 : 0,
             'Tag' => json_encode(array(
                 'id_product' => $id_product,
@@ -54,12 +62,28 @@ class ssbhesabfaItemService
             )),
         );
 
+        if(get_option("ssbhesabfa_do_not_update_titles_in_hesabfa", "no") === "no") {
+            $hesabfaItem['PurchasesTitle'] = $fullName;
+            $hesabfaItem['SalesTitle'] = $fullName;
+        }
+
         if(!$code || get_option("ssbhesabfa_do_not_update_product_price_in_hesabfa", "no") === "no")    $hesabfaItem["SellPrice"] = self::getPriceInHesabfaDefaultCurrency($price);
         if(get_option("ssbhesabfa_do_not_update_product_barcode_in_hesabfa", "no") === "no")            $hesabfaItem["Barcode"] = Ssbhesabfa_Validation::itemBarcodeValidation($variation->get_sku());
 		if(get_option("ssbhesabfa_do_not_update_product_category_in_hesabfa", "no") === "no")           $hesabfaItem["NodeFamily"] = self::getCategoryPath($categories[0]);
         if(get_option("ssbhesabfa_do_not_update_product_product_code_in_hesabfa", "no") === "no")       $hesabfaItem["ProductCode"] = $id_attribute;
 
         return $hesabfaItem;
+    }
+//===========================================================================================================
+    public static function getAttributesValues($variationName) {
+        $pairs = explode(",", $variationName);
+
+        $values = array();
+        foreach ($pairs as $pair) {
+            list($title, $value) = explode(":", $pair);
+            $values[] = trim($value);
+        }
+        return $values;
     }
 //===========================================================================================================
     public static function getPriceInHesabfaDefaultCurrency($price)

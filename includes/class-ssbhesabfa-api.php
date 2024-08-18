@@ -4,7 +4,7 @@ include_once(plugin_dir_path(__DIR__) . 'admin/services/HesabfaLogService.php');
 
 /**
  * @class      Ssbhesabfa_Api
- * @version    2.1.0
+ * @version    2.1.1
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/api
@@ -142,7 +142,6 @@ class Ssbhesabfa_Api
         $data = array(
             'contact' => $contact,
         );
-
         return $this->apiRequest($method, $data);
     }
 //================================================================================================
@@ -510,6 +509,15 @@ class Ssbhesabfa_Api
 
         $wp_remote_post = wp_remote_post($endpoint, $options);
         $result = json_decode(wp_remote_retrieve_body($wp_remote_post));
+    }
+//================================================================================================
+    public function checkMobileAndNationalCode($nationalCode, $billingPhone) {
+        $method = 'inquiry/checkMobileAndNationalCode';
+        $data = array(
+            'nationalCode' => $nationalCode,
+            'mobile' => $billingPhone,
+        );
+        return $this->apiRequest($method, $data);
     }
 //================================================================================================
 }

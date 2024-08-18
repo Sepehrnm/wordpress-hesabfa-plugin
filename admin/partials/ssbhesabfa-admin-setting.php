@@ -4,7 +4,7 @@ include_once( plugin_dir_path( __DIR__ ) . 'services/HesabfaLogService.php' );
 error_reporting(0);
 /**
  * @class      Ssbhesabfa_Setting
- * @version    2.1.0
+ * @version    2.1.1
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin/setting
@@ -96,7 +96,7 @@ class Ssbhesabfa_Setting {
             </ul>
         </div>
 <!--////////////////////////video timing in the first page of the plugin////////////////////////////////////////////-->
-        <div class="row" style="margin-left: 10px;">
+        <div class="row d-none" style="margin-left: 10px;">
             <div class="col">
                 <h4 class="h4 hesabfa-tab-page-title mt-4"><?php esc_attr_e( 'Plugin Tutorial Video', 'ssbhesabfa' ); ?></h4>
 
@@ -234,7 +234,7 @@ class Ssbhesabfa_Setting {
 
                     . '</table>';
             ?>
-            <div class="d-flex flex-column">
+            <div class="d-flex flex-column" style="width: 90%;">
                 <?php $Html_output->init( $ssbhesabf_setting_fields ); ?>
                 <div class="ssbhesabfa_set_rpp_container mt-2 d-flex align-items-center gap-2">
                     <label class="form-label" for="ssbhesabfa_set_rpp">
@@ -330,15 +330,31 @@ class Ssbhesabfa_Setting {
                 <input type="submit" name="ssbhesabfa_integration" class="button-primary"
                        value="<?php esc_attr_e( 'Save changes', 'ssbhesabfa' ); ?>"/>
             </p>
-            <hr>
-            <div>
-                <p style="font-weight: bold;">بروزرسانی ID آخرین تغییر. این گزینه تغییرات را به آخرین ID بروزرسانی می کند.</p>
-                <p class="submit hesabfa-p">
-                    <input type="submit" name="ssbhesabfa_sync_last_change_id" id="ssbhesabfa_sync_last_change_id" class="button-primary"
-                           value="<?php esc_attr_e( 'Sync Last Change ID', 'ssbhesabfa' ); ?>"/>
-                </p>
+            <div class="p-4 rounded" style="width: 90%; background: rgba(211,211,211,0.48);">
+                <h3>بروزرسانی ID آخرین تغییر</h3>
+                <p style="font-weight: bold;">این گزینه تغییرات را به آخرین ID بروزرسانی می کند.</p>
+                <input type="submit" name="ssbhesabfa_sync_last_change_id" id="ssbhesabfa_sync_last_change_id" class="button-primary"
+                       value="<?php esc_attr_e( 'Sync Last Change ID', 'ssbhesabfa' ); ?>"/>
             </div>
-            <hr>
+            <br>
+            <div class="p-4 rounded" style="width: 90%; background: rgba(211,211,211,0.48);">
+                <h3 style="font-weight: bold;">افزودن دستی محصول به حسابفا</h3>
+                <p style="font-weight: bold;">در فیلد کد ووکامرس، کد محصول بدون لینک را که می خواهید در حسابفا ذخیره کنید، وارد نمایید.</p>
+                <p style="font-weight: bold;">در فیلد کد حسابفا، کد حسابداری را وارد نمایید به طوری که محصولی با این کد حسابداری وجود نداشته باشد تا محصول ووکامرس انتخابی با این کد در حسابفا اضافه شود.</p>
+                <p style="font-weight: bold;">در صورتی که محصول ساده است به جای کد متغیر عدد صفر را قرار دهید.</p>
+
+                <label for="woocommerce_code" class="form-label"><strong>کد پایه ووکامرس کالای بدون لینک</strong></label>
+                <input type="text" name="woocommerce_code" id="woocommerce_code">
+
+                <label for="attribute_code" class="form-label"><strong>کد متغیر ووکامرس کالای بدون لینک</strong></label>
+                <input type="text" name="attribute_code" id="attribute_code">
+
+                <label for="hesabfa_code" class="form-label"><strong>کد حسابداری بدون محصول در حسابفا</strong></label>
+                <input type="text" name="hesabfa_code" id="hesabfa_code">
+
+                <input type="submit" name="ssbhesabfa_save_product_manually_to_hesabfa" id="ssbhesabfa_save_product_manually_to_hesabfa" class="button-primary"
+                       value="ذخیره"/>
+            </div>
         </form>
         <?php
         if(get_option('ssbhesabfa_debug_mode_checkbox') == 'yes' || get_option('ssbhesabfa_debug_mode_checkbox') == '1') {
@@ -352,6 +368,25 @@ class Ssbhesabfa_Setting {
             $func->syncLastChangeID();
         }
 
+        if(isset($_POST['ssbhesabfa_save_product_manually_to_hesabfa'])) {
+            $func = new Ssbhesabfa_Admin_Functions();
+            if(empty($_POST['attribute_code'])) {
+                $_POST['attribute_code'] = 0;
+            }
+            if (empty($_POST['woocommerce_code'])) {
+                echo "<script>alert('کد پایه ووکامرس را وارد نمایید.')</script>";
+            } else {
+                if(isset($_POST['hesabfa_code']) && isset($_POST['woocommerce_code']) && isset($_POST['attribute_code'])) {
+                    $result = $func->SaveProductManuallyToHesabfa($_POST['woocommerce_code'],  $_POST['attribute_code'], $_POST['hesabfa_code']);
+                    if($result) {
+                        echo '<script>alert("کالا ذخیره گردید")</script>';
+                    } else {
+                        echo '<script>alert("کالا ذخیره نشد. به فایل لاگ مراجعه کنید.")</script>';
+                    }
+                }
+            }
+        }
+
         if(isset($_POST["ssbhesabfa_integration"])) {
             if(isset($_POST['ssbhesabfa_set_rpp_for_sync_products_into_hesabfa'])) update_option('ssbhesabfa_set_rpp_for_sync_products_into_hesabfa', $_POST['ssbhesabfa_set_rpp_for_sync_products_into_hesabfa']);
             if(isset($_POST['ssbhesabfa_set_rpp_for_sync_products_into_woocommerce'])) update_option('ssbhesabfa_set_rpp_for_sync_products_into_woocommerce', $_POST['ssbhesabfa_set_rpp_for_sync_products_into_woocommerce']);
@@ -360,6 +395,70 @@ class Ssbhesabfa_Setting {
             if(isset($_POST['ssbhesabfa_set_rpp_for_export_opening_products'])) update_option('ssbhesabfa_set_rpp_for_export_opening_products', $_POST['ssbhesabfa_set_rpp_for_export_opening_products']);
             header('refresh:0');
         }
+        ?>
+        <br>
+        <form class="p-4 rounded" style="max-width: 90%; background: rgba(211,211,211,0.48);" id="ssbhesabfa_search_form" enctype="multipart/form-data" method="post">
+            <h3>مشاهده آیتم های جدول ارتباط</h3>
+            <label for="woocommerce_search_code" class="form-label"><strong>کد پایه ووکامرس</strong></label>
+            <input type="text" name="woocommerce_search_code" id="woocommerce_search_code">
+
+            <label for="woocommerce_attribute_search_code" class="form-label"><strong>کد متغیر ووکامرس</strong></label>
+            <input type="text" name="woocommerce_attribute_search_code" id="woocommerce_attribute_search_code">
+
+            <label for="hesabfa_search_code" class="form-label"><strong>کد حسابفا</strong></label>
+            <input type="text" name="hesabfa_search_code" id="hesabfa_search_code">
+
+            <label for="obj_type_search" class="form-label"><strong>نوع آیتم</strong></label>
+            <select name="obj_type_search" id="obj_type_search">
+                <option value="0">انتخاب کنید</option>
+                <option value="product">محصول</option>
+                <option value="order">فاکتور</option>
+                <option value="customer">مشتری</option>
+            </select>
+            <input type="submit" name="ssbhesabfa_search_form_button" id="ssbhesabfa_search_form_button" class="button-primary"
+                   value="مشاهده"/>
+        </form>
+        <?php
+            if(isset($_POST["ssbhesabfa_search_form_button"])) {
+                $woocommerce_search_code = isset($_POST["woocommerce_search_code"]) ? sanitize_text_field($_POST["woocommerce_search_code"]) : '';
+                $woocommerce_attribute_search_code = isset($_POST["woocommerce_attribute_search_code"]) ? sanitize_text_field($_POST["woocommerce_attribute_search_code"]) : '';
+                $hesabfa_search_code = isset($_POST["hesabfa_search_code"]) ? sanitize_text_field($_POST["hesabfa_search_code"]) : '';
+                $obj_type_search = isset($_POST["obj_type_search"]) ? sanitize_text_field($_POST["obj_type_search"]) : '';
+
+                if (empty($woocommerce_search_code) && empty($woocommerce_attribute_search_code) && empty($hesabfa_search_code) && $obj_type_search == '0') {
+                    return;
+                }
+
+                $wpFaService = new HesabfaWpFaService();
+                $wpFa = $wpFaService->getWpFaSearch($woocommerce_search_code, $woocommerce_attribute_search_code, $hesabfa_search_code, $obj_type_search);
+
+                ?>
+                <div class="table-responsive mt-2 p-2" style="max-height: 400px; overflow-y: auto; max-width:92%; border: 1px solid #333; border-radius: 5px;">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>نوع آیتم</th>
+                            <th>کد حسابفا</th>
+                            <th>کد ووکامرس</th>
+                            <th>کد متغیر ووکامرس</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <?php foreach($wpFa as $item) { ?>
+                            <tr>
+                                <td><?php echo $item->id;?></td>
+                                <td><?php echo $item->objType;?></td>
+                                <td><?php echo $item->idHesabfa;?></td>
+                                <td><?php echo $item->idWp;?></td>
+                                <td><?php echo $item->idWpAttribute;?></td>
+                            </tr>
+                        <?php } ?>
+                        </tbody>
+                    </table>
+                </div>
+
+            <?php }
     }
 //==============================================================================================
     public static function ssbhesabfa_extra_setting_save_field() {
@@ -401,10 +500,26 @@ class Ssbhesabfa_Setting {
 			'options' => $warehouses,
 		);
 
-		$fields[] = array(
-			'title'   => "",
-			'desc'    => __( 'Do not submit product in Hesabfa automatically by saving product in woocommerce', 'ssbhesabfa' ),
-			'id'      => 'ssbhesabfa_do_not_submit_product_automatically',
+        $fields[] = array(
+            'title'   => "",
+            'desc'    => __( 'Remove The Titles for Attributes When Saving Product To Hesabfa', 'ssbhesabfa' ),
+            'id'      => 'ssbhesabfa_remove_attributes_titles',
+			'default' => 'no',
+			'type'    => 'checkbox'
+        );
+
+        $fields[] = array(
+            'title'   => "",
+            'desc'    => __( 'Do not update purchase and sales titles in hesabfa', 'ssbhesabfa' ),
+            'id'      => 'ssbhesabfa_do_not_update_titles_in_hesabfa',
+			'default' => 'no',
+			'type'    => 'checkbox'
+		);
+
+        $fields[] = array(
+            'title'   => "",
+            'desc'    => __( 'Do not submit product in Hesabfa automatically by saving product in woocommerce', 'ssbhesabfa' ),
+            'id'      => 'ssbhesabfa_do_not_submit_product_automatically',
 			'default' => 'no',
 			'type'    => 'checkbox'
 		);
@@ -445,6 +560,14 @@ class Ssbhesabfa_Setting {
 			'title'   => "",
 			'desc'    => __( 'Show Hesabfa ID in Products Page', 'ssbhesabfa' ),
 			'id'      => 'ssbhesabfa_show_product_code_in_products_page',
+			'default' => 'no',
+			'type'    => 'checkbox'
+		);
+
+        $fields[] = array(
+			'title'   => "",
+			'desc'    => __( 'Show Hesabfa Code in Woocommerce Excel Export', 'ssbhesabfa' ),
+			'id'      => 'ssbhesabfa_show_hesabfa_code_in_excel_export',
 			'default' => 'no',
 			'type'    => 'checkbox'
 		);
@@ -1566,8 +1689,10 @@ class Ssbhesabfa_Setting {
                      id="syncOrdersProgress">
                     <div class="progress-bar progress-bar-striped bg-success" id="syncOrdersProgressBar"
                          role="progressbar" style="width: 0%;" aria-valuenow="25" aria-valuemin="0"
-                         aria-valuemax="100"></div>
+                         aria-valuemax="100">
+                    </div>
                 </div>
+                <div id="syncOrdersStatistics"></div>
                 <div class="p-2 hesabfa-f">
                     <label class="fw-bold mb-2">نکات مهم:</label>
                     <ul>
@@ -1801,6 +1926,31 @@ class Ssbhesabfa_Setting {
 					echo '<p class="hesabfa-p">' . __( 'API Setting updated. Test Successfully', 'ssbhesabfa' ) . '</p>';
 					echo '</div>';
 				}
+
+                //add gift wrapping service
+                $wpFaService = new HesabfaWpFaService();
+                $wpFa = $wpFaService->getWpFa('gift_wrapping', 0);
+                if(!$wpFa) {
+                    $gift_wrapping = $ssbhesabfa_api->itemSave(array(
+                        'Name' => 'Gift wrapping service',
+                        'itemType' => 1,
+                        'Tag' => json_encode(array('id_product' => 0, 'id_attribute' => 0))
+                    ));
+
+                    if($gift_wrapping->Success) {
+                        $wpFa = new WpFa();
+                        $wpFa->idPs = 0;
+                        $wpFa->idPsAttribute = 0;
+                        $wpFa->idHesabfa = $gift_wrapping->Result->Code;
+                        $wpFa->objType = 'gift_wrapping';
+                        $wpFaService->save($wpFa);
+                        $msg = 'Hesabfa Gift wrapping service added successfully. Service Code: ' . $gift_wrapping->Result->Code;
+                        HesabfaLogService::writeLogStr($msg);
+                    } else {
+                        $msg = 'Cannot set Gift wrapping service code. Error Message: ' . $gift_wrapping->ErrorMessage . ', Error Code: ' . $gift_wrapping->ErrorCode;
+                        HesabfaLogService::writeLogStr($msg);
+                    }
+                }
 			} else {
 				update_option( 'ssbhesabfa_live_mode', 0 );
 

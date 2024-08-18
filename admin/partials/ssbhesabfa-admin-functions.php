@@ -6,7 +6,7 @@ include_once(plugin_dir_path(__DIR__) . 'services/HesabfaWpFaService.php');
 
 /**
  * @class      Ssbhesabfa_Admin_Functions
- * @version    2.1.0
+ * @version    2.1.1
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin/functions
@@ -1164,6 +1164,9 @@ class Ssbhesabfa_Admin_Functions
                         }
                     }
                 }
+            } else {
+                if (strpos($statusesToSubmitPayment, $current_status) !== false)
+                    $this->setOrderPayment($id_order);
             }
         }
 
@@ -1578,6 +1581,98 @@ class Ssbhesabfa_Admin_Functions
         return false;
     }
 //=========================================================================================================================
+    public static function SaveProductManuallyToHesabfa($woocommerceCode, $attributeId, $hesabfaCode): bool {
+        //check no record exist in hesabfa
+        $isProductExistInHesabfa = self::CheckExistenceOfTheProductInHesabfa($hesabfaCode);
+        if(!$isProductExistInHesabfa) {
+            $isProductValidInWoocommerce = self::CheckValidityOfTheProductInWoocommerce($woocommerceCode, $attributeId, $hesabfaCode);
+            if($isProductValidInWoocommerce) {
+                //get product
+                $product = wc_get_product($woocommerceCode);
+                if($attributeId != 0) $variation = wc_get_product($attributeId);
+
+                if($attributeId == 0) {
+                    $hesabfaItem = ssbhesabfaItemService::mapProduct($product, $woocommerceCode);
+                } else {
+                    $hesabfaItem = ssbhesabfaItemService::mapProductVariation($product, $variation, $woocommerceCode);
+                }
+
+                //save product to hesabfa and make a new link
+                $api = new Ssbhesabfa_Api();
+                $hesabfaItem["Code"] = $hesabfaCode;
+                $response = $api->itemSave($hesabfaItem);
+                if($response->Success) {
+                    if($attributeId == 0) $productCode = $woocommerceCode; else $productCode = $attributeId;
+                    HesabfaLogService::log(array("Item successfully added to Hesabfa. Hesabfa code: " . $hesabfaCode . " - Product code: " . $productCode));
+
+                    $wpFaService = new HesabfaWpFaService();
+                    $wpFa = $wpFaService->getWpFa('product', $woocommerceCode, $attributeId);
+                    if (!$wpFa) {
+                        $wpFa = new WpFa();
+                        $wpFa->idHesabfa = $hesabfaCode;
+                        $wpFa->idWp = $woocommerceCode;
+                        $wpFa->idWpAttribute = $attributeId;
+                        $wpFa->objType = 'product';
+                        $wpFaService->save($wpFa);
+                        HesabfaLogService::log(array("Item successfully added. Hesabfa code: " . (string)$hesabfaCode . ". Product ID: $woocommerceCode - $attributeId"));
+                        return true;
+                    }
+                } else {
+                    HesabfaLogService::log(array("Error in saving product to hesabfa. Hesabfa given code: " . $hesabfaCode));
+                    return false;
+                }
+            }
+        }
+
+        return false;
+    }
+//=========================================================================================================================
+    public static function CheckExistenceOfTheProductInHesabfa($hesabfaCode): bool {
+        $api = new Ssbhesabfa_Api();
+        $response = $api->itemGet($hesabfaCode);
+        if($response->Success) {
+            HesabfaLogService::writeLogStr("کالا با کد(" .  $hesabfaCode . ") در حسابفا موجود است.");
+            return true;
+        } else if($response->ErrorCode == "112") {
+            return false;
+        } else {
+            HesabfaLogService::writeLogStr("Error in getting the existence of the product");
+            return true;
+        }
+    }
+//=========================================================================================================================
+    public static function CheckValidityOfTheProductInWoocommerce($woocommerceCode, $attributeId, $hesabfaCode): bool {
+        //check not exist in link table
+        $wpFaService = new HesabfaWpFaService();
+        $code = $wpFaService->getProductCodeByWpId($woocommerceCode, $attributeId);
+        if ($code) {
+            HesabfaLogService::writeLogStr("این کد حسابفای وارد شده به کالای دیگری متصل است." . $code . " - " . $woocommerceCode . " - " . $attributeId);
+            return false;
+        }
+
+        //check woocommerce code exists
+        global $wpdb;
+
+        if($attributeId != 0) $productId = $attributeId;
+        else $productId = $woocommerceCode;
+
+        $found = $wpdb->get_var(
+            $wpdb->prepare(
+                "SELECT COUNT(*) FROM {$wpdb->posts}
+                WHERE ID = %d",
+                $productId
+            )
+        );
+
+        if($found) {
+            //product is valid
+            return true;
+        } else {
+            HesabfaLogService::writeLogStr("product not found in woocommerce. Given product code: " . $woocommerceCode . "-" . $attributeId );
+            return false;
+        }
+    }
+//=========================================================================================================================
     function checkNationalCode($NationalCode): void
     {
         $identicalDigits = ['1111111111', '2222222222', '3333333333', '4444444444', '5555555555', '6666666666', '7777777777', '8888888888', '9999999999'];
@@ -1610,6 +1705,25 @@ class Ssbhesabfa_Admin_Functions
         }
     }
 //=========================================================================================================================
+    public function checkNationalCodeWithPhone($nationalCode, $billingPhone): bool {
+        $api = new Ssbhesabfa_Api();
+
+        $formattedPhoneNumber = $this->convertPersianPhoneDigitsToEnglish($billingPhone);
+        $formattedPhoneNumber = $this->formatPhoneNumber($formattedPhoneNumber);
+
+        $response = $api->checkMobileAndNationalCode($nationalCode, $formattedPhoneNumber);
+        if($response->Success) {
+            if($response->Result->Status == 1) {
+                return $response->Result->Data->Matched;
+            } else {
+                return false;
+            }
+        } else {
+            HesabfaLogService::writeLogStr('Error Occurred in Checking Mobile and NationalCode. ErrorCode: ' . $response->ErrorCode . " - ErrorMessage: " . $response->ErrorMessage);
+            return false;
+        }
+    }
+//=========================================================================================================================
     function checkWebsite($Website): void
     {
         if (filter_var($Website, FILTER_VALIDATE_URL)) {
@@ -1625,6 +1739,38 @@ class Ssbhesabfa_Admin_Functions
 
     public static function disableDebugMode(): void {
         update_option('ssbhesabfa_debug_mode', 0);
+    }
+//=========================================================================================================================
+    function formatPhoneNumber($phoneNumber) {
+        $phoneNumber = preg_replace('/\D/', '', $phoneNumber);
+
+        if (substr($phoneNumber, 0, 2) == '98') {
+            $phoneNumber = substr($phoneNumber, 2);
+        }
+
+        if (substr($phoneNumber, 0, 1) == '9' && strlen($phoneNumber) == 10) {
+            $phoneNumber = '0' . $phoneNumber;
+        }
+
+        if (strlen($phoneNumber) == 10 && substr($phoneNumber, 0, 1) == '9') {
+            $phoneNumber = '0' . $phoneNumber;
+        }
+
+        return $phoneNumber;
+    }
+//=========================================================================================================================
+    public function convertPersianPhoneDigitsToEnglish($inputString) : string {
+        $newNumbers = range(0, 9);
+        $persianDecimal = array('&#1776;', '&#1777;', '&#1778;', '&#1779;', '&#1780;', '&#1781;', '&#1782;', '&#1783;', '&#1784;', '&#1785;');
+        $arabicDecimal  = array('&#1632;', '&#1633;', '&#1634;', '&#1635;', '&#1636;', '&#1637;', '&#1638;', '&#1639;', '&#1640;', '&#1641;');
+        $arabic  = array('٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩');
+        $persian = array('۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹');
+
+        $string =  str_replace($persianDecimal, $newNumbers, $inputString);
+        $string =  str_replace($arabicDecimal, $newNumbers, $string);
+        $string =  str_replace($persian, $newNumbers, $string);
+
+        return str_replace($arabic, $newNumbers, $string);
     }
 //=========================================================================================================================
     public function convertPersianDigitsToEnglish($inputString) : int {
