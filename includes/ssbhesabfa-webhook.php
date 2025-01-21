@@ -25,6 +25,8 @@ if ($result->Password != get_option('ssbhesabfa_webhook_password')) {
     die('Invalid password.');
 }
 
-include(dirname(__FILE__) . '/class-ssbhesabfa-webhook.php');
-HesabfaLogService::writeLogStr("Hesabfa Webhook Called");
-new Ssbhesabfa_Webhook();
+if(get_option("ssbhesabfa_check_for_sync") == 0) {
+    include(dirname(__FILE__) . '/class-ssbhesabfa-webhook.php');
+    HesabfaLogService::writeLogStr("Hesabfa Webhook Called");
+    new Ssbhesabfa_Webhook();
+}

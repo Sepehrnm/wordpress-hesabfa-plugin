@@ -6,7 +6,7 @@ include_once(plugin_dir_path(__DIR__) . 'services/HesabfaWpFaService.php');
 
 /**
  * @class      Ssbhesabfa_Admin_Functions
- * @version    2.1.1
+ * @version    2.1.2
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin/functions
@@ -127,13 +127,13 @@ class Ssbhesabfa_Admin_Functions
         }
     }
 //====================================================================================================================
-    public function setContact($id_customer, $type = 'first', $id_order = '')
+    public function setContact($id_customer, $type = 'first', $id_order = '', $additionalFields = array())
     {
         if (!isset($id_customer)) return false;
 
         $code = $this->getContactCodeByCustomerId($id_customer);
 
-        $hesabfaCustomer = ssbhesabfaCustomerService::mapCustomer($code, $id_customer, $type, $id_order);
+        $hesabfaCustomer = ssbhesabfaCustomerService::mapCustomer($code, $id_customer, $type, $id_order, $additionalFields);
 
         $hesabfa = new Ssbhesabfa_Api();
         $response = $hesabfa->contactSave($hesabfaCustomer);
@@ -148,7 +148,7 @@ class Ssbhesabfa_Admin_Functions
         }
     }
 //====================================================================================================================
-    public function setGuestCustomer($id_order)
+    public function setGuestCustomer($id_order, $additionalFields = array())
     {
         if (!isset($id_order)) return false;
 
@@ -157,7 +157,7 @@ class Ssbhesabfa_Admin_Functions
 
         $contactCode = $this->getContactCodeByPhoneOrEmail($order->get_billing_phone(), $order->get_billing_email());
 
-        $hesabfaCustomer = ssbhesabfaCustomerService::mapGuestCustomer($contactCode, $id_order);
+        $hesabfaCustomer = ssbhesabfaCustomerService::mapGuestCustomer($contactCode, $id_order, $additionalFields);
 
         $hesabfa = new Ssbhesabfa_Api();
         $response = $hesabfa->contactSave($hesabfaCustomer);
@@ -177,6 +177,8 @@ class Ssbhesabfa_Admin_Functions
         if (!$email && !$phone) return null;
 
         $hesabfa = new Ssbhesabfa_Api();
+        if($phone != '')
+            $phone = $this->normalizePhoneNumber($phone);
         $response = $hesabfa->contactGetByPhoneOrEmail($phone, $email);
 
         if (is_object($response)) {
@@ -206,259 +208,331 @@ class Ssbhesabfa_Admin_Functions
         return null;
     }
 //====================================================================================================================
+    public function normalizePhoneNumber($phone) {
+        // Remove all non-numeric characters
+        $phone = preg_replace('/\D/', '', $phone);
+
+        // Handle country code '98'
+        if (substr($phone, 0, 2) === '98') { // Replace str_starts_with
+            $phone = substr($phone, 2); // Remove '98'
+        } elseif (substr($phone, 0, 4) === '0098') { // Replace str_starts_with
+            $phone = substr($phone, 4); // Remove '0098' for international format
+        }
+
+        // Ensure the number starts with '0'
+        if (substr($phone, 0, 1) !== '0') { // Replace str_starts_with
+            $phone = '0' . $phone;
+        }
+
+        // Truncate to the standard 11 digits for Iranian phone numbers
+        if (strlen($phone) > 11) {
+            $phone = substr($phone, -11);
+        }
+
+        return $phone;
+    }
+//====================================================================================================================
     //Invoice
-    public function setOrder($id_order, $orderType = 0, $reference = null)
-    {
-        if (!isset($id_order)) {
-            return false;
-        }
+    public function setOrder($id_order, $orderType = 0, $reference = null, $orderItems = array()) {
+	    if (!isset($id_order)) {
+		    return false;
+	    }
 
-        $wpFaService = new HesabfaWpFaService();
+	    $wpFaService = new HesabfaWpFaService();
 
-        $number = $this->getInvoiceNumberByOrderId($id_order);
-        if (!$number) {
-            $number = null;
-            if ($orderType == 2) //return if saleInvoice not set before
-            {
-                return false;
-            }
-        }
+	    $number = $this->getInvoiceNumberByOrderId($id_order);
+	    if (!$number) {
+		    $number = null;
+		    if ($orderType == 2) //return if saleInvoice not set before
+		    {
+			    return false;
+		    }
+	    }
 
 //        $order = new WC_Order($id_order);
-        $order = wc_get_order($id_order);
+	    $order = wc_get_order($id_order);
 
-        $dokanOption = get_option("ssbhesabfa_invoice_dokan", 0);
+	    $additionalFields = array();
+	    //save additional fields meta
+	    if(get_option('ssbhesabfa_contact_add_additional_checkout_fields_hesabfa') == 1) {
+		    $additionalFields = array(
+			    "nationalCode" => $order->get_meta('_billing_hesabfa_national_code'),
+			    "economicCode" => $order->get_meta('_billing_hesabfa_economic_code'),
+			    "registrationNumber" => $order->get_meta('_billing_hesabfa_registeration_number'),
+			    "website" => $order->get_meta('_billing_hesabfa_website'),
+			    "phone" => $order->get_meta('_billing_hesabfa_phone')
+		    );
+		    $this->SaveAdditionalFieldsMeta($id_order, $additionalFields);
+	    } elseif(get_option('ssbhesabfa_contact_add_additional_checkout_fields_hesabfa') == '2') {
+		    $additionalFields = array(
+			    "nationalCode" => get_option('ssbhesabfa_contact_NationalCode_text_hesabfa'),
+			    "economicCode" => get_option('ssbhesabfa_contact_EconomicCode_text_hesabfa'),
+			    "registrationNumber" => get_option('ssbhesabfa_contact_RegistrationNumber_text_hesabfa'),
+			    "website" => get_option('ssbhesabfa_contact_Website_text_hesabfa'),
+			    "phone" => get_option('ssbhesabfa_contact_Phone_text_hesabfa')
+		    );
+		    $this->SaveAdditionalFieldsMeta($id_order, $additionalFields);
+	    }
+	    $dokanOption = get_option("ssbhesabfa_invoice_dokan", 0);
 
-        if ($dokanOption && is_plugin_active("dokan-lite/dokan.php")) {
-            $orderCreated = $order->get_created_via();
-            if ($dokanOption == 1 && $orderCreated !== 'checkout')
-                return false;
-            else if ($dokanOption == 2 && $orderCreated === 'checkout')
-                return false;
-        }
+	    if ($dokanOption && is_plugin_active("dokan-lite/dokan.php")) {
+		    $orderCreated = $order->get_created_via();
+		    if ($dokanOption == 1 && $orderCreated !== 'checkout')
+			    return false;
+		    else if ($dokanOption == 2 && $orderCreated === 'checkout')
+			    return false;
+	    }
 
-        $id_customer = $order->get_customer_id();
-        if ($id_customer !== 0) {
+	    $id_customer = $order->get_customer_id();
+	    if ($id_customer !== 0) {
 
-            $contactCode = $this->setContact($id_customer, 'first', $id_order);
+		    $contactCode = $this->setContact($id_customer, 'first', $id_order, $additionalFields);
 
-            if ($contactCode == null) {
-                if (!$contactCode) {
-                    return false;
-                }
-            }
-            HesabfaLogService::writeLogStr("order ID " . $id_order);
-            if (get_option('ssbhesabfa_contact_address_status') == 2) {
-                $this->setContact($id_customer, 'billing', $id_order);
-            } elseif (get_option('ssbhesabfa_contact_address_status') == 3) {
-                $this->setContact($id_customer, 'shipping', $id_order);
-            }
-        } else {
-            $contactCode = $this->setGuestCustomer($id_order);
-            if (!$contactCode) {
-                return false;
-            }
-        }
+		    if ($contactCode == null) {
+			    if (!$contactCode) {
+				    return false;
+			    }
+		    }
+		    HesabfaLogService::writeLogStr("order ID " . $id_order);
+		    if (get_option('ssbhesabfa_contact_address_status') == 2) {
+			    $this->setContact($id_customer, 'billing', $id_order);
+		    } elseif (get_option('ssbhesabfa_contact_address_status') == 3) {
+			    $this->setContact($id_customer, 'shipping', $id_order);
+		    }
+	    } else {
+		    $contactCode = $this->setGuestCustomer($id_order, $additionalFields);
+		    if (!$contactCode) {
+			    return false;
+		    }
+	    }
 
-        global $notDefinedProductID;
-        $notDefinedItems = array();
-        $products = $order->get_items();
-        foreach ($products as $product) {
-            if ($product['product_id'] == 0) continue;
-            $itemCode = $wpFaService->getProductCodeByWpId($product['product_id'], $product['variation_id']);
-            if ($itemCode == null) {
-                $notDefinedItems[] = $product['product_id'];
-            }
-        }
+	    global $notDefinedProductID;
+	    $notDefinedItems = array();
+	    $products = $order->get_items();
+	    if(get_option("ssbhesabfa_save_order_option") == 1) {
+		    $products = $orderItems;
+	    }
+	    foreach ($products as $product) {
+		    if ($product['product_id'] == 0) continue;
+		    $itemCode = $wpFaService->getProductCodeByWpId($product['product_id'], $product['variation_id']);
+		    if ($itemCode == null) {
+			    $notDefinedItems[] = $product['product_id'];
+		    }
+	    }
 
-        if (!empty($notDefinedItems)) {
-            if (!$this->setItems($notDefinedItems)) {
-                HesabfaLogService::writeLogStr("Cannot add/update Invoice. Failed to set products. Order ID: $id_order");
-                return false;
-            }
-        }
+	    if (!empty($notDefinedItems)) {
+		    if (!$this->setItems($notDefinedItems)) {
+			    HesabfaLogService::writeLogStr("Cannot add/update Invoice. Failed to set products. Order ID: $id_order");
+			    return false;
+		    }
+	    }
 
-        $invoiceItems = array();
-        $i = 0;
-        $failed = false;
-        foreach ($products as $key => $product) {
-            $itemCode = $wpFaService->getProductCodeByWpId($product['product_id'], $product['variation_id']);
+	    $invoiceItems = array();
+	    $i = 0;
+	    $failed = false;
+	    foreach ($products as $key => $product) {
+		    $itemCode = $wpFaService->getProductCodeByWpId($product['product_id'], $product['variation_id']);
 
-            if ($itemCode == null) {
-                $pId = $product['product_id'];
-                $vId = $product['variation_id'];
-                HesabfaLogService::writeLogStr("Item not found. productId: $pId, variationId: $vId, Order ID: $id_order");
+		    if ($itemCode == null) {
+			    $pId = $product['product_id'];
+			    $vId = $product['variation_id'];
+			    HesabfaLogService::writeLogStr("Item not found. productId: $pId, variationId: $vId, Order ID: $id_order");
 
-                $failed = true;
-                break;
-            }
+			    $failed = true;
+			    break;
+		    }
 
 //            $wcProduct = new WC_Product($product['product_id']);
 
-            if($product['variation_id']) {
-                $wcProduct = wc_get_product($product['variation_id']);
-            } else {
-                $wcProduct = wc_get_product($product['product_id']);
-            }
+		    if($product['variation_id']) {
+			    $wcProduct = wc_get_product($product['variation_id']);
+		    } else {
+			    $wcProduct = wc_get_product($product['product_id']);
+		    }
 
-            global $discount, $price;
-            if( $wcProduct->is_on_sale() && get_option('ssbhesabfa_set_special_sale_as_discount') === 'yes' ) {
-                $price = $this->getPriceInHesabfaDefaultCurrency($wcProduct->get_regular_price());
-                $discount = $this->getPriceInHesabfaDefaultCurrency($wcProduct->get_regular_price() - $wcProduct->get_sale_price());
-                $discount *= $product['quantity'];
-            } else {
-                $price = $this->getPriceInHesabfaDefaultCurrency($product['subtotal'] / $product['quantity']);
-                $discount = $this->getPriceInHesabfaDefaultCurrency($product['subtotal'] - $product['total']);
-            }
+		    global $discount, $price;
+		    if( $wcProduct->is_on_sale() && get_option('ssbhesabfa_set_special_sale_as_discount') === 'yes' ) {
+			    $price = $this->getPriceInHesabfaDefaultCurrency($wcProduct->get_regular_price());
+			    $discount = $this->getPriceInHesabfaDefaultCurrency($wcProduct->get_regular_price() - $wcProduct->get_sale_price());
+			    $discount *= $product['quantity'];
+		    } else {
+			    $price = $this->getPriceInHesabfaDefaultCurrency($product['subtotal'] / $product['quantity']);
+			    $discount = $this->getPriceInHesabfaDefaultCurrency($product['subtotal'] - $product['total']);
+		    }
 
-            $item = array(
-                'RowNumber' => $i,
-                'ItemCode' => $itemCode,
-                'Description' => Ssbhesabfa_Validation::invoiceItemDescriptionValidation($product['name']),
-                'Quantity' => (int)$product['quantity'],
-                'UnitPrice' => (float)$price,
-                'Discount' => (float)$discount,
-                'Tax' => (float)$this->getPriceInHesabfaDefaultCurrency($product['total_tax']),
-            );
+		    $item = array(
+			    'RowNumber' => $i,
+			    'ItemCode' => $itemCode,
+			    'Description' => Ssbhesabfa_Validation::invoiceItemDescriptionValidation($product['name']),
+			    'Quantity' => (int)$product['quantity'],
+			    'UnitPrice' => (float)$price,
+			    'Discount' => (float)$discount,
+			    'Tax' => (float)$this->getPriceInHesabfaDefaultCurrency($product['total_tax']),
+		    );
 
-            $invoiceItems[] = $item;
-            $i++;
-        }
+		    $invoiceItems[] = $item;
+		    $i++;
+	    }
 
-        if ($failed) {
-            HesabfaLogService::writeLogStr("Cannot add/update Invoice. Item code is NULL. Check your invoice products and relations with Hesabfa. Order ID: $id_order");
-            return false;
-        }
+	    if ($failed) {
+		    HesabfaLogService::writeLogStr("Cannot add/update Invoice. Item code is NULL. Check your invoice products and relations with Hesabfa. Order ID: $id_order");
+		    return false;
+	    }
 
-        if (empty($invoiceItems)) {
-            HesabfaLogService::log(array("Cannot add/update Invoice. At least one item required."));
-            return false;
-        }
+	    if (empty($invoiceItems)) {
+		    HesabfaLogService::log(array("Cannot add/update Invoice. At least one item required."));
+		    return false;
+	    }
 
-        $date_obj = $order->get_date_created();
-        switch ($orderType) {
-            case 0:
-                $date = $date_obj->date('Y-m-d H:i:s');
-                break;
-            case 2:
-                $date = date('Y-m-d H:i:s');
-                break;
-            default:
-                $date = $date_obj->date('Y-m-d H:i:s');
-        }
+	    $date_obj = $order->get_date_created();
+	    switch ($orderType) {
+		    case 0:
+			    $date = $date_obj->date('Y-m-d H:i:s');
+			    break;
+		    case 2:
+			    $date = date('Y-m-d H:i:s');
+			    break;
+		    default:
+			    $date = $date_obj->date('Y-m-d H:i:s');
+	    }
 
-        if ($reference === null)
-            $reference = $id_order;
+	    if(is_plugin_active("persian-woocommerce/woocommerce-persian.php")) {
+		    if ($this->checkDateFormat($date) === "Jalali") {
+			    $date = $this->jalali_to_gregorian($date);
+		    }
+	    }
 
-        $order_shipping_method = "";
-        foreach ($order->get_items('shipping') as $item)
-            $order_shipping_method = $item->get_name();
+	    if ($reference === null)
+		    $reference = $id_order;
 
-        $note = $order->customer_note;
-        if ($order_shipping_method)
-            $note .= "\n" . __('Shipping method', 'ssbhesabfa') . ": " . $order_shipping_method;
+	    $order_shipping_method = "";
+	    foreach ($order->get_items('shipping') as $item)
+		    $order_shipping_method = $item->get_name();
 
-        global $freightOption, $freightItemCode;
-        $freightOption = get_option("ssbhesabfa_invoice_freight");
+        //direct access
+//	    $note = $order->customer_note;
+	    $note = $order->get_customer_note();
+	    if ($order_shipping_method)
+		    $note .= "\n" . __('Shipping method', 'ssbhesabfa') . ": " . $order_shipping_method;
 
-        if($freightOption == 1) {
-            $freightItemCode = get_option('ssbhesabfa_invoice_freight_code');
-            if(!isset($freightItemCode) || !$freightItemCode) HesabfaLogService::writeLogStr("کد هزینه حمل و نقل تعریف نشده است" . "\n" . "Freight service code is not set");
+	    global $freightOption, $freightItemCode;
+	    $freightOption = get_option("ssbhesabfa_invoice_freight");
 
-            $freightItemCode = $this->convertPersianDigitsToEnglish($freightItemCode);
+	    if($freightOption == 1) {
+		    $freightItemCode = get_option('ssbhesabfa_invoice_freight_code');
+		    if(!isset($freightItemCode) || !$freightItemCode) HesabfaLogService::writeLogStr("کد هزینه حمل و نقل تعریف نشده است" . "\n" . "Freight service code is not set");
 
-            if($this->getPriceInHesabfaDefaultCurrency($order->get_shipping_total()) != 0) {
-                $invoiceItem = array(
-                    'RowNumber' => $i,
-                    'ItemCode' => $freightItemCode,
-                    'Description' => 'هزینه حمل و نقل',
-                    'Quantity' => 1,
-                    'UnitPrice' => (float) $this->getPriceInHesabfaDefaultCurrency($order->get_shipping_total()),
-                    'Discount' => 0,
-                    'Tax' => (float) $this->getPriceInHesabfaDefaultCurrency($order->get_shipping_tax())
-                );
-                $invoiceItems[] = $invoiceItem;
-            }
-        }
+		    $freightItemCode = $this->convertPersianDigitsToEnglish($freightItemCode);
 
-        $data = array(
-            'Number' => $number,
-            'InvoiceType' => $orderType,
-            'ContactCode' => $contactCode,
-            'Date' => $date,
-            'DueDate' => $date,
-            'Reference' => $reference,
-            'Status' => 2,
-            'Tag' => json_encode(array('id_order' => $id_order)),
-            'InvoiceItems' => $invoiceItems,
-            'Note' => $note,
-            'Freight' => ''
-        );
+		    if($this->getPriceInHesabfaDefaultCurrency($order->get_shipping_total()) != 0) {
+			    $invoiceItem = array(
+				    'RowNumber' => $i,
+				    'ItemCode' => $freightItemCode,
+				    'Description' => 'هزینه حمل و نقل',
+				    'Quantity' => 1,
+				    'UnitPrice' => (float) $this->getPriceInHesabfaDefaultCurrency($order->get_shipping_total()),
+				    'Discount' => 0,
+				    'Tax' => (float) $this->getPriceInHesabfaDefaultCurrency($order->get_shipping_tax())
+			    );
+			    $invoiceItems[] = $invoiceItem;
+		    }
+	    }
 
-        if($freightOption == 0) {
-            $freight = $this->getPriceInHesabfaDefaultCurrency($order->get_shipping_total() + $order->get_shipping_tax());
-            $data['Freight'] = $freight;
-        }
+	    $data = array(
+		    'Number' => $number,
+		    'InvoiceType' => $orderType,
+		    'ContactCode' => $contactCode,
+		    'Date' => $date,
+		    'DueDate' => $date,
+		    'Reference' => $reference,
+		    'Status' => 2,
+		    'Tag' => json_encode(array('id_order' => $id_order)),
+		    'InvoiceItems' => $invoiceItems,
+		    'Note' => $note,
+		    'Freight' => 0
+	    );
 
-        $invoice_draft_save = get_option('ssbhesabfa_invoice_draft_save_in_hesabfa', 'no');
-        if ($invoice_draft_save != 'no')
-            $data['Status'] = 0;
+	    if($freightOption == 0) {
+		    $freight = $this->getPriceInHesabfaDefaultCurrency($order->get_shipping_total() + $order->get_shipping_tax());
+		    $data['Freight'] = $freight;
+	    }
 
-        $invoice_project = get_option('ssbhesabfa_invoice_project', -1);
-        $invoice_salesman = get_option('ssbhesabfa_invoice_salesman', -1);
-        $invoice_salesman_percentage = get_option('ssbhesabfa_invoice_salesman_percentage', 0);
-        if ($invoice_project != -1) $data['Project'] = $invoice_project;
-        if ($invoice_salesman != -1) $data['SalesmanCode'] = $invoice_salesman;
-        if($invoice_salesman_percentage) if($invoice_salesman_percentage != 0) $data['SalesmanPercent'] = $this->convertPersianDigitsToEnglish($invoice_salesman_percentage);
+	    if($freightOption == 2) {
+		    $api = new Ssbhesabfa_Api();
+		    $freightContactCode = get_option('ssbhesabfa_invoice_freight_contact_code');
+		    if($freightContactCode == '')
+			    HesabfaLogService::writeLogStr("کد شخص را برای حمل و نقل وارد نمایید");
 
-        $GUID = $this->getGUID($id_order);
-        $hesabfa = new Ssbhesabfa_Api();
-        $response = $hesabfa->invoiceSave($data, $GUID);
-//        $response = $hesabfa->invoiceSave($data, '');
+		    $freightContactCode = $this->convertPersianDigitsToEnglish($freightContactCode);
+		    $freightContact = $api->contactGet($freightContactCode);
 
-        if ($response->Success) {
-            global $wpdb;
+		    if($freightContact->Status === false)
+			    HesabfaLogService::log(array("شخص " . $freightContactCode . " در حسابفا یافت نشد."));
+		    else {
+			    $data['FreightPersonCode'] = $freightContact->Result->Code;
+			    $freight = $this->getPriceInHesabfaDefaultCurrency($order->get_shipping_total() + $order->get_shipping_tax());
+			    $data['Freight'] = $freight;
+		    }
+	    }
 
-            switch ($orderType) {
-                case 0:
-                    $obj_type = 'order';
-                    break;
-                case 2:
-                    $obj_type = 'returnOrder';
-                    break;
-            }
+	    $invoice_draft_save = get_option('ssbhesabfa_invoice_draft_save_in_hesabfa', 'no');
+	    if ($invoice_draft_save != 'no')
+		    $data['Status'] = 0;
 
-            if ($number === null) {
-                $wpdb->insert($wpdb->prefix . 'ssbhesabfa', array(
-                    'id_hesabfa' => (int)$response->Result->Number,
-                    'obj_type' => $obj_type,
-                    'id_ps' => $id_order,
-                ));
-                HesabfaLogService::log(array("Invoice successfully added. Invoice number: " . (string)$response->Result->Number . ". Order ID: $id_order"));
-            } else {
-                $wpFaId = $wpFaService->getWpFaId($obj_type, $id_order);
+	    $invoice_project = get_option('ssbhesabfa_invoice_project', -1);
+	    $invoice_salesman = get_option('ssbhesabfa_invoice_salesman', -1);
+	    $invoice_salesman_percentage = get_option('ssbhesabfa_invoice_salesman_percentage', 0);
+	    if ($invoice_project != -1) $data['Project'] = $invoice_project;
+	    if ($invoice_salesman != -1) $data['SalesmanCode'] = $invoice_salesman;
+	    if($invoice_salesman_percentage) if($invoice_salesman_percentage != 0) $data['SalesmanPercent'] = $this->convertPersianDigitsToEnglish($invoice_salesman_percentage);
 
-                $wpdb->update($wpdb->prefix . 'ssbhesabfa', array(
-                    'id_hesabfa' => (int)$response->Result->Number,
-                    'obj_type' => $obj_type,
-                    'id_ps' => $id_order,
-                ), array('id' => $wpFaId));
-                HesabfaLogService::log(array("Invoice successfully updated. Invoice number: " . (string)$response->Result->Number . ". Order ID: $id_order"));
-            }
+	    $GUID = $this->getGUID($id_order);
+	    $hesabfa = new Ssbhesabfa_Api();
+	    $response = $hesabfa->invoiceSave($data, $GUID);
 
-            $warehouse = get_option('ssbhesabfa_item_update_quantity_based_on', "-1");
-            if ($warehouse != "-1" && $orderType === 0)
-                $this->setWarehouseReceipt($invoiceItems, (int)$response->Result->Number, $warehouse, $date, $invoice_project);
+	    if ($response->Success) {
+		    global $wpdb;
 
-            return true;
-        } else {
-            foreach ($invoiceItems as $item) {
-                HesabfaLogService::log(array("Cannot add/update Invoice. Error Code: " . (string)$response->ErrorCode . ". Error Message: " . (string)$response->ErrorMessage . ". Order ID: $id_order" . "\n"
-              . "Hesabfa Id:" . $item['ItemCode']
-            ));
-            }
-            return false;
-        }
+		    switch ($orderType) {
+			    case 0:
+				    $obj_type = 'order';
+				    break;
+			    case 2:
+				    $obj_type = 'returnOrder';
+				    break;
+		    }
+
+		    if ($number === null) {
+			    $wpdb->insert($wpdb->prefix . 'ssbhesabfa', array(
+				    'id_hesabfa' => (int)$response->Result->Number,
+				    'obj_type' => $obj_type,
+				    'id_ps' => $id_order,
+			    ));
+			    HesabfaLogService::log(array("Invoice successfully added. Invoice number: " . (string)$response->Result->Number . ". Order ID: $id_order"));
+		    } else {
+			    $wpFaId = $wpFaService->getWpFaId($obj_type, $id_order);
+
+			    $wpdb->update($wpdb->prefix . 'ssbhesabfa', array(
+				    'id_hesabfa' => (int)$response->Result->Number,
+				    'obj_type' => $obj_type,
+				    'id_ps' => $id_order,
+			    ), array('id' => $wpFaId));
+			    HesabfaLogService::log(array("Invoice successfully updated. Invoice number: " . (string)$response->Result->Number . ". Order ID: $id_order"));
+		    }
+
+		    $warehouse = get_option('ssbhesabfa_item_update_quantity_based_on', "-1");
+		    if ($warehouse != "-1" && $orderType === 0)
+			    $this->setWarehouseReceipt($invoiceItems, (int)$response->Result->Number, $warehouse, $date, $invoice_project);
+
+		    return true;
+	    } else {
+		    foreach ($invoiceItems as $item) {
+			    HesabfaLogService::log(array("Cannot add/update Invoice. Error Code: " . (string)$response->ErrorCode . ". Error Message: " . (string)$response->ErrorMessage . ". Order ID: $id_order" . "\n"
+			                                 . "Hesabfa Id:" . $item['ItemCode']
+			    ));
+		    }
+		    return false;
+	    }
     }
 //========================================================================================================================
     public function setWarehouseReceipt($items, $invoiceNumber, $warehouseCode, $date, $project)
@@ -539,17 +613,14 @@ class Ssbhesabfa_Admin_Functions
 
         $hesabfa = new Ssbhesabfa_Api();
         $number = $this->getInvoiceCodeByOrderId($id_order);
-        if (!$number) {
+        if (!$number)
             return false;
-        }
 
         //$order = new WC_Order($id_order);
         $order = wc_get_order($id_order);
 
-        if ($order->get_total() <= 0) {
+        if ($order->get_total() <= 0)
             return true;
-        }
-
 
         $transaction_id = $order->get_transaction_id();
         //transaction id cannot be null or empty
@@ -604,31 +675,64 @@ class Ssbhesabfa_Admin_Functions
         }
 
         $response = $hesabfa->invoiceGet($number);
+
         if ($response->Success) {
-            if ($response->Result->Paid > 0) {
-                // payment submited before
-            } else {
-                $paymentMethod = $order->get_payment_method();
-                $transactionFee = 0;
-                if(isset($paymentMethod)) {
-                    if(get_option("ssbhesabfa_payment_transaction_fee_$paymentMethod") > 0) $transactionFee = $this->formatTransactionFee(get_option("ssbhesabfa_payment_transaction_fee_$paymentMethod"), $this->getPriceInHesabfaDefaultCurrency($order->get_total()));
-                    else $transactionFee = $this->formatTransactionFee(get_option("ssbhesabfa_invoice_transaction_fee"), $this->getPriceInHesabfaDefaultCurrency($order->get_total()));
-                }
-
-                if(isset($transactionFee) && $transactionFee != null) $response = $hesabfa->invoiceSavePayment($number, $financialData, $accountPath, $date_obj->date('Y-m-d H:i:s'), $this->getPriceInHesabfaDefaultCurrency($order->get_total()), $transaction_id,'', $transactionFee);
-                else $response = $hesabfa->invoiceSavePayment($number, $financialData, $accountPath, $date_obj->date('Y-m-d H:i:s'), $this->getPriceInHesabfaDefaultCurrency($order->get_total()), $transaction_id,'', 0);
-
-                if ($response->Success) {
-                    HesabfaLogService::log(array("Hesabfa invoice payment added. Order ID: $id_order"));
-                    return true;
-                } else {
-                    HesabfaLogService::log(array("Cannot add Hesabfa Invoice payment. Order ID: $id_order. Error Code: " . (string)$response->ErrorCode . ". Error Message: " . (string)$response->ErrorMessage . "."));
-                    return false;
-                }
-            }
+			$orderPaymentsNotToSubmit = ["cod", "cheque"];
+			if(in_array($order->get_payment_method(), $orderPaymentsNotToSubmit)) {
+				if(get_option("ssbhesabfa_submit_receipt_card") == "yes") {
+					$this->submitPayment($response, $order, $number, $financialData, $accountPath, $date_obj, $id_order, $transaction_id);
+				}
+			} else {
+				$this->submitPayment($response, $order, $number, $financialData, $accountPath, $date_obj, $id_order, $transaction_id);
+			}
             return true;
         } else {
             HesabfaLogService::log(array("Error while trying to get invoice. Invoice Number: $number. Error Code: " . (string)$response->ErrorCode . ". Error Message: " . (string)$response->ErrorMessage . "."));
+            return false;
+        }
+    }
+//========================================================================================================================
+	public function submitPayment($response, $order, $number, $financialData, $accountPath, $date_obj, $id_order, $transaction_id): void {
+		$hesabfa = new Ssbhesabfa_Api();
+		if ($response->Result->Paid > 0) {
+			// payment submited before
+			if(get_option('ssbhesabfa_delete_old_receipt') == 'yes') {
+				$receipt = $hesabfa->getReceipts($response->Result->Number);
+				if($receipt->Success) {
+					if($receipt->Result->FilteredCount > 0) {
+						$isDeleted = $hesabfa->deleteReceipt($receipt->Result->List[0]->Number);
+						if($isDeleted->Success) {
+							HesabfaLogService::log(array("Receipt Deleted. Receipt Number: " . $receipt->Result->List[0]->Number));
+							$this->savePayment($order, $number, $financialData, $accountPath, $date_obj, $id_order, $transaction_id);
+						}
+						else HesabfaLogService::log(array("Can't Delete Receipt. Receipt Number: " . $receipt->Result->List[0]->Number));
+					}
+				} else {
+					HesabfaLogService::log(array('Error getting invoice receipts. Error Message: ' . $response->ErrorMessage . ', Error code: ' . $response->ErrorCode . ', invoice number: ' . $response->Result->Number));
+				}
+			}
+		} else {
+			$this->savePayment($order, $number, $financialData, $accountPath, $date_obj, $id_order, $transaction_id);
+		}
+	}
+//========================================================================================================================
+    public function savePayment($order, $number, $financialData, $accountPath, $date_obj, $id_order, $transaction_id): bool {
+        $hesabfa = new Ssbhesabfa_Api();
+        $paymentMethod = $order->get_payment_method();
+        $transactionFee = 0;
+        if(isset($paymentMethod)) {
+            if(get_option("ssbhesabfa_payment_transaction_fee_$paymentMethod") > 0) $transactionFee = $this->formatTransactionFee(get_option("ssbhesabfa_payment_transaction_fee_$paymentMethod"), $this->getPriceInHesabfaDefaultCurrency($order->get_total()));
+            else $transactionFee = $this->formatTransactionFee(get_option("ssbhesabfa_invoice_transaction_fee"), $this->getPriceInHesabfaDefaultCurrency($order->get_total()));
+        }
+
+        if(isset($transactionFee) && $transactionFee != null) $response = $hesabfa->invoiceSavePayment($number, $financialData, $accountPath, $date_obj->date('Y-m-d H:i:s'), $this->getPriceInHesabfaDefaultCurrency($order->get_total()), $transaction_id,'', $transactionFee);
+        else $response = $hesabfa->invoiceSavePayment($number, $financialData, $accountPath, $date_obj->date('Y-m-d H:i:s'), $this->getPriceInHesabfaDefaultCurrency($order->get_total()), $transaction_id,'', 0);
+
+        if ($response->Success) {
+            HesabfaLogService::log(array("Hesabfa invoice payment added. Order ID: $id_order"));
+            return true;
+        } else {
+            HesabfaLogService::log(array("Cannot add Hesabfa Invoice payment. Order ID: $id_order. Error Code: " . (string)$response->ErrorCode . ". Error Message: " . (string)$response->ErrorMessage . "."));
             return false;
         }
     }
@@ -699,9 +803,6 @@ class Ssbhesabfa_Admin_Functions
             global $wpdb;
 
             if ($batch == 1) {
-//                $total = $wpdb->get_var("SELECT COUNT(*) FROM `" . $wpdb->prefix . "posts`
-//                                    WHERE post_type = 'product' AND post_status IN('publish','private')");
-
 	            $total = $wpdb->get_var(
 		            $wpdb->prepare(
 			            "SELECT COUNT(*) FROM {$wpdb->posts}
@@ -713,8 +814,6 @@ class Ssbhesabfa_Admin_Functions
             }
 
             $offset = ($batch - 1) * $rpp;
-//            $products = $wpdb->get_results("SELECT ID FROM `" . $wpdb->prefix . "posts`
-//                                    WHERE post_type = 'product' AND post_status IN('publish','private') ORDER BY 'ID' ASC LIMIT $offset,$rpp");
 
 	        $products = $wpdb->get_results(
 		        $wpdb->prepare(
@@ -828,11 +927,19 @@ class Ssbhesabfa_Admin_Functions
 
             $response = $hesabfa->itemGetItems(array('Skip' => $offset, 'Take' => $rpp, 'SortBy' => 'Id', 'Filters' => $filters));
             if ($response->Success) {
+                if(!is_object($response)) {
+                    HesabfaLogService::writeLogStr("Couldn't get response from hesabfa");
+                }
                 $items = $response->Result->List;
                 $from = $response->Result->From;
                 $to = $response->Result->To;
 
                 foreach ($items as $item) {
+                    if (!is_object($item)) {
+                        HesabfaLogService::log("Error: Invalid item object.");
+                        continue;
+                    }
+
                     $wpFa = $wpFaService->getWpFaByHesabfaId('product', $item->Code);
                     if ($wpFa) continue;
 
@@ -878,6 +985,7 @@ class Ssbhesabfa_Admin_Functions
                         'id_hesabfa' => (int)$item->Code,
                         'id_ps' => $postId,
                         'id_ps_attribute' => 0,
+                        'active' => 1
                     ));
 
                     update_post_meta($postId, '_manage_stock', 'yes');
@@ -904,7 +1012,7 @@ class Ssbhesabfa_Admin_Functions
             $result["updateCount"] = $updateCount;
             return $result;
         } catch(Error $error) {
-            HesabfaLogService::writeLogStr("Error in importing products" . $error->getMessage());
+            HesabfaLogService::writeLogStr("Error in importing products" . $error->getMessage() . "\n" . $error);
         }
     }
 //========================================================================================================================
@@ -1143,7 +1251,10 @@ class Ssbhesabfa_Admin_Functions
         $id_orders = array();
         foreach ($orders as $order) {
             //$order = new WC_Order($order->ID);
-            $order = wc_get_order($order->ID);
+
+            //direct access
+            //$order = wc_get_order($order->ID);
+            $order = wc_get_order($order->get_id());
 
             $id_order = $order->get_id();
             $id_obj = $wpFaService->getWpFaId('order', $id_order);
@@ -1164,7 +1275,15 @@ class Ssbhesabfa_Admin_Functions
                         }
                     }
                 }
-            } else {
+            }
+            else {
+                if (strpos($statusesToSubmitInvoice, $current_status) !== false) {
+                    if ($this->setOrder($id_order)) {
+                        array_push($id_orders, $id_order);
+                        $updateCount++;
+                    }
+                }
+
                 if (strpos($statusesToSubmitPayment, $current_status) !== false)
                     $this->setOrderPayment($id_order);
             }
@@ -1322,8 +1441,6 @@ class Ssbhesabfa_Admin_Functions
         global $wpdb;
 
         if ($batch == 1) {
-            //$total = $wpdb->get_var("SELECT COUNT(*) FROM `" . $wpdb->prefix . "posts` WHERE post_type = 'product' AND post_status IN('publish','private')");
-
             $total = $wpdb->get_var(
                 $wpdb->prepare(
                     "SELECT COUNT(*) FROM {$wpdb->posts}
@@ -1334,9 +1451,6 @@ class Ssbhesabfa_Admin_Functions
         }
 
         $offset = ($batch - 1) * $rpp;
-//        $products = $wpdb->get_results("SELECT ID FROM `" . $wpdb->prefix . "posts`
-//                                WHERE post_type = 'product' AND post_status IN('publish','private') ORDER BY 'ID' ASC LIMIT $offset,$rpp");
-
         $products = $wpdb->get_results(
             $wpdb->prepare(
                 "SELECT ID FROM {$wpdb->posts}
@@ -1370,9 +1484,6 @@ class Ssbhesabfa_Admin_Functions
         if($offset != 0 && $rpp != 0) {
             if(abs($rpp - $offset) <= 200) {
                 if($rpp > $offset) {
-//                    $products = $wpdb->get_results("SELECT * FROM `" . $wpdb->prefix . "posts`
-//                                            WHERE ID BETWEEN $offset AND $rpp AND post_type = 'product' AND post_status IN('publish','private') ORDER BY 'ID' ASC");
-
                     $products = $wpdb->get_results(
                         $wpdb->prepare(
                             "SELECT * FROM {$wpdb->posts}
@@ -1391,9 +1502,6 @@ class Ssbhesabfa_Admin_Functions
                     $response = (new Ssbhesabfa_Admin_Functions)->setItems($products_id_array);
                     if(!$response) $result['error'] = true;
                 } else {
-//                    $products = $wpdb->get_results("SELECT * FROM `" . $wpdb->prefix . "posts`
-//                                            WHERE ID BETWEEN $rpp AND $offset AND post_type = 'product' AND post_status IN('publish','private') ORDER BY 'ID' ASC");
-
                     $products = $wpdb->get_results(
                         $wpdb->prepare(
                             "SELECT * FROM {$wpdb->posts}
@@ -1450,8 +1558,6 @@ class Ssbhesabfa_Admin_Functions
             return false;
         }
 
-        //$found = $wpdb->get_var("SELECT COUNT(*) FROM `" . $wpdb->prefix . "posts` WHERE ID = $id_product");
-
         $found = $wpdb->get_var(
             $wpdb->prepare(
                 "SELECT COUNT(*) FROM {$wpdb->posts}
@@ -1468,10 +1574,6 @@ class Ssbhesabfa_Admin_Functions
 
         $product = wc_get_product($id_product);
         $variation = $id_attribute != 0 ? wc_get_product($id_attribute) : null;
-
-
-//        $product = new WC_Product($id_product);
-//        $variation = $id_attribute != 0 ? new WC_Product($id_attribute) : null;
 
         $result = array();
         $result["newPrice"] = null;
@@ -1543,9 +1645,6 @@ class Ssbhesabfa_Admin_Functions
                 $new_stock_status = ($new_quantity > 0) ? "instock" : "outofstock";
 
                 $post_id = ($id_attribute && $id_attribute > 0) ? $id_attribute : $id_product;
-
-//                update_post_meta($post_id, '_stock', $new_quantity);
-//                wc_update_product_stock_status($post_id, $new_stock_status);
 
                 $product = wc_get_product( $post_id );
                 if ( $product ) {
@@ -1673,6 +1772,14 @@ class Ssbhesabfa_Admin_Functions
         }
     }
 //=========================================================================================================================
+	function SaveAdditionalFieldsMeta($id_order, $additionalFields) {
+		update_post_meta($id_order, '_billing_hesabfa_national_code', $additionalFields['nationalCode']);
+		update_post_meta($id_order, '_billing_hesabfa_economic_code', $additionalFields['economicCode']);
+		update_post_meta($id_order, '_billing_hesabfa_registeration_number', $additionalFields['registrationNumber']);
+		update_post_meta($id_order, '_billing_hesabfa_website', $additionalFields['website']);
+		update_post_meta($id_order, '_billing_hesabfa_phone', $additionalFields['phone']);
+	}
+//=========================================================================================================================
     function checkNationalCode($NationalCode): void
     {
         $identicalDigits = ['1111111111', '2222222222', '3333333333', '4444444444', '5555555555', '6666666666', '7777777777', '8888888888', '9999999999'];
@@ -1705,23 +1812,31 @@ class Ssbhesabfa_Admin_Functions
         }
     }
 //=========================================================================================================================
-    public function checkNationalCodeWithPhone($nationalCode, $billingPhone): bool {
+    public function checkNationalCodeWithPhone($nationalCode, $billingMobile = ''): void {
+		if($billingMobile == '')
+			wc_add_notice(__('please enter a valid mobile', 'ssbhesabfa'), 'error');
+
         $api = new Ssbhesabfa_Api();
 
-        $formattedPhoneNumber = $this->convertPersianPhoneDigitsToEnglish($billingPhone);
-        $formattedPhoneNumber = $this->formatPhoneNumber($formattedPhoneNumber);
-
-        $response = $api->checkMobileAndNationalCode($nationalCode, $formattedPhoneNumber);
-        if($response->Success) {
-            if($response->Result->Status == 1) {
-                return $response->Result->Data->Matched;
-            } else {
-                return false;
-            }
-        } else {
-            HesabfaLogService::writeLogStr('Error Occurred in Checking Mobile and NationalCode. ErrorCode: ' . $response->ErrorCode . " - ErrorMessage: " . $response->ErrorMessage);
-            return false;
-        }
+		$res = $api->credit();
+		if($res->Success) {
+			if($res->Result >= 2) {
+		        $formattedMobile = $this->convertPersianDigitsToEnglish($billingMobile);
+		        $formattedMobile = $this->formatPhoneNumber($formattedMobile);
+		
+		        $response = $api->checkMobileAndNationalCode($nationalCode, $formattedMobile);
+		        if($response->Success) {
+		            if($response->Result->Status == 1) {
+		                if($response->Result->Data->Matched != 1)
+			                wc_add_notice(__("mobile and national code don't match", 'ssbhesabfa'), 'error');
+		            }
+		        } else {
+		            HesabfaLogService::writeLogStr('Error Occurred in Checking Mobile and NationalCode. ErrorCode: ' . $response->ErrorCode . " - ErrorMessage: " . $response->ErrorMessage);
+		        }
+			} else {
+				HesabfaLogService::writeLogStr('Not Enough Tokens For Inquiry - تعداد توکن برای سامانه استعلام ناکافی است');
+			}
+		}
     }
 //=========================================================================================================================
     function checkWebsite($Website): void
@@ -1757,20 +1872,6 @@ class Ssbhesabfa_Admin_Functions
         }
 
         return $phoneNumber;
-    }
-//=========================================================================================================================
-    public function convertPersianPhoneDigitsToEnglish($inputString) : string {
-        $newNumbers = range(0, 9);
-        $persianDecimal = array('&#1776;', '&#1777;', '&#1778;', '&#1779;', '&#1780;', '&#1781;', '&#1782;', '&#1783;', '&#1784;', '&#1785;');
-        $arabicDecimal  = array('&#1632;', '&#1633;', '&#1634;', '&#1635;', '&#1636;', '&#1637;', '&#1638;', '&#1639;', '&#1640;', '&#1641;');
-        $arabic  = array('٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩');
-        $persian = array('۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹');
-
-        $string =  str_replace($persianDecimal, $newNumbers, $inputString);
-        $string =  str_replace($arabicDecimal, $newNumbers, $string);
-        $string =  str_replace($persian, $newNumbers, $string);
-
-        return str_replace($arabic, $newNumbers, $string);
     }
 //=========================================================================================================================
     public function convertPersianDigitsToEnglish($inputString) : int {
@@ -1837,6 +1938,82 @@ class Ssbhesabfa_Admin_Functions
             if($transactionFee < 1) $transactionFee = 0;
         }
         return $transactionFee;
+    }
+//=========================================================================================================================
+    public function jalali_to_gregorian($jalali_datetime) {
+        list($jalali_date, $time) = explode(' ', $jalali_datetime);
+        list($jy, $jm, $jd) = explode('-', $jalali_date);
+
+        $g_days_in_month = array(31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31);
+        $j_days_in_month = array(31, 31, 31, 31, 31, 31, 30, 30, 30, 30, 30, 29);
+
+        $jy -= 979;
+        $jm -= 1;
+        $jd -= 1;
+
+        $j_day_no = 365 * $jy + floor($jy / 33) * 8 + floor(($jy % 33 + 3) / 4);
+
+        for ($i = 0; $i < $jm; ++$i) {
+            $j_day_no += $j_days_in_month[$i];
+        }
+
+        $j_day_no += $jd;
+
+        $g_day_no = $j_day_no + 79;
+
+        $gy = 1600 + 400 * floor($g_day_no / 146097);
+        $g_day_no = $g_day_no % 146097;
+
+        $leap = true;
+
+        if ($g_day_no >= 36525)
+        {
+            $g_day_no--;
+            $gy += 100 * floor($g_day_no / 36524);
+            $g_day_no = $g_day_no % 36524;
+
+            if ($g_day_no >= 365) {
+                $g_day_no++;
+            } else {
+                $leap = false;
+            }
+        }
+
+        $gy += 4 * floor($g_day_no / 1461);
+        $g_day_no %= 1461;
+
+        if ($g_day_no >= 366) {
+            $leap = false;
+            $g_day_no--;
+            $gy += floor($g_day_no / 365);
+            $g_day_no = $g_day_no % 365;
+        }
+
+        for ($i = 0; $g_day_no >= $g_days_in_month[$i] + ($i == 1 && $leap); $i++) {
+            $g_day_no -= $g_days_in_month[$i] + ($i == 1 && $leap);
+        }
+
+        $gm = $i + 1;
+        $gd = $g_day_no + 1;
+
+        $gregorian_datetime = sprintf('%04d-%02d-%02d %s', $gy, $gm, $gd, $time);
+
+        return $gregorian_datetime;
+    }
+//=========================================================================================================================
+    function checkDateFormat($dateStr) {
+        $gregorianRegex = '/^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])\s([01]\d|2[0-3]):([0-5]\d):([0-5]\d)$/';
+        $jalaliRegex = '/^(13|14)\d{2}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])\s([01]\d|2[0-3]):([0-5]\d):([0-5]\d)$/';
+
+        if (preg_match($jalaliRegex, $dateStr)) {
+            return "Jalali";
+        }
+        elseif (preg_match($gregorianRegex, $dateStr)) {
+            return "Gregorian";
+        }
+        else {
+            return "Invalid format";
+        }
     }
 //=========================================================================================================================
     public function convertCityCodeToName($cityCode) {

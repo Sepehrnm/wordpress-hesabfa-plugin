@@ -4,7 +4,7 @@ include_once(plugin_dir_path(__DIR__) . 'admin/services/HesabfaLogService.php');
 
 /**
  * @class      Ssbhesabfa_Api
- * @version    2.1.1
+ * @version    2.1.2
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/api
@@ -50,8 +50,6 @@ class Ssbhesabfa_Api
             'sslverify' => false,
             'data_format' => 'body',
         );
-
-        //HesabfaLogService::writeLogObj($options);
 
         $wp_remote_post = wp_remote_post($endpoint, $options);
         $result = json_decode(wp_remote_retrieve_body($wp_remote_post));
@@ -167,12 +165,22 @@ class Ssbhesabfa_Api
 //================================================================================================
     public function contactGetByPhoneOrEmail($phone, $email) {
         $method = 'contact/findByPhoneOrEmail';
-        $data = array(
-            'mobile' => $phone,
-            'email' => $email,
-            'phone' => $phone,
-        );
-
+        if($phone == '') {
+            $data = array(
+                'email' => $email,
+            );
+        } else if($email == '') {
+            $data = array(
+                'mobile' => $phone,
+                'phone' => $phone,
+            );
+        } else {
+            $data = array(
+                'mobile' => $phone,
+                'email' => $email,
+                'phone' => $phone,
+            );
+        }
         return $this->apiRequest($method, $data);
     }
 //================================================================================================
@@ -250,10 +258,16 @@ class Ssbhesabfa_Api
     public function itemGetQuantity($warehouseCode, $codes)
     {
         $method = 'item/GetQuantity';
-        $data = array(
-            'warehouseCode' => $warehouseCode,
-            'codes' => $codes,
-        );
+        if($warehouseCode != "-1") {
+            $data = array(
+                'warehouseCode' => $warehouseCode,
+                'codes' => $codes,
+            );
+        } else {
+            $data = array(
+                'codes' => $codes,
+            );
+        }
 
         return $this->apiRequest($method, $data);
     }
@@ -368,6 +382,26 @@ class Ssbhesabfa_Api
         $data = array(
             'deleteOldReceipts' => true,
             'receipt' => $receipt,
+        );
+
+        return $this->apiRequest($method, $data);
+    }
+//================================================================================================
+    public function getReceipts($number) {
+        $method = 'receipt/getReceipts';
+        $data = array(
+            'type' => 1,
+            'queryInfo' => array('filters' => array(array('Property' => 'Invoice.Number', 'Operator' => '=', 'Value' => (int)$number))),
+        );
+
+        return $this->apiRequest($method, $data);
+    }
+//================================================================================================
+    public function deleteReceipt($number, $type = 1) {
+        $method = 'receipt/delete';
+        $data = array(
+            'type' => $type,
+            'number' => $number,
         );
 
         return $this->apiRequest($method, $data);
@@ -518,6 +552,11 @@ class Ssbhesabfa_Api
             'mobile' => $billingPhone,
         );
         return $this->apiRequest($method, $data);
+    }
+//================================================================================================
+    public function credit() {
+        $method = 'inquiry/credit';
+        return $this->apiRequest($method);
     }
 //================================================================================================
 }

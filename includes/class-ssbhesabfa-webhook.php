@@ -21,13 +21,18 @@ class Ssbhesabfa_Webhook
 
     public function __construct()
     {
-        //HesabfaLogService::writeLogStr("Calling Webhook");
         $wpFaService = new HesabfaWpFaService();
-
         $hesabfaApi = new Ssbhesabfa_Api();
 
-        $lastChange = get_option('ssbhesabfa_last_log_check_id');
-        $changes = $hesabfaApi->settingGetChanges($lastChange + 1);
+        $lastChange = $hesabfaApi->getLastChangeId();
+        if ($lastChange && isset($lastChange->LastId)) {
+            update_option('ssbhesabfa_last_log_check_id', $lastChange->LastId - 1);
+            $lastChangeId = $lastChange->LastId - 1;
+        } else {
+            $lastChangeId = get_option('ssbhesabfa_last_log_check_id');
+        }
+
+        $changes = $hesabfaApi->settingGetChanges($lastChangeId);
 
         if ($changes->Success) {
             update_option('ssbhesabfa_business_expired', 0);
@@ -39,7 +44,8 @@ class Ssbhesabfa_Webhook
                             if ($item->Action == 123) {
                                 $wpFa1 = $wpFaService->getWpFaByHesabfaId('order', $item->Extra2);
                                 if($wpFa1) {
-                                    $wpFaService->delete($wpFa1);
+                                    //$wpFaService->delete($wpFa1);
+                                    $wpFaService->updateActive($wpFa1, 0);
                                     HesabfaLogService::writeLogStr("The invoice link with the order deleted. Invoice number: " . $item->Extra2 . ", Order id: " . $wpFa1->idWp);
                                 }
                             }
@@ -56,19 +62,27 @@ class Ssbhesabfa_Webhook
                                 $hesabfaApi = new Ssbhesabfa_Api();
                                 $receipt = $hesabfaApi->getWarehouseReceipt($item->ObjectId);
 //                                HesabfaLogService::writeLogObj($receipt->Result->Items);
-                                foreach ($receipt->Result->Items as $receiptItem) {
-                                    $wpFa = $wpFaService->getWpFaByHesabfaId('product', $receiptItem->ItemCode);
-                                    $wpdb->insert($wpdb->prefix . 'ssbhesabfa', array(
-                                        'id_hesabfa' => (int)$item->ObjectId,
-                                        'obj_type' => "receiptItems",
-                                        'id_ps' => $wpFa->idWp,
-                                        'id_ps_attribute' => $wpFa->idWpAttribute
-                                    ));
+                                if($receipt != null) {
+                                    if($receipt->Result->Items != null) {
+                                        if(count($receipt->Result->Items) > 0) {
+                                            foreach ($receipt->Result->Items as $receiptItem) {
+                                                $wpFa = $wpFaService->getWpFaByHesabfaId('product', $receiptItem->ItemCode);
+                                                if($wpFa->idWp != null) {
+                                                    $wpdb->insert($wpdb->prefix . 'ssbhesabfa', array(
+                                                        'id_hesabfa' => (int)$item->ObjectId,
+                                                        'obj_type' => "receiptItems",
+                                                        'id_ps' => $wpFa->idWp,
+                                                        'id_ps_attribute' => $wpFa->idWpAttribute
+                                                    ));
+                                                }
+                                            }
+                                        }
+                                    }
                                 }
 
-                                if (get_option('ssbhesabfa_item_update_quantity', 'no') == 'no') {
-                                    HesabfaLogService::writeLogStr("Sync Products Quantity is Off");
-                                }
+//                                if (get_option('ssbhesabfa_item_update_quantity', 'no') == 'no') {
+//                                    HesabfaLogService::writeLogStr("Sync Products Quantity is Off");
+//                                }
                             }
                             if ($item->Action == 263) {
                                 global $wpdb;
@@ -78,9 +92,9 @@ class Ssbhesabfa_Webhook
                                     $post_id = ($row->id_ps_attribute && $row->id_ps_attribute > 0) ? $row->id_ps_attribute : $row->id_ps;
                                     //$product = wc_get_product( $post_id );
 
-                                    if (get_option('ssbhesabfa_item_update_quantity', 'no') == 'no') {
-                                        HesabfaLogService::writeLogStr("Sync Products Quantity is Off");
-                                    }
+//                                    if (get_option('ssbhesabfa_item_update_quantity', 'no') == 'no') {
+//                                        HesabfaLogService::writeLogStr("Sync Products Quantity is Off");
+//                                    }
 
                                     $productId = $row->id_ps;
                                     $attributeId = $row->id_ps_attribute;

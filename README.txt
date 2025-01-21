@@ -1,10 +1,10 @@
 === Hesabfa Accounting ===
-Contributors: saeedsb, hamidprime, sepehr-najafi
+Contributors: saeedsb, hamidprime, sepehrnajafi78
 Tags: accounting cloud hesabfa
 Requires at least: 5.2
-Tested up to: 6.6.1
+Tested up to: 6.7.1
 Requires PHP: 5.6
-Stable tag: 2.1.1
+Stable tag: 2.1.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -435,3 +435,17 @@ by clicking update stock and price button in hesabfa tab in product edit page
 * add feature: add do not update titles in hesabfa option in catalog page
 * add feature: add hesabfa code column in woocommerce excel export
 * add feature: add hesabfa gift wrapping service
+
+= 2.1.2 - 21.01.2025 =
+* bug fix: add date compatibility for persian woocommerce date
+* bug fix: add extra method to get shipping state
+* bug fix: add extra field for regular price to fix show price bug
+* add feature: add sync changes option
+* add feature: add company to customer items
+* add feature: delete old receipts option in sync orders
+* bug fix: fix snapppay plugin not recognizing
+* add feature: add invoice freight person option
+* add feature: add national code and mobile match check option
+* add feature: add mobile to woocommerce checkout fields
+* add feature: add submit card transfer and at delivery payment receipt option
+* add feature: add hesabfa and woocommerce quantity to extra settings tab

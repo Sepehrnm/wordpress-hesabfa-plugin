@@ -9,17 +9,21 @@ class WpFa
     public $idHesabfa;
     public $idWp;
     public $idWpAttribute;
+    public $active;
 
     public function __construct() {}
 
-    public static function newWpFa($id, $type, $idHesabfa, $idWp, $idWpAttribute): WpFa
+    public static function newWpFa($id, $type, $idHesabfa, $idWp, $idWpAttribute, $active): WpFa
     {
         $instance = new self();
+
         $instance->id = $id;
         $instance->objType = $type;
         $instance->idHesabfa = $idHesabfa;
         $instance->idWp = $idWp;
         $instance->idWpAttribute = $idWpAttribute;
+        $instance->active = $active;
+
         return $instance;
     }
 }
@@ -28,26 +32,26 @@ class HesabfaWpFaService
 {
     public function __construct() {}
 
-    public function getWpFa($objType, $idWp, $idWpAttribute = 0)
+    public function getWpFa($objType, $idWp, $idWpAttribute = 0, $active = 1)
     {
         if (!isset($objType) || !isset($idWp)) return false;
 
         global $wpdb;
-        //$row = $wpdb->get_row("SELECT * FROM " . $wpdb->prefix . "ssbhesabfa WHERE `id_ps` = $idWp AND `id_ps_attribute` = $idWpAttribute AND `obj_type` = '$objType'");
 
         $row = $wpdb->get_row(
             $wpdb->prepare(
                 "SELECT *
-                FROM {$wpdb->prefix}ssbhesabfa
-                WHERE `id_ps` = %d
-                AND `id_ps_attribute` = %d
-                AND `obj_type` = %s",
+                    FROM {$wpdb->prefix}ssbhesabfa
+                    WHERE `id_ps` = %d
+                    AND `id_ps_attribute` = %d
+                    AND `obj_type` = %s
+                    AND `active` = %d",
                 $idWp,
                 $idWpAttribute,
-                $objType
+                $objType,
+	            $active
             )
         );
-
 
         if (isset($row)) return $this->mapWpFa($row);
 
@@ -100,21 +104,22 @@ class HesabfaWpFaService
     }
 
 //=========================================================================================================
-    public function getWpFaByHesabfaId($objType, $hesabfaId)
+    public function getWpFaByHesabfaId($objType, $hesabfaId, $active = 1)
     {
         if (!isset($objType) || !isset($hesabfaId)) return false;
 
         global $wpdb;
-        //$row = $wpdb->get_row("SELECT * FROM " . $wpdb->prefix . "ssbhesabfa WHERE `id_hesabfa` = $hesabfaId AND `obj_type` = '$objType'");
 
         $row = $wpdb->get_row(
             $wpdb->prepare(
                 "SELECT *
                 FROM {$wpdb->prefix}ssbhesabfa
                 WHERE `id_hesabfa` = %d
-                AND `obj_type` = %s",
+                AND `obj_type` = %s
+                AND `active` = %d",
                 $hesabfaId,
-                $objType
+                $objType,
+                $active
             )
         );
 
@@ -129,7 +134,6 @@ class HesabfaWpFaService
             return false;
 
         global $wpdb;
-        //$row = $wpdb->get_row("SELECT `id` FROM " . $wpdb->prefix . "ssbhesabfa WHERE `id_ps` = $idWp AND `id_ps_attribute` = $idWpAttribute AND `obj_type` = '$objType'");
 
         $row = $wpdb->get_row(
             $wpdb->prepare(
@@ -156,7 +160,6 @@ class HesabfaWpFaService
             return false;
 
         global $wpdb;
-        //$row = $wpdb->get_row("SELECT `id` FROM " . $wpdb->prefix . "ssbhesabfa WHERE `id_hesabfa` = $hesabfaId AND `obj_type` = '$objType'");
 
         $row = $wpdb->get_row(
             $wpdb->prepare(
@@ -178,7 +181,6 @@ class HesabfaWpFaService
     public function getProductCodeByWpId($id_product, $id_attribute = 0)
     {
         $obj = $this->getWpFa('product', $id_product, $id_attribute);
-
         if ($obj != null) return $obj->idHesabfa;
 
         return null;
@@ -205,9 +207,6 @@ class HesabfaWpFaService
     public function getProductAndCombinations($idWp)
     {
         global $wpdb;
-
-        //$sql = "SELECT * FROM `" . $wpdb->prefix . "ssbhesabfa` WHERE `obj_type` = 'product' AND `id_ps` = '$idWp'";
-        //$result = $wpdb->get_results($sql);
 
         $sql = $wpdb->prepare(
             "SELECT *
@@ -238,6 +237,7 @@ class HesabfaWpFaService
         $wpFa->idWp = $sqlObj->id_ps;
         $wpFa->idWpAttribute = $sqlObj->id_ps_attribute;
         $wpFa->objType = $sqlObj->obj_type;
+        $wpFa->active = $sqlObj->active;
 
         return $wpFa;
     }
@@ -246,17 +246,19 @@ class HesabfaWpFaService
     {
         $json = json_decode($item->Tag);
         $wpFaService = new HesabfaWpFaService();
-        $wpFa = $wpFaService->getWpFaByHesabfaId('product', $item->Code);
+        $wpFa = $wpFaService->getWpFaByHesabfaId('product', $item->Code, 1);
 
         if (!$wpFa) {
-            $wpFa = WpFa::newWpFa(0, 'product', (int)$item->Code, (int)$json->id_product, (int)$json->id_attribute);
-            $wpFaService->save($wpFa);
+            $wpFa = WpFa::newWpFa(0, 'product', (int)$item->Code, (int)$json->id_product, (int)$json->id_attribute, 1);
             HesabfaLogService::log(array("Item successfully added. Item code: " . (string)$item->Code . ". Product ID: $json->id_product-$json->id_attribute"));
+            $wpFaService->save($wpFa);
         } else {
+            $wpFaService->updateActive($wpFa, false);
             $wpFa->idHesabfa = (int)$item->Code;
-            $wpFaService->update($wpFa);
             HesabfaLogService::log(array("Item successfully updated. Item code: " . (string)$item->Code . ". Product ID: $json->id_product-$json->id_attribute"));
+            $wpFaService->update($wpFa);
         }
+
         return true;
     }
 //=========================================================================================================
@@ -269,11 +271,6 @@ class HesabfaWpFaService
         global $wpdb;
 
         if (!$id) {
-//            $wpdb->insert($wpdb->prefix . 'ssbhesabfa', array(
-//                'id_hesabfa' => (int)$customer->Code,
-//                'obj_type' => 'customer',
-//                'id_ps' => (int)$json->id_customer
-//            ));
             $wpdb->insert(
                 $wpdb->prefix . 'ssbhesabfa',
                 array(
@@ -292,11 +289,6 @@ class HesabfaWpFaService
 
             HesabfaLogService::writeLogStr("Customer successfully added. Customer code: " . (string)$customer->Code . ". Customer ID: $json->id_customer");
         } else {
-//            $wpdb->update($wpdb->prefix . 'ssbhesabfa', array(
-//                'id_hesabfa' => (int)$customer->Code,
-//                'obj_type' => 'customer',
-//                'id_ps' => (int)$json->id_customer,
-//            ), array('id' => $id));
 
             $wpdb->update(
                 $wpdb->prefix . 'ssbhesabfa',
@@ -319,65 +311,9 @@ class HesabfaWpFaService
         return true;
     }
 //=========================================================================================================
-    public function saveInvoice($invoice, $orderType)
-    {
-        $json = json_decode($invoice->Tag);
-        $id = $this->getPsFaId('order', (int)$json->id_order);
-
-        $invoiceNumber = (int)$invoice->Number;
-        $objType = $orderType == 0 ? 'order' : 'returnOrder';
-
-        if (!$id) {
-//            Db::getInstance()->insert('ps_hesabfa', array(
-//                'id_hesabfa' => $invoiceNumber,
-//                'obj_type' => $objType,
-//                'id_ps' => (int)$json->id_order,
-//            ));
-
-            Db::getInstance()->insert('ps_hesabfa', array(
-                'id_hesabfa' => $invoiceNumber,
-                'obj_type' => $objType,
-                'id_ps' => (int)$json->id_order,
-            ));
-
-
-            if ($objType == 'order')
-                LogService::writeLogStr("Invoice successfully added. invoice number: " . (string)$invoice->Number . ", order id: " . $json->id_order);
-            else
-                LogService::writeLogStr("Return Invoice successfully added. Customer code: " . (string)$invoice->Number . ", order id: " . $json->id_order);
-        } else {
-//            Db::getInstance()->update('ps_hesabfa', array(
-//                'id_hesabfa' => $invoiceNumber,
-//                'obj_type' => $objType,
-//                'id_ps' => (int)$json->id_order,
-//            ), array('id' => $id), 0, true, true);
-
-
-            Db::getInstance()->update('ps_hesabfa', array(
-                'id_hesabfa' => $invoiceNumber,
-                'obj_type' => $objType,
-                'id_ps' => (int)$json->id_order,
-            ), array('id' => $id), 0, true, true);
-
-            //check if it is order or return order
-            if ($objType == 'order')
-                LogService::writeLogStr("Invoice successfully updated. invoice number: " . (string)$invoice->Number . ", order id: " . $json->id_order);
-            else
-                LogService::writeLogStr("Return Invoice successfully updated. Customer code: " . (string)$invoice->Number . ", order id: " . $json->id_order);
-        }
-
-        return true;
-    }
-//=========================================================================================================
     public function save(WpFa $wpFa)
     {
         global $wpdb;
-//        $wpdb->insert($wpdb->prefix . 'ssbhesabfa', array(
-//            'id_hesabfa' => $wpFa->idHesabfa,
-//            'obj_type' => $wpFa->objType,
-//            'id_ps' => (int)$wpFa->idWp,
-//            'id_ps_attribute' => (int)$wpFa->idWpAttribute,
-//        ));
         $wpdb->insert(
             $wpdb->prefix . 'ssbhesabfa',
             array(
@@ -385,6 +321,7 @@ class HesabfaWpFaService
                 'obj_type' => $wpFa->objType,
                 'id_ps' => (int)$wpFa->idWp,
                 'id_ps_attribute' => (int)$wpFa->idWpAttribute,
+                'active' => 1,
             ),
             array(
                 '%s',
@@ -393,20 +330,8 @@ class HesabfaWpFaService
                 '%d'
             )
         );
-
     }
 //=========================================================================================================
-//    public function update(WpFa $wpFa)
-//    {
-//        global $wpdb;
-//        $wpdb->update($wpdb->prefix . 'ssbhesabfa', array(
-//            'id_hesabfa' => $wpFa->idHesabfa,
-//            'obj_type' => $wpFa->objType,
-//            'id_ps' => (int)$wpFa->idWp,
-//            'id_ps_attribute' => (int)$wpFa->idWpAttribute,
-//        ), array('id' => $wpFa->id));
-//    }
-
     public function update(WpFa $wpFa)
     {
         global $wpdb;
@@ -423,6 +348,7 @@ class HesabfaWpFaService
                 'obj_type' => $objType,
                 'id_ps' => $idWp,
                 'id_ps_attribute' => $idWpAttribute,
+                'active' => 1
             ),
             array('id' => $wpFa->id),
             array(
@@ -434,45 +360,49 @@ class HesabfaWpFaService
             array('%d')
         );
     }
-
-
 //=========================================================================================================
-//    public function delete(WpFa $wpFa)
-//    {
-//        global $wpdb;
-//        $wpdb->delete($wpdb->prefix . 'ssbhesabfa', array('id' => $wpFa->id));
-//    }
-
-    public function delete(WpFa $wpFa)
+    public function updateActive(WpFa $wpFa, $active)
     {
         global $wpdb;
 
         $id = isset($wpFa->id) ? (int)$wpFa->id : 0;
 
-        $wpdb->delete(
+        $wpdb->update(
             $wpdb->prefix . 'ssbhesabfa',
+            array(
+                'active' => $active,
+            ),
             array('id' => $id),
+            array(
+                '%d'
+            ),
             array('%d')
         );
     }
 //=========================================================================================================
-//    public function deleteAll($productId)
-//    {
-//        global $wpdb;
-//        $wpdb->delete($wpdb->prefix . 'ssbhesabfa', array('id_ps' => $productId));
-//    }
-    public function deleteAll($productId)
+    public function updateActiveAll($productId, $active)
     {
         global $wpdb;
 
         $productId = isset($productId) ? (int)$productId : 0;
 
-        $wpdb->delete(
-            $wpdb->prefix . 'ssbhesabfa',
-            array('id_ps' => $productId),
-            array('%d')
-        );
+        if ($productId > 0) {
+            $wpdb->update(
+                $wpdb->prefix . 'ssbhesabfa',
+                array(
+                    'active' => $active,
+                ),
+                array(
+                    'id_ps' => $productId,
+                ),
+                array(
+                    '%d',
+                ),
+                array(
+                    '%d',
+                )
+            );
+        }
     }
-
 //=========================================================================================================
 }

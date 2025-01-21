@@ -4,7 +4,7 @@ include_once( plugin_dir_path( __DIR__ ) . 'services/HesabfaLogService.php' );
 error_reporting(0);
 /**
  * @class      Ssbhesabfa_Setting
- * @version    2.1.1
+ * @version    2.1.2
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin/setting
@@ -96,82 +96,15 @@ class Ssbhesabfa_Setting {
             </ul>
         </div>
 <!--////////////////////////video timing in the first page of the plugin////////////////////////////////////////////-->
-        <div class="row d-none" style="margin-left: 10px;">
-            <div class="col">
+        <div class="row">
+            <div class="col-12 d-flex align-items-center justify-content-space-between flex-column p-0">
                 <h4 class="h4 hesabfa-tab-page-title mt-4"><?php esc_attr_e( 'Plugin Tutorial Video', 'ssbhesabfa' ); ?></h4>
 
                 <video controls poster="https://www.hesabfa.com/img/woocommerc-plugin-help-cover.jpg"
-                       id="hesabfa-tutorial-video" style="border: 1px solid gray" class="mt-3">
-                    <source src="https://www.hesabfa.com/file/woocommerce/woocommerce-plugin-tutorial.mp4"
+                       id="hesabfa-tutorial-video" style="border: 1px solid gray;" class="mr-4 ml-4 mt-2">
+                    <source src="https://hesabfa.com/videos/tutorials/38-%D8%B1%D8%A7%D9%87%D9%86%D9%85%D8%A7%DB%8C-%D9%88%D9%88%DA%A9%D8%A7%D9%85%D8%B1%D8%B3.mp4"
                             type="video/mp4"></source>
                 </video>
-            </div>
-            <div class="col-3">
-                <h4 class="h4 hesabfa-tab-page-title mt-4 mb-3"><?php esc_attr_e( 'Titles', 'ssbhesabfa' ); ?></h4>
-                <div class="hesabfa-plugin-tutorial-chapter" onclick="hesabfaTutorialJumpTo(0)">
-                    نصب افزونه
-                    <br><strong class="text-info">00:00</strong>
-                </div>
-                <div class="hesabfa-plugin-tutorial-chapter" onclick="hesabfaTutorialJumpTo(75)">
-                    اتصال افزونه به حسابفا
-                    <br><strong class="text-info">01:15</strong>
-                </div>
-                <div class="hesabfa-plugin-tutorial-chapter" onclick="hesabfaTutorialJumpTo(246)">
-                    تنظیمات افزونه
-                    <br><strong class="text-info">04:06</strong>
-                </div>
-                <div class="hesabfa-plugin-tutorial-chapter" onclick="hesabfaTutorialJumpTo(520)">
-                    تعریف محصول و لینک کردن محصول به حسابفا
-                    <br><strong class="text-info">08:40</strong>
-                </div>
-                <div class="hesabfa-plugin-tutorial-chapter" onclick="hesabfaTutorialJumpTo(1378)">
-                    خروجی محصولات به حسابفا
-                    <br><strong class="text-info">22:58</strong>
-                </div>
-                <div class="hesabfa-plugin-tutorial-chapter" onclick="hesabfaTutorialJumpTo(1462)">
-                    خروجی موجودی اول دوره محصولات به حسابفا
-                    <br><strong class="text-info">24:22</strong>
-                </div>
-                <div class="hesabfa-plugin-tutorial-chapter" onclick="hesabfaTutorialJumpTo(1495)">
-                    خروجی مشتریان
-                    <br><strong class="text-info">24:55</strong>
-                </div>
-                <div class="hesabfa-plugin-tutorial-chapter" onclick="hesabfaTutorialJumpTo(1525)">
-                    ورود محصولات از حسابفا به فروشگاه
-                    <br><strong class="text-info">25:25</strong>
-                </div>
-                <div class="hesabfa-plugin-tutorial-chapter" onclick="hesabfaTutorialJumpTo(1592)">
-                    همسان سازی قیمت و موجودی محصولات
-                    <br><strong class="text-info">26:32</strong>
-                </div>
-                <div class="hesabfa-plugin-tutorial-chapter" onclick="hesabfaTutorialJumpTo(1645)">
-                    همسان سازی سفارشات
-                    <br><strong class="text-info">27:25</strong>
-                </div>
-                <div class="hesabfa-plugin-tutorial-chapter" onclick="hesabfaTutorialJumpTo(1758)">
-                    بروزرسانی محصولات در حسابفا بر اساس فروشگاه
-                    <br><strong class="text-info">29:18</strong>
-                </div>
-                <div class="hesabfa-plugin-tutorial-chapter" onclick="hesabfaTutorialJumpTo(1805)">
-                    سفارشات و ثبت فاکتور در حسابفا
-                    <br><strong class="text-info">30:05</strong>
-                </div>
-                <div class="hesabfa-plugin-tutorial-chapter" onclick="hesabfaTutorialJumpTo(2120)">
-                    پشتیبان گیری از جدول افزونه در دیتابیس
-                    <br><strong class="text-info">35:20</strong>
-                </div>
-                <div class="hesabfa-plugin-tutorial-chapter" onclick="hesabfaTutorialJumpTo(2502)">
-                    لاگ رویدادها و خطاها
-                    <br><strong class="text-info">41:42</strong>
-                </div>
-                <div class="hesabfa-plugin-tutorial-chapter" onclick="hesabfaTutorialJumpTo(3046)">
-                    حذف محصولات
-                    <br><strong class="text-info">50:46</strong>
-                </div>
-                <div class="hesabfa-plugin-tutorial-chapter" onclick="hesabfaTutorialJumpTo(3143)">
-                    محصول پیش نویس
-                    <br><strong class="text-info">52:23</strong>
-                </div>
             </div>
         </div>
 
@@ -396,7 +329,76 @@ class Ssbhesabfa_Setting {
             header('refresh:0');
         }
         ?>
-        <br>
+        <br><br>
+        <form class="p-4 rounded" style="max-width: 90%; background: rgba(211,211,211,0.48);" id="ssbhesabfa_enable_check_for_sync_form" enctype="multipart/form-data" method="post">
+            <label for="ssbhesabfa_check_for_sync" class="form-label">
+                <?php
+                if(!(get_option('ssbhesabfa_check_for_sync'))) add_option('ssbhesabfa_check_for_sync', '0');
+                ?>
+                <h3 style="font-weight: bold;">بروز رسانی اطلاعات</h3>
+            </label>
+            <br><br>
+            <input type="radio" name="ssbhesabfa_check_for_sync" id="ssbhesabfa_check_for_sync_webhook" value="0" <?php if(get_option('ssbhesabfa_check_for_sync') == 0) echo 'checked'; ?>> وب هوک
+            <input type="radio" name="ssbhesabfa_check_for_sync" id="ssbhesabfa_check_for_sync_auto" value="1" <?php if(get_option('ssbhesabfa_check_for_sync') == 1) echo 'checked'; ?>> بروزرسانی اتوماتیک
+            <br><br>
+            <label for="ssbhesabfa_check_for_sync_select" class="form-label">
+                <strong>بازه بروزرسانی اتوماتیک</strong>
+            </label>
+            <select class="form-select" name="ssbhesabfa_check_for_sync_select" id="ssbhesabfa_check_for_sync_select">
+                <option value="0" <?php if(!get_option('ssbhesabfa_check_for_sync_select')) echo 'selected'; ?>><?php echo __('select', 'ssbhesabfa');?></option>
+                <option value="4" <?php if(get_option('ssbhesabfa_check_for_sync_select') == '4') echo 'selected'; ?>>4 دقیقه</option>
+                <option value="10" <?php if(get_option('ssbhesabfa_check_for_sync_select') == '10') echo 'selected'; ?>>10 دقیقه</option>
+                <option value="60" <?php if(get_option('ssbhesabfa_check_for_sync_select') == '60') echo 'selected'; ?>>1 ساعت</option>
+                <option value="120" <?php if(get_option('ssbhesabfa_check_for_sync_select') == '120') echo 'selected'; ?>>2 ساعت</option>
+                <option value="720" <?php if(get_option('ssbhesabfa_check_for_sync_select') == '720') echo 'selected'; ?>>12 ساعت</option>
+            </select>
+            <br><br>
+            <input type="submit" name="ssbhesabfa_enable_check_for_sync_button" id="ssbhesabfa_enable_check_for_sync_button" class="button-primary"
+                   value="ذخیره"/>
+        </form>
+        <?php
+            if(isset($_POST['ssbhesabfa_enable_check_for_sync_button'])) {
+                if($_POST['ssbhesabfa_check_for_sync'] == 0) {
+                    update_option("ssbhesabfa_check_for_sync", 0);
+                }
+
+                if($_POST['ssbhesabfa_check_for_sync'] == 1) {
+                    update_option("ssbhesabfa_check_for_sync", 1);
+                }
+
+                update_option("ssbhesabfa_check_for_sync_select", $_POST["ssbhesabfa_check_for_sync_select"]);
+
+                header('refresh:0');
+            }
+        ?>
+        <br><br>
+        <form class="p-4 rounded" style="max-width: 90%; background: rgba(211,211,211,0.48);" id="ssbhesabfa_save_order_option" enctype="multipart/form-data" method="post">
+            <h3>انتخاب هوک ثبت سفارش</h3>
+            <label for="ssbhesabfa_save_order_option" class="form-label">
+                <?php
+                if(!(get_option('ssbhesabfa_save_order_option'))) add_option('ssbhesabfa_save_order_option', '0');
+                ?>
+                می توانید از یکی از دو هوک ووکامرس زیر برای ثبت سفارش در حسابفا استفاده کنید
+            </label>
+            <br><br>
+            <input type="radio" name="ssbhesabfa_save_order_option" id="ssbhesabfa_save_order_option" value="0" <?php if(get_option('ssbhesabfa_save_order_option') == 0) echo 'checked'; ?>> woocommerce_new_order
+            <input type="radio" name="ssbhesabfa_save_order_option" id="ssbhesabfa_save_order_option" value="1" <?php if(get_option('ssbhesabfa_save_order_option') == 1) echo 'checked'; ?>> woocommerce_order_status_changed
+            <br><br>
+            <input type="submit" name="ssbhesabfa_save_order_button" id="ssbhesabfa_save_order_button" class="button-primary"
+                   value="ذخیره"/>
+        </form>
+        <?php
+        if(isset($_POST['ssbhesabfa_save_order_button'])) {
+            if($_POST['ssbhesabfa_save_order_option'] == 0) {
+                update_option("ssbhesabfa_save_order_option", 0);
+            }
+            if($_POST['ssbhesabfa_save_order_option'] == 1) {
+                update_option("ssbhesabfa_save_order_option", 1);
+            }
+            header('refresh:0');
+        }
+        ?>
+        <br><br>
         <form class="p-4 rounded" style="max-width: 90%; background: rgba(211,211,211,0.48);" id="ssbhesabfa_search_form" enctype="multipart/form-data" method="post">
             <h3>مشاهده آیتم های جدول ارتباط</h3>
             <label for="woocommerce_search_code" class="form-label"><strong>کد پایه ووکامرس</strong></label>
@@ -412,53 +414,140 @@ class Ssbhesabfa_Setting {
             <select name="obj_type_search" id="obj_type_search">
                 <option value="0">انتخاب کنید</option>
                 <option value="product">محصول</option>
-                <option value="order">فاکتور</option>
+                <option value="order">سفارش</option>
                 <option value="customer">مشتری</option>
             </select>
             <input type="submit" name="ssbhesabfa_search_form_button" id="ssbhesabfa_search_form_button" class="button-primary"
                    value="مشاهده"/>
         </form>
         <?php
-            if(isset($_POST["ssbhesabfa_search_form_button"])) {
-                $woocommerce_search_code = isset($_POST["woocommerce_search_code"]) ? sanitize_text_field($_POST["woocommerce_search_code"]) : '';
-                $woocommerce_attribute_search_code = isset($_POST["woocommerce_attribute_search_code"]) ? sanitize_text_field($_POST["woocommerce_attribute_search_code"]) : '';
-                $hesabfa_search_code = isset($_POST["hesabfa_search_code"]) ? sanitize_text_field($_POST["hesabfa_search_code"]) : '';
-                $obj_type_search = isset($_POST["obj_type_search"]) ? sanitize_text_field($_POST["obj_type_search"]) : '';
+        if(isset($_POST["ssbhesabfa_search_form_button"])) {
+            $woocommerce_search_code = isset($_POST["woocommerce_search_code"]) ? sanitize_text_field($_POST["woocommerce_search_code"]) : '';
+            $woocommerce_attribute_search_code = isset($_POST["woocommerce_attribute_search_code"]) ? sanitize_text_field($_POST["woocommerce_attribute_search_code"]) : '';
+            $hesabfa_search_code = isset($_POST["hesabfa_search_code"]) ? sanitize_text_field($_POST["hesabfa_search_code"]) : '';
+            $obj_type_search = isset($_POST["obj_type_search"]) ? sanitize_text_field($_POST["obj_type_search"]) : '';
 
-                if (empty($woocommerce_search_code) && empty($woocommerce_attribute_search_code) && empty($hesabfa_search_code) && $obj_type_search == '0') {
-                    return;
-                }
+            if (empty($woocommerce_search_code) && empty($woocommerce_attribute_search_code) && empty($hesabfa_search_code) && $obj_type_search == '0') {
+                return;
+            }
 
-                $wpFaService = new HesabfaWpFaService();
-                $wpFa = $wpFaService->getWpFaSearch($woocommerce_search_code, $woocommerce_attribute_search_code, $hesabfa_search_code, $obj_type_search);
+            $wpFaService = new HesabfaWpFaService();
+            $wpFa = $wpFaService->getWpFaSearch($woocommerce_search_code, $woocommerce_attribute_search_code, $hesabfa_search_code, $obj_type_search);
+            ?>
+            <div class="table-responsive mt-2 p-2" style="max-height: 400px; overflow-y: auto; max-width:92%; border: 1px solid #333; border-radius: 5px;">
+                <table class="table table-striped table-hover">
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>نوع آیتم</th>
+                        <th>کد حسابفا</th>
+                        <th>کد ووکامرس</th>
+                        <th>کد متغیر ووکامرس</th>
+                        <th>فعال</th>
+                        <th>موجودی حسابفا</th>
+                        <th>موجودی ووکامرس</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <?php if(!empty($wpFa)) {
+                        if($obj_type_search == "product") {
+                            $api = new Ssbhesabfa_Api();
+                            $func = new Ssbhesabfa_Admin_Functions();
+                            $warehouse = get_option('ssbhesabfa_item_update_quantity_based_on', "-1");
 
-                ?>
-                <div class="table-responsive mt-2 p-2" style="max-height: 400px; overflow-y: auto; max-width:92%; border: 1px solid #333; border-radius: 5px;">
-                    <table class="table table-striped table-hover">
-                        <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>نوع آیتم</th>
-                            <th>کد حسابفا</th>
-                            <th>کد ووکامرس</th>
-                            <th>کد متغیر ووکامرس</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <?php foreach($wpFa as $item) { ?>
-                            <tr>
-                                <td><?php echo $item->id;?></td>
-                                <td><?php echo $item->objType;?></td>
-                                <td><?php echo $item->idHesabfa;?></td>
-                                <td><?php echo $item->idWp;?></td>
-                                <td><?php echo $item->idWpAttribute;?></td>
-                            </tr>
-                        <?php } ?>
-                        </tbody>
-                    </table>
-                </div>
+                            // Batching API calls
+                            $hesabfaCodes = [];
+                            $hesabfaQuantities = [];
 
-            <?php }
+                            foreach ($wpFa as $item) {
+                                $hesabfaCodes[] = $item->idHesabfa;
+
+                                if (count($hesabfaCodes) >= 500) { // Batch size is 500
+                                    $response = $api->itemGetQuantity($warehouse, $hesabfaCodes);
+
+                                    if ($response->Success) {
+                                        foreach ($response->Result as $result) {
+                                            $codeWithoutLeadingZeros = ltrim($result->Code, '0');
+                                            $hesabfaQuantities[$codeWithoutLeadingZeros] = $result->Quantity;
+                                        }
+                                    } else {
+                                        // Debug error if API call fails
+                                        HesabfaLogService::log(array("API Error: " . print_r($response, true)));
+                                    }
+
+                                    $hesabfaCodes = []; // Clear the batch
+                                }
+                            }
+
+                            // Process the remaining codes in the batch
+                            if (!empty($hesabfaCodes)) {
+                                $response = $api->itemGetQuantity($warehouse, $hesabfaCodes);
+
+                                if ($response->Success) {
+                                    foreach ($response->Result as $result) {
+                                        $codeWithoutLeadingZeros = ltrim($result->Code, '0');
+                                        $hesabfaQuantities[$codeWithoutLeadingZeros] = $result->Quantity;
+                                    }
+                                }
+                            }
+                            foreach($wpFa as $item) {
+                                try {
+                                    if($hesabfaQuantities[$item->idHesabfa]) {
+                                        $hesabfaQuantity = $hesabfaQuantities[$item->idHesabfa];
+                                        $woocommerceQuantity = 0;
+
+                                        //get woocommerce quantity
+//                                        $productInWoocommerce = new WC_Product($item->idWp);
+                                        $productInWoocommerce = wc_get_product($item->idWp);
+                                        if($productInWoocommerce) {
+                                            if(!$productInWoocommerce->is_type( 'simple' )) {
+                                                //variation
+                                                $variations = $func->getProductVariations($item->idWp);
+                                                foreach($variations as $variation) {
+                                                    if($variation->get_id() == $item->idWpAttribute)
+                                                        $woocommerceQuantity = $variation->get_stock_quantity();
+                                                }
+                                            } else {
+                                                $woocommerceQuantity = $productInWoocommerce->get_stock_quantity();
+                                            }
+                                        }
+                                        ?>
+                                        <tr style="<?php if($hesabfaQuantity != $woocommerceQuantity) echo 'background: #FFCCCB'; ?>;">
+                                            <td><?php echo $item->id;?></td>
+                                            <td><?php echo $item->objType;?></td>
+                                            <td><?php echo $item->idHesabfa;?></td>
+                                            <td><?php echo $item->idWp;?></td>
+                                            <td><?php echo $item->idWpAttribute;?></td>
+                                            <td><?php echo $item->active == 1 ? "فعال" : "غیرفعال"; ?></td>
+                                            <td><?php echo $hesabfaQuantity; ?></td>
+                                            <td><?php echo $woocommerceQuantity; ?></td>
+                                        </tr>
+                                    <?php }
+                                } catch(Exception $e) {
+                                    HesabfaLogService::log(array("Error Catch: " . $e->getMessage()));
+                                }
+                            }
+                        } else {
+                            foreach($wpFa as $item) { ?>
+                                <tr>
+                                    <td><?php echo $item->id;?></td>
+                                    <td><?php echo $item->objType;?></td>
+                                    <td><?php echo $item->idHesabfa;?></td>
+                                    <td><?php echo $item->idWp;?></td>
+                                    <td><?php echo $item->idWpAttribute;?></td>
+                                    <td><?php echo $item->active == 1 ? "فعال" : "غیرفعال"; ?></td>
+                                    <td><?php echo "-"; ?></td>
+                                    <td><?php echo "-"; ?></td>
+                                </tr>
+                            <?php }
+                        }
+                    }
+                    ?>
+                    </tbody>
+                </table>
+            </div>
+        <?php }
+
     }
 //==============================================================================================
     public static function ssbhesabfa_extra_setting_save_field() {
@@ -498,6 +587,7 @@ class Ssbhesabfa_Setting {
 			'id'      => 'ssbhesabfa_item_update_quantity_based_on',
 			'type'    => 'select',
 			'options' => $warehouses,
+			'class' => 'input-text'
 		);
 
         $fields[] = array(
@@ -590,6 +680,7 @@ class Ssbhesabfa_Setting {
 			'id'      => 'ssbhesabfa_item_update_sale_price',
 			'type'    => 'select',
 			'options' => $options_to_update_sale_price,
+            'class' => 'input-text'
 		);
 
 		$fields[] = array( 'type' => 'sectionend', 'id' => 'catalog_options' );
@@ -632,10 +723,11 @@ class Ssbhesabfa_Setting {
 			'id'      => 'ssbhesabfa_contact_address_status',
 			'type'    => 'select',
 			'options' => array(
-				'1' => __( 'Use first customer address', 'ssbhesabfa' ),
+//				'1' => __( 'Use first customer address', 'ssbhesabfa' ),
 				'2' => __( 'update address with Invoice address', 'ssbhesabfa' ),
 				'3' => __( 'update address with Delivery address', 'ssbhesabfa' )
 			),
+            'class' => 'input-text'
 		);
 
 		$fields[] = array(
@@ -643,7 +735,8 @@ class Ssbhesabfa_Setting {
 			'desc'    => __( 'Enter a Customer\'s Group in Hesabfa', 'ssbhesabfa' ),
 			'id'      => 'ssbhesabfa_contact_node_family',
 			'type'    => 'text',
-			'default' => 'مشتریان فروشگاه آنلاین'
+			'default' => 'مشتریان فروشگاه آنلاین',
+            'class' => 'input-text'
 		);
 
 		$fields[] = array(
@@ -660,6 +753,13 @@ class Ssbhesabfa_Setting {
 			'type'    => 'checkbox',
 			'default' => 'yes'
 		);
+		$fields[] = array(
+			'title'   => __( 'Check Customer\'s mobile and national code', 'ssbhesabfa' ),
+			'desc'    => __( 'Check the customer\'s mobile and national code match.', 'ssbhesabfa' ),
+			'id'      => 'ssbhesabfa_contact_check_mobile_and_national_code',
+			'type'    => 'checkbox',
+			'default' => 'no'
+		);
 
 		$fields[] = array( 'type' => 'sectionend', 'id' => 'customer_options' );
 
@@ -675,16 +775,19 @@ class Ssbhesabfa_Setting {
 		$economicCodeCheck          = get_option( 'ssbhesabfa_contact_EconomicCode_checkbox_hesabfa' ) == 'yes';
 		$registrationNumberCheck    = get_option( 'ssbhesabfa_contact_RegistrationNumber_checkbox_hesabfa') == 'yes';
 		$websiteCheck               = get_option( 'ssbhesabfa_contact_Website_checkbox_hesabfa') == 'yes';
+		$phoneCheck                 = get_option( 'ssbhesabfa_contact_Phone_checkbox_hesabfa') == 'yes';
 
 		$nationalCodeRequired          = get_option( 'ssbhesabfa_contact_NationalCode_isRequired_hesabfa' ) == 'yes';
 		$economicCodeRequired          = get_option( 'ssbhesabfa_contact_EconomicCode_isRequired_hesabfa' ) == 'yes';
 		$registrationNumberRequired    = get_option( 'ssbhesabfa_contact_RegistrationNumber_isRequired_hesabfa') == 'yes';
 		$websiteRequired               = get_option( 'ssbhesabfa_contact_Website_isRequired_hesabfa') == 'yes';
+		$phoneRequired                 = get_option( 'ssbhesabfa_contact_Phone_isRequired_hesabfa') == 'yes';
 
 		$nationalCodeMetaName       = get_option( 'ssbhesabfa_contact_NationalCode_text_hesabfa', null ) ;
 		$economicCodeMetaName       = get_option( 'ssbhesabfa_contact_EconomicCode_text_hesabfa', null ) ;
 		$registrationNumberMetaName = get_option( 'ssbhesabfa_contact_RegistrationNumber_text_hesabfa', null );
 		$websiteMetaName            = get_option( 'ssbhesabfa_contact_Website_text_hesabfa', null ) ;
+		$phoneMetaName              = get_option( 'ssbhesabfa_contact_Phone_text_hesabfa', null ) ;
 
 		$Html_output = new Ssbhesabfa_Html_output();
 		?>
@@ -764,6 +867,16 @@ class Ssbhesabfa_Setting {
                                 <td><input type="text" name="website" id="website" value="<?php echo $websiteMetaName ?>"
                                            class="contact_text_input form-control"></td>
                             </tr>
+
+                            <tr>
+                                <td><input type="checkbox" name="phoneCheck" id="phoneCheck"
+			                            <?php echo $phoneCheck ? 'checked' : '' ?> class="form-control"  value="yes"></td>
+                                <td><input type="checkbox" name="phoneRequired" id="phoneRequired"
+			                            <?php echo $phoneRequired ? 'checked' : '' ?> class="form-control"  value="yes"></td>
+                                <td><span><?php echo __( 'Phone', 'ssbhesabfa' ) ?></span></td>
+                                <td><input type="text" name="phone" id="phone" value="<?php echo $phoneMetaName ?>"
+                                           class="contact_text_input form-control"></td>
+                            </tr>
                         </tbody>
 
                     </table>
@@ -791,17 +904,20 @@ class Ssbhesabfa_Setting {
             $economicCodeCheck          = wc_clean( $_POST['economicCodeCheck'] );
             $registrationNumberCheck    = wc_clean( $_POST['registrationNumberCheck'] );
             $websiteCheck               = wc_clean( $_POST['websiteCheck'] );
+            $phoneCheck                 = wc_clean( $_POST['phoneCheck'] );
 
             $nationalCodeRequired          = wc_clean( $_POST['nationalCodeRequired'] );
             $economicCodeRequired          = wc_clean( $_POST['economicCodeRequired'] );
             $registrationNumberRequired    = wc_clean( $_POST['registrationNumberRequired'] );
             $websiteRequired               = wc_clean( $_POST['websiteRequired'] );
+            $phoneRequired                 = wc_clean( $_POST['phoneRequired'] );
 
-            if(isset($_POST['nationalCode']) || isset($_POST['economicCode']) || isset($_POST['registrationNumber']) || isset($_POST['website'])) {
+            if(isset($_POST['nationalCode']) || isset($_POST['economicCode']) || isset($_POST['registrationNumber']) || isset($_POST['website']) || isset($_POST['phone'])) {
                 $nationalCode          = wc_clean( $_POST['nationalCode'] );
                 $economicCode          = wc_clean( $_POST['economicCode'] );
                 $registrationNumber    = wc_clean( $_POST['registrationNumber'] );
                 $website               = wc_clean( $_POST['website'] );
+                $phone                 = wc_clean( $_POST['phone'] );
             }
 
             update_option( 'ssbhesabfa_contact_add_additional_checkout_fields_hesabfa', $add_fields );
@@ -810,17 +926,20 @@ class Ssbhesabfa_Setting {
             update_option( 'ssbhesabfa_contact_EconomicCode_checkbox_hesabfa', $economicCodeCheck );
             update_option( 'ssbhesabfa_contact_RegistrationNumber_checkbox_hesabfa', $registrationNumberCheck );
             update_option( 'ssbhesabfa_contact_Website_checkbox_hesabfa', $websiteCheck );
+            update_option( 'ssbhesabfa_contact_Phone_checkbox_hesabfa', $phoneCheck );
 
             update_option( 'ssbhesabfa_contact_NationalCode_isRequired_hesabfa', $nationalCodeRequired );
             update_option( 'ssbhesabfa_contact_EconomicCode_isRequired_hesabfa', $economicCodeRequired );
             update_option( 'ssbhesabfa_contact_RegistrationNumber_isRequired_hesabfa', $registrationNumberRequired );
             update_option( 'ssbhesabfa_contact_Website_isRequired_hesabfa', $websiteRequired );
+            update_option( 'ssbhesabfa_contact_Phone_isRequired_hesabfa', $phoneRequired );
 
-            if(isset($nationalCode) || isset($economicCode) || isset($registrationNumber) || isset($website)) {
+            if(isset($nationalCode) || isset($economicCode) || isset($registrationNumber) || isset($website)|| isset($phone)) {
                 update_option('ssbhesabfa_contact_NationalCode_text_hesabfa', $nationalCode);
                 update_option('ssbhesabfa_contact_EconomicCode_text_hesabfa', $economicCode);
                 update_option('ssbhesabfa_contact_RegistrationNumber_text_hesabfa', $registrationNumber);
                 update_option('ssbhesabfa_contact_Website_text_hesabfa', $website);
+                update_option('ssbhesabfa_contact_Phone_text_hesabfa', $phone);
             }
         }
 
@@ -855,6 +974,7 @@ class Ssbhesabfa_Setting {
 				'failed'         => __( 'Failed', 'ssbhesabfa' ),
 				'checkout-draft' => __( 'Draft', 'ssbhesabfa' ),
 			),
+			'class' => 'input-select'
 		);
 
 		$fields[] = array(
@@ -871,6 +991,7 @@ class Ssbhesabfa_Setting {
 				'failed'         => __( 'Failed', 'ssbhesabfa' ),
 				'checkout-draft' => __( 'Draft', 'ssbhesabfa' ),
 			),
+			'class' => 'input-select'
 		);
 
 		$fields[] = array(
@@ -878,6 +999,7 @@ class Ssbhesabfa_Setting {
 			'id'      => 'ssbhesabfa_invoice_project',
 			'type'    => 'select',
 			'options' => $projects,
+			'class' => 'input-text'
 		);
 
 		$fields[] = array(
@@ -885,6 +1007,7 @@ class Ssbhesabfa_Setting {
 			'id'      => 'ssbhesabfa_invoice_salesman',
 			'type'    => 'select',
 			'options' => $salesmen,
+			'class' => 'input-text'
 		);
 
         $fields[] = array(
@@ -892,6 +1015,7 @@ class Ssbhesabfa_Setting {
             'id'      => 'ssbhesabfa_invoice_salesman_percentage',
             'type'    => 'text',
             'placeholder' => __("Invoice Salesman Percentage", 'ssbhesabfa'),
+            'class' => 'input-text'
         );
 
         $fields[] = array(
@@ -899,7 +1023,7 @@ class Ssbhesabfa_Setting {
             'desc' => __('Save invoice in draft mode in Hesabfa', 'ssbhesabfa'),
             'id' => 'ssbhesabfa_invoice_draft_save_in_hesabfa',
             'type' => 'checkbox',
-            'default' => 'no'
+            'default' => 'no',
         );
 
         $fields[] = array(
@@ -908,8 +1032,9 @@ class Ssbhesabfa_Setting {
             'type' => 'radio',
             'options' => [
                 0 => __("Save as Freight", 'ssbhesabfa'),
-                1 => __("Save as a Service", 'ssbhesabfa')
-            ],
+                1 => __("Save as a Service", 'ssbhesabfa'),
+                2 => __("Save to a Contact's Account", 'ssbhesabfa')
+            ]
         );
 
         $fields[] = array(
@@ -917,6 +1042,15 @@ class Ssbhesabfa_Setting {
             'id' => 'ssbhesabfa_invoice_freight_code',
             'type' => 'text',
             'placeholder' => __('Enter Freight Code', 'ssbhesabfa'),
+            'class' => 'input-text'
+        );
+
+        $fields[] = array(
+            'title' => __('Contact Code For Freight', 'ssbhesabfa'),
+            'id' => 'ssbhesabfa_invoice_freight_contact_code',
+            'type' => 'text',
+            'placeholder' => __('Enter Freight Contact Code', 'ssbhesabfa'),
+            'class' => 'input-text'
         );
 
         if(is_plugin_active( 'dokan-lite/dokan.php' )){
@@ -940,14 +1074,6 @@ class Ssbhesabfa_Setting {
 		$ssbhesabf_setting_fields = self::ssbhesabfa_invoice_setting_fields();
 		$Html_output              = new Ssbhesabfa_Html_output();
 		?>
-        <style>
-            #ssbhesabfa_invoice_freight_code, #ssbhesabfa_invoice_salesman_percentage {
-                min-width: 250px;
-            }
-            #ssbhesabfa_invoice_transaction_fee {
-                width: fit-content;
-            }
-        </style>
         <div class="alert alert-warning hesabfa-f">
             <strong>توجه</strong><br>
             در اینجا تعیین کنید که فاکتور سفارش در چه مرحله ای در حسابفا ثبت شود.
@@ -1010,6 +1136,7 @@ class Ssbhesabfa_Setting {
 				'failed'         => __( 'Failed', 'ssbhesabfa' ),
 				'checkout-draft' => __( 'Draft', 'ssbhesabfa' ),
 			),
+            'class' => 'input-select'
 		);
 
         foreach ( $available_payment_gateways as $gateway ) {
@@ -1017,7 +1144,8 @@ class Ssbhesabfa_Setting {
                 'title'   => $gateway->title,
                 'id'      => 'ssbhesabfa_payment_method_' . $gateway->id,
                 'type'    => 'select',
-                'options' => $payInputValue
+                'options' => $payInputValue,
+                'class' => 'input-select'
             );
         }
 
@@ -1025,22 +1153,23 @@ class Ssbhesabfa_Setting {
             $fields[] = array(
                 'title'   => 'درصد کارمزد تراکنش برای ' . $gateway->title,
                 'id'      => 'ssbhesabfa_payment_transaction_fee_' . $gateway->id,
-                'class' => 'payment-transaction-fee',
                 'type'    => 'text',
                 'placeholder' => 'وارد نمایید',
                 'default' => '0',
+                'class' => 'input-text'
             );
         }
 
         $plugins = get_plugins();
         foreach ($plugins as $plugin_file => $plugin_info) {
-            if ($plugin_file === 'snapppay-woocommerce-gateway /index.php') {
-                if(is_plugin_active('snapppay-woocommerce-gateway /index.php')) {
+            if ($plugin_file === 'snapppay-woocommerce-gateway/index.php') {
+                if(is_plugin_active('snapppay-woocommerce-gateway/index.php')) {
                     $fields[] = array(
                         'title'   => 'پرداخت اسنپ پی',
                         'id'      => 'ssbhesabfa_payment_method_snapppay',
                         'type'    => 'select',
-                        'options' => $payInputValue
+                        'options' => $payInputValue,
+                        'class' => 'input-select'
                     );
 
                     $fields[] = array(
@@ -1049,6 +1178,7 @@ class Ssbhesabfa_Setting {
                         'type'    => 'text',
                         'placeholder' => 'وارد نمایید',
                         'default' => '0',
+                        'class' => 'input-text'
                     );
                 }
             }
@@ -1069,7 +1199,7 @@ class Ssbhesabfa_Setting {
             'title'   => __( "Default Invoice Transaction Fee Percentage", 'ssbhesabfa' ),
             'id'      => 'ssbhesabfa_invoice_transaction_fee',
             'type'    => 'text',
-            'class' => 'payment-transaction-fee',
+            'class' => 'input-text',
             'placeholder' => __("Default Invoice Transaction Fee Percentage", 'ssbhesabfa'),
             'default' => '0'
         );
@@ -1083,17 +1213,35 @@ class Ssbhesabfa_Setting {
         );
 
         $fields[] = array(
+            'title'   => __( "Delete Old Receipts", 'ssbhesabfa' ),
+            'id'      => 'ssbhesabfa_delete_old_receipt',
+            'desc' => __( "Delete Old Receipts When Submiting Invoice", 'ssbhesabfa' ),
+            'type'    => 'checkbox',
+            'default' => 'no'
+        );
+
+		$fields[] = array(
+			'title'   => __( "Submit Card Transfer and at Delivery Payment Receipts", 'ssbhesabfa' ),
+			'id'      => 'ssbhesabfa_submit_receipt_card',
+			'desc' => __( "Submit Card Transfer and at Delivery Payment Receipts in Hesabfa", 'ssbhesabfa' ),
+			'type'    => 'checkbox',
+			'default' => 'no'
+		);
+
+        $fields[] = array(
           'title' => __('Default Bank Code', 'ssbhesabfa'),
           'id' => 'ssbhesabfa_default_payment_method_code',
           'type' => 'text',
-          'placeholder' => __('Enter Bank Code', 'ssbhesabfa')
+          'placeholder' => __('Enter Bank Code', 'ssbhesabfa'),
+          'class' => 'input-text'
         );
 
         $fields[] = array(
           'title' => __('Default Bank Name', 'ssbhesabfa'),
           'id' => 'ssbhesabfa_default_payment_method_name',
           'type' => 'text',
-          'placeholder' => __('Enter Bank Name', 'ssbhesabfa')
+          'placeholder' => __('Enter Bank Name', 'ssbhesabfa'),
+          'class' => 'input-text'
         );
 
 		$fields[] = array( 'type' => 'sectionend', 'id' => 'payment_options' );
@@ -1105,11 +1253,6 @@ class Ssbhesabfa_Setting {
 		$ssbhesabf_setting_fields = self::ssbhesabfa_payment_setting_fields();
 		$Html_output              = new Ssbhesabfa_Html_output();
 		?>
-        <style>
-            .payment-transaction-fee {
-                max-width: 100px;
-            }
-        </style>
         <div class="alert alert-warning hesabfa-f">
             <strong>توجه</strong><br>
             در اینجا تعیین کنید که رسید دریافت وجه فاکتور در چه وضعیتی ثبت شود
@@ -1167,6 +1310,7 @@ class Ssbhesabfa_Setting {
 			'desc'  => __( 'Find API key in Setting->Financial Settings->API Menu', 'ssbhesabfa' ),
 			'id'    => 'ssbhesabfa_account_api',
 			'type'  => 'text',
+            'class' => 'input-text'
 		);
 
 		$fields[] = array(
@@ -1174,6 +1318,7 @@ class Ssbhesabfa_Setting {
 			'desc'  => __( 'Enter a Hesabfa email account', 'ssbhesabfa' ),
 			'id'    => 'ssbhesabfa_account_username',
 			'type'  => 'email',
+			'class' => 'input-text'
 		);
 
 		$fields[] = array(
@@ -1181,6 +1326,7 @@ class Ssbhesabfa_Setting {
 			'desc'  => __( 'Enter a Hesabfa password', 'ssbhesabfa' ),
 			'id'    => 'ssbhesabfa_account_password',
 			'type'  => 'password',
+			'class' => 'input-text'
 		);
 
 		$fields[] = array(
@@ -1188,6 +1334,7 @@ class Ssbhesabfa_Setting {
 			'desc'  => __( 'Find Login token in Setting->Financial Settings->API Menu', 'ssbhesabfa' ),
 			'id'    => 'ssbhesabfa_account_login_token',
 			'type'  => 'text',
+			'class' => 'input-text'
 		);
 
         $fields[] = array(
@@ -1197,7 +1344,8 @@ class Ssbhesabfa_Setting {
             'options' => array(
                 "0" => "api.hesabfa.com",
                 "1" => "api.hesabfa.ir"
-            )
+            ),
+            'class' => 'input-text'
         );
 
 		$fields[] = array( 'type' => 'sectionend', 'id' => 'api_options' );

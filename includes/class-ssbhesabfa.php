@@ -10,7 +10,7 @@
  * version of the plugin.
  *
  * @class      Ssbhesabfa
- * @version    2.1.1
+ * @version    2.1.2
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/includes
@@ -64,7 +64,7 @@ class Ssbhesabfa
         if (defined('SSBHESABFA_VERSION')) {
             $this->version = SSBHESABFA_VERSION;
         } else {
-            $this->version = '2.1.0';
+            $this->version = '2.1.2';
         }
         $this->plugin_name = 'ssbhesabfa';
 
@@ -166,7 +166,6 @@ class Ssbhesabfa
         $this->loader->add_action('wp_ajax_handle_webhook_request', $plugin_admin, 'ssbhesabfa_parse_request');
 
         if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_option('active_plugins')))) {
-
             $this->loader->add_action('init', $plugin_admin, 'ssbhesabfa_init_internal');
 
             //Check plugin live mode
@@ -192,30 +191,35 @@ class Ssbhesabfa
                 $this->loader->add_action('custom_product_tabs', $plugin_admin, 'ssbhesabfa_general_notices');
 
                 // add filter and action for woocommerce order list
-
-                $this->loader->add_filter('bulk_actions-edit-shop_order', $plugin_admin, 'custom_orders_list_bulk_action', 20, 1);
-                $this->loader->add_filter('handle_bulk_actions-edit-shop_order', $plugin_admin, 'custom_orders_list_bulk_action_run', 10, 3);
-
                 if (get_option('woocommerce_custom_orders_table_enabled') == 'yes') {
                     $this->loader->add_filter( 'woocommerce_shop_order_list_table_columns', $plugin_admin, 'custom_hesabfa_column_order_list', 20);
                     $this->loader->add_action( 'woocommerce_shop_order_list_table_custom_column', $plugin_admin, 'custom_orders_list_column_content', 10, 2 );
+	                $this->loader->add_filter('bulk_actions-woocommerce_page_wc-orders', $plugin_admin, 'custom_orders_list_bulk_action', 20, 1);
+	                $this->loader->add_filter('handle_bulk_actions-woocommerce_page_wc-orders', $plugin_admin, 'custom_orders_list_bulk_action_run', 10, 3);
                 } else {
                     $this->loader->add_filter('manage_edit-shop_order_columns', $plugin_admin, 'custom_hesabfa_column_order_list', 20);
                     $this->loader->add_action('manage_shop_order_posts_custom_column', $plugin_admin, 'custom_orders_list_column_content', 20, 2);
+	                $this->loader->add_filter('bulk_actions-edit-shop_order', $plugin_admin, 'custom_orders_list_bulk_action', 20, 1);
+	                $this->loader->add_filter('handle_bulk_actions-edit-shop_order', $plugin_admin, 'custom_orders_list_bulk_action_run', 10, 3);
                 }
 
 	            // check add fields to checkout page by hesabfa plugin
+
 				if(get_option('ssbhesabfa_contact_add_additional_checkout_fields_hesabfa') == 1) {
 					$this->loader->add_filter('woocommerce_checkout_fields', $plugin_admin, 'add_additional_fields_to_checkout', 10, 3);
                 }
 
-				// show checkout additional fields in order detail
+                // show checkout additional fields in order detail
 	            if(get_option('ssbhesabfa_contact_add_additional_checkout_fields_hesabfa') == 1) {
 	                $this->loader->add_action('woocommerce_admin_order_data_after_billing_address', $plugin_admin, 'show_additional_fields_in_order_detail', 10, 3);
                 }
 
                 //Runs when a new order added.
-                $this->loader->add_action('woocommerce_order_status_changed', $plugin_admin, 'ssbhesabfa_hook_order_status_change', 10, 3);
+                if(get_option("ssbhesabfa_save_order_option") == 0) {
+                    $this->loader->add_action('woocommerce_order_status_changed', $plugin_admin, 'ssbhesabfa_hook_order_status_change', 10, 3);
+                } else {
+                    $this->loader->add_action('woocommerce_new_order', $plugin_admin, 'ssbhesabfa_hook_new_order', 11, 2);
+                }
 
                 //Runs when an order paid.
 //                $this->loader->add_action('woocommerce_payment_complete', $plugin_admin, 'ssbhesabfa_hook_payment_confirmation', 10, 1);
@@ -223,7 +227,6 @@ class Ssbhesabfa
 //                $this->loader->add_filter('woocommerce_order_status_completed', $plugin_admin, 'ssbhesabfa_hook_payment_confirmation', 10, 1);
                 $this->loader->add_filter('woocommerce_order_status_changed', $plugin_admin, 'ssbhesabfa_hook_payment_confirmation', 11, 3);
 
-                $this->loader->add_action('woocommerce_new_order', $plugin_admin, 'ssbhesabfa_hook_new_order', 11, 2);
 
                 //Runs when a user's profile is first created.
                 $this->loader->add_action('edit_user_profile', $plugin_admin, 'ssbhesabfa_hook_edit_user');
@@ -294,7 +297,6 @@ class Ssbhesabfa
             $this->loader->add_filter('wp_ajax_adminSyncProductsManually', $plugin_admin, 'adminSyncProductsManuallyCallback', 10, 4);
             $this->loader->add_filter('wp_ajax_adminClearPluginData', $plugin_admin, 'adminClearPluginDataCallback', 10, 4);
             $this->loader->add_filter('wp_ajax_adminInstallPluginData', $plugin_admin, 'adminInstallPluginDataCallback', 10, 4);
-
             $this->loader->add_filter('wp_ajax_adminChangeProductCode', $plugin_admin, 'adminChangeProductCodeCallback');
             $this->loader->add_filter('wp_ajax_adminDeleteProductLink', $plugin_admin, 'adminDeleteProductLinkCallback');
             $this->loader->add_filter('wp_ajax_adminUpdateProduct', $plugin_admin, 'adminUpdateProductCallback');

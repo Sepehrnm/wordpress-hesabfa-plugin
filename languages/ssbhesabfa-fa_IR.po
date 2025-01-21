@@ -249,6 +249,20 @@ msgstr "درگاه پرداخت پیش فرض"
 msgid "Default Bank Code"
 msgstr "کد بانک پیش فرض"
 
+#: admin/partials/ssbhesabfa-admin-setting.php:695
+msgid "Custom User Mobile Field"
+msgstr "کد متا فیلد تلفن همراه"
+
+msgid "Delete Old Receipts"
+msgstr "حذف رسید های پیشین"
+
+msgid "Delete Old Receipts When Submiting Invoice"
+msgstr "رسید های ثبت شده پیشین برای هر فاکتور در زمان ثبت فاکتور حذف شوند"
+
+#: admin/partials/ssbhesabfa-admin-setting.php:695
+msgid "Enter the Custom Mobile Field Id(meta code)"
+msgstr "کد متا فیلد تلفن همراه را وارد کنید"
+
 #: admin/partials/ssbhesabfa-admin-setting.php:689
 msgid "Default Bank Name"
 msgstr "نام بانک پیش فرض"
@@ -276,6 +290,44 @@ msgstr "نام بانک را وارد نمایید"
 #: admin/partials/ssbhesabfa-admin-setting.php:700
 msgid "Enter Freight Code"
 msgstr "کد هزینه حمل و نقل را وارد نمایید"
+
+#: admin/partials/ssbhesabfa-admin-setting.php:700
+msgid "Enter Freight Contact Code"
+msgstr "کد شخص حمل کننده را وارد نمایید"
+
+#: admin/partials/ssbhesabfa-admin-setting.php:700
+msgid "Phone"
+msgstr "تلفن همراه"
+
+#: admin/partials/ssbhesabfa-admin-setting.php:700
+msgid "mobile and national code don't match"
+msgstr "تلفن همراه و کد ملی مطابقت ندارند"
+
+#: admin/partials/ssbhesabfa-admin-setting.php:700
+msgid "Check Customer's mobile and national code"
+msgstr "تطابق تلفن همراه و کد ملی"
+
+msgid "Submit Card Transfer and at Delivery Payment Receipts"
+msgstr "ثبت رسید دریافت برای درگاه های کارت به کارت و پرداخت هنگام دریافت"
+
+msgid "Submit Card Transfer and at Delivery Payment Receipts in Hesabfa"
+msgstr "ثبت رسید دریافت برای درگاه های کارت به کارت و پرداخت هنگام دریافت در حسابفا"
+
+#: admin/partials/ssbhesabfa-admin-setting.php:700
+msgid "Check the customer's mobile and national code match."
+msgstr "تطابق تلفن همراه و کد ملی از طریق سامانه استعلام حسابفا"
+
+#: admin/partials/ssbhesabfa-admin-setting.php:700
+msgid "Contact Code For Freight"
+msgstr "کد حسابفای شخص حمل کننده"
+
+#: admin/partials/ssbhesabfa-admin-setting.php:700
+msgid "please enter your Phone"
+msgstr "لطفا تلفن همراه خود را وارد کنید"
+
+#: admin/partials/ssbhesabfa-admin-setting.php:700
+msgid "Save to a Contact's Account"
+msgstr "ذخیره در حساب پرداختنی شخص"
 
 #: admin/partials/ssbhesabfa-admin-setting.php:1642
 msgid "Delete Logs Between These Tow Dates"
@@ -356,7 +408,7 @@ msgid "Check customer's phone with national code in user edit page"
 msgstr "بررسی تطابق شماره صورتحساب کاربر با کدملی"
 
 #: admin/partials/ssbhesabfa-admin-setting.php:111
-msgid Check customer's phone with national code in user edit page and don't allow to save in hesabfa"
+msgid "Check customer's phone with national code in user edit page and don't allow to save in hesabfa"
 msgstr "بررسی تطابق شماره صورتحساب کاربر با کدملی توسط سامانه استعلام در صفحه ویرایش کاربر"
 
 #: admin/partials/ssbhesabfa-admin-setting.php:111

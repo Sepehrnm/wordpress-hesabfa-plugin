@@ -7,7 +7,7 @@ include_once(plugin_dir_path(__DIR__) . 'admin/services/HesabfaWpFaService.php')
  * The admin-specific functionality of the plugin.
  *
  * @class      Ssbhesabfa_Admin
- * @version    2.1.1
+ * @version    2.1.2
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin
@@ -119,6 +119,7 @@ class Ssbhesabfa_Admin
          */
 
         wp_enqueue_script($this->plugin_name, plugin_dir_url(__FILE__) . 'js/ssbhesabfa-admin.js', array('jquery'), $this->version, false);
+
         if( isset($_GET['page']) && str_contains($_GET['page'], "hesabfa") )
             wp_enqueue_script('bootstrap_js', plugin_dir_url(__FILE__) . 'js/bootstrap.bundle.min.js', array('jquery'), $this->version, false);
     }
@@ -525,7 +526,6 @@ class Ssbhesabfa_Admin
 //=========================================================================================================================
     public function adminInstallPluginDataCallback()
     {
-
         HesabfaLogService::writeLogStr('Install Plugin Data');
         if (is_admin() && (defined('DOING_AJAX') || DOING_AJAX)) {
 
@@ -611,26 +611,89 @@ class Ssbhesabfa_Admin
     public function ssbhesabfa_init_internal()
     {
         add_rewrite_rule('ssbhesabfa-webhook.php$', 'index.php?ssbhesabfa_webhook=1', 'top');
-        //$this->checkForSyncChanges();
+
+        require_once plugin_dir_path(__DIR__) . 'includes/class-ssbhesabfa-activator.php';
+        Ssbhesabfa_Activator::activate();
+
+        if(get_option("ssbhesabfa_check_for_sync") == 1) {
+            $this->checkForSyncChanges();
+        }
     }
 //=========================================================================================================================
+//    private function checkForSyncChanges()
+//    {
+//        $syncChangesLastDate = get_option('ssbhesabfa_sync_changes_last_date');
+//        if (!isset($syncChangesLastDate) || $syncChangesLastDate == false) {
+//            add_option('ssbhesabfa_sync_changes_last_date', new DateTime());
+//            $syncChangesLastDate = new DateTime();
+//        }
+//
+//        $nowDateTime = new DateTime();
+//        $diff = $nowDateTime->diff($syncChangesLastDate);
+//        $timeInterval = 4;
+//        $extraSettingTimeInterval = get_option("ssbhesabfa_check_for_sync_select");
+//
+//        if($extraSettingTimeInterval) {
+//            if($extraSettingTimeInterval != '-1' && $extraSettingTimeInterval != '0') {
+//                $timeInterval = $extraSettingTimeInterval;
+//            }
+//        }
+//
+//        if($timeInterval == 120 || $timeInterval == 720) {
+//            $totalDiffInMinutes = ($diff->h * 60) + $diff->i;
+//
+//            if ($totalDiffInMinutes >= $timeInterval) {
+//                HesabfaLogService::writeLogStr('Sync Changes Automatically');
+//                update_option('ssbhesabfa_sync_changes_last_date', new DateTime());
+//                require_once plugin_dir_path(dirname(__FILE__)) . 'includes/class-ssbhesabfa-webhook.php';
+//                new Ssbhesabfa_Webhook();
+//            }
+//        } else {
+//            if ($diff->i >= $timeInterval) {
+//                HesabfaLogService::writeLogStr('Sync Changes Automatically');
+//                update_option('ssbhesabfa_sync_changes_last_date', new DateTime());
+//                require_once plugin_dir_path(dirname(__FILE__)) . 'includes/class-ssbhesabfa-webhook.php';
+//                new Ssbhesabfa_Webhook();
+//            }
+//        }
+//    }
+
     private function checkForSyncChanges()
     {
+        // Get the last sync time
         $syncChangesLastDate = get_option('ssbhesabfa_sync_changes_last_date');
-        if (!isset($syncChangesLastDate) || $syncChangesLastDate == false) {
-            add_option('ssbhesabfa_sync_changes_last_date', new DateTime());
-            $syncChangesLastDate = new DateTime();
+        if (!$syncChangesLastDate) {
+            // Initialize the last sync date if not set
+            $syncChangesLastDate = time(); // Use PHP's time() function
+            add_option('ssbhesabfa_sync_changes_last_date', $syncChangesLastDate);
         }
 
-        $nowDateTime = new DateTime();
-        $diff = $nowDateTime->diff($syncChangesLastDate);
+        // Get the current time
+        $nowDateTime = time(); // Current UNIX timestamp
 
-        if ($diff->i >= 4) {
-            HesabfaLogService::writeLogStr('Sync Changes Automatically');
-            update_option('ssbhesabfa_sync_changes_last_date', new DateTime());
-            require_once plugin_dir_path(dirname(__FILE__)) . 'includes/class-ssbhesabfa-webhook.php';
-            new Ssbhesabfa_Webhook();
+        // Time interval (default: 4 minutes)
+        $timeInterval = 4;
+        $extraSettingTimeInterval = get_option("ssbhesabfa_check_for_sync_select");
+
+        if ($extraSettingTimeInterval && $extraSettingTimeInterval != '-1' && $extraSettingTimeInterval != '0') {
+            $timeInterval = (int)$extraSettingTimeInterval;
         }
+
+        // Calculate the time difference in minutes
+        $diffMinutes = ($nowDateTime - (int)$syncChangesLastDate) / 60;
+
+        // Check if it's time to sync
+        if ($diffMinutes >= $timeInterval) {
+            $this->performSync();
+        }
+    }
+
+    private function performSync()
+    {
+        HesabfaLogService::writeLogStr('Sync Changes Automatically');
+        update_option('ssbhesabfa_sync_changes_last_date', time()); // Update last sync time
+        require_once plugin_dir_path(dirname(__FILE__)) . 'includes/class-ssbhesabfa-webhook.php';
+        new Ssbhesabfa_Webhook();
     }
 //=========================================================================================================================
     public function ssbhesabfa_query_vars($query_vars)
@@ -654,57 +717,112 @@ class Ssbhesabfa_Admin
         return $reordered_columns;
     }
 //=========================================================================================================================
+//    public function custom_orders_list_column_content($column, $post_id)
+//    {
+//	    global $wpdb;
+//
+//        if (get_option('woocommerce_custom_orders_table_enabled') == 'yes') {
+//            switch ($column) {
+//                case 'hesabfa-column-invoice-number':
+//                    $product_id = $post_id->ID; // Extract product ID from the object
+//    //                $row = $wpdb->get_row("SELECT `id_hesabfa` FROM `" . $wpdb->prefix . "ssbhesabfa` WHERE `id_ps` = $post_id AND `obj_type` = 'order'");
+//                    $table_name = $wpdb->prefix . 'ssbhesabfa';
+//                    $row = $wpdb->get_row(
+//                        $wpdb->prepare(
+//                            "SELECT id_hesabfa FROM $table_name WHERE id_ps = %d AND obj_type = 'order'",
+//                            $product_id
+//                        )
+//                    );
+//
+//                    if (!empty($row)) {
+//                        echo '<mark class="order-status"><span>' . $row->id_hesabfa . '</span></mark>';
+//                    } else {
+//                        echo '<small></small>';
+//                    }
+//                    break;
+//
+//                case 'hesabfa-column-submit-invoice':
+//                    // Use the product ID for the data attribute value
+//                    $product_id = $post_id->ID;
+//                    echo '<a role="button" class="button btn-submit-invoice" ';
+//                    echo 'data-order-id="' . $product_id . '">';
+//                    echo __('Submit Invoice', 'ssbhesabfa');
+//                    echo '</a>';
+//                    break;
+//            }
+//        } else {
+//            switch ($column) {
+//                case 'hesabfa-column-invoice-number' :
+//                    // Get custom post meta data
+//                    $row = $wpdb->get_row("SELECT `id_hesabfa` FROM `" . $wpdb->prefix . "ssbhesabfa` WHERE `id_ps` = $post_id AND `obj_type` = 'order'");
+//
+//                    //$my_var_one = get_post_meta( $post_id, '_the_meta_key1', true );
+//                    if (!empty($row))
+//                        echo '<mark class="order-status"><span>' . $row->id_hesabfa . '</span></mark>';
+//                    else
+//                        echo '<small></small>';
+//                    break;
+//
+//                case 'hesabfa-column-submit-invoice' :
+//                    echo '<a role="button" class="button btn-submit-invoice" ';
+//                    echo "data-order-id='$post_id'>";
+//                    echo __('Submit Invoice', 'ssbhesabfa');
+//                    echo '</a>';
+//                    break;
+//            }
+//        }
+//    }
     public function custom_orders_list_column_content($column, $post_id)
     {
-
-	    global $wpdb;
+        global $wpdb;
+        $order = wc_get_order($post_id);
 
         if (get_option('woocommerce_custom_orders_table_enabled') == 'yes') {
             switch ($column) {
                 case 'hesabfa-column-invoice-number':
-                    $product_id = $post_id->ID; // Extract product ID from the object
-    //                $row = $wpdb->get_row("SELECT `id_hesabfa` FROM `" . $wpdb->prefix . "ssbhesabfa` WHERE `id_ps` = $post_id AND `obj_type` = 'order'");
                     $table_name = $wpdb->prefix . 'ssbhesabfa';
                     $row = $wpdb->get_row(
                         $wpdb->prepare(
                             "SELECT id_hesabfa FROM $table_name WHERE id_ps = %d AND obj_type = 'order'",
-                            $product_id
+                            $order->get_id()
                         )
                     );
 
                     if (!empty($row)) {
-                        echo '<mark class="order-status"><span>' . $row->id_hesabfa . '</span></mark>';
+                        echo '<mark class="order-status"><span>' . esc_html($row->id_hesabfa) . '</span></mark>';
                     } else {
                         echo '<small></small>';
                     }
                     break;
 
                 case 'hesabfa-column-submit-invoice':
-                    // Use the product ID for the data attribute value
-                    $product_id = $post_id->ID;
                     echo '<a role="button" class="button btn-submit-invoice" ';
-                    echo 'data-order-id="' . $product_id . '">';
-                    echo __('Submit Invoice', 'ssbhesabfa');
+                    echo 'data-order-id="' . esc_attr($order->get_id()) . '">';
+                    echo esc_html__('Submit Invoice', 'ssbhesabfa');
                     echo '</a>';
                     break;
             }
         } else {
             switch ($column) {
-                case 'hesabfa-column-invoice-number' :
-                    // Get custom post meta data
-                    $row = $wpdb->get_row("SELECT `id_hesabfa` FROM `" . $wpdb->prefix . "ssbhesabfa` WHERE `id_ps` = $post_id AND `obj_type` = 'order'");
+                case 'hesabfa-column-invoice-number':
+                    $row = $wpdb->get_row(
+                        $wpdb->prepare(
+                            "SELECT id_hesabfa FROM `" . $wpdb->prefix . "ssbhesabfa` WHERE id_ps = %d AND obj_type = 'order'",
+                            $order->get_id()
+                        )
+                    );
 
-                    //$my_var_one = get_post_meta( $post_id, '_the_meta_key1', true );
-                    if (!empty($row))
-                        echo '<mark class="order-status"><span>' . $row->id_hesabfa . '</span></mark>';
-                    else
+                    if (!empty($row)) {
+                        echo '<mark class="order-status"><span>' . esc_html($row->id_hesabfa) . '</span></mark>';
+                    } else {
                         echo '<small></small>';
+                    }
                     break;
 
-                case 'hesabfa-column-submit-invoice' :
+                case 'hesabfa-column-submit-invoice':
                     echo '<a role="button" class="button btn-submit-invoice" ';
-                    echo "data-order-id='$post_id'>";
-                    echo __('Submit Invoice', 'ssbhesabfa');
+                    echo 'data-order-id="' . esc_attr($order->get_id()) . '">';
+                    echo esc_html__('Submit Invoice', 'ssbhesabfa');
                     echo '</a>';
                     break;
             }
@@ -728,7 +846,6 @@ class Ssbhesabfa_Admin
         if ( $action !== 'submit_invoice_in_hesabfa' )
             return $redirect_to; // Exit
 
-
         HesabfaLogService::writeLogStr("Submit selected orders invoice");
 
         if(count($post_ids) > 10)
@@ -739,12 +856,17 @@ class Ssbhesabfa_Admin
 
         $success_count = 0;
         $func = new Ssbhesabfa_Admin_Functions();
-        foreach ($post_ids as $orderId) {
-            $result = $func->setOrder($orderId);
-            if ($result) {
-                $success_count++;
-                $func->setOrderPayment($orderId);
+
+        try {
+            foreach ($post_ids as $orderId) {
+                $result = $func->setOrder( $orderId );
+                if ( $result ) {
+                    $success_count ++;
+                    $func->setOrderPayment( $orderId );
+                }
             }
+        } catch(Exception $e) {
+            HesabfaLogService::log(array($e->getMessage()));
         }
 
         return $redirect_to = add_query_arg( array(
@@ -770,7 +892,7 @@ class Ssbhesabfa_Admin
                 <td>
                     <input
                             type="text"
-                            value="<?php echo $code; ?>"
+                            value="<?php if($code != null) echo $code; ?>"
                             name="user_hesabfa_code"
                             id="user_hesabfa_code"
                             class="regular-text"
@@ -788,17 +910,20 @@ class Ssbhesabfa_Admin
 //=========================================================================================================================
     public function ssbhesabfa_hook_user_register($id_customer)
     {
+        $user_hesabfa_code = '';
+        if(isset($_REQUEST['user_hesabfa_code']))
+            $user_hesabfa_code = $_REQUEST['user_hesabfa_code'];
 
-        $user_hesabfa_code = $_REQUEST['user_hesabfa_code'];
-
-        if (isset($user_hesabfa_code) && $user_hesabfa_code !== "") {
+        if (isset($user_hesabfa_code) && $user_hesabfa_code !== "" && $user_hesabfa_code != null) {
             $wpFaService = new HesabfaWpFaService();
             $wpFaOld = $wpFaService->getWpFaByHesabfaId('customer', $user_hesabfa_code);
             $wpFa = $wpFaService->getWpFa('customer', $id_customer);
+            HesabfaLogService::log(array("hook user register for: " . $id_customer));
 
             if (!$wpFaOld || !$wpFa || $wpFaOld->id !== $wpFa->id) {
                 if ($wpFaOld)
-                    $wpFaService->delete($wpFaOld);
+                    $wpFaService->updateActive($wpFaOld, 0);
+//                    $wpFaService->delete($wpFaOld);
 
                 if ($wpFa) {
                     $wpFa->idHesabfa = $user_hesabfa_code;
@@ -1170,6 +1295,7 @@ class Ssbhesabfa_Admin
         $items[] = ssbhesabfaItemService::mapProduct($product, $id_product, false);
         $items[0]["Quantity"] = $product->get_stock_quantity();
         $items[0]["Id"] = $id_product;
+        $items[0]["RegularPrice"] = $product->get_regular_price();
         $i = 1;
 
         $variations = $funcs->getProductVariations($id_product);
@@ -1178,6 +1304,7 @@ class Ssbhesabfa_Admin
                 $items[] = ssbhesabfaItemService::mapProductVariation($product, $variation, $id_product, false);
                 $items[$i]["Quantity"] = $variation->get_stock_quantity();
                 $items[$i]["Id"] = $variation->get_id();
+                $items[$i]["RegularPrice"] = $variation->get_regular_price();
                 $i++;
             }
         }
@@ -1209,7 +1336,7 @@ class Ssbhesabfa_Admin
                                    class="button hesabfa-item-delete-link"></td>
                         <td><input type="button" value="بروزرسانی" data-id="<?php echo $item["Id"]; ?>"
                                    class="button button-primary hesabfa-item-update"></td>
-                        <td id="hesabfa-item-price-<?php echo $item["Id"] ?>"><?php echo Ssbhesabfa_Admin_Functions::getPriceInWooCommerceDefaultCurrency($item["SellPrice"]); ?></td>
+                        <td id="hesabfa-item-price-<?php echo $item["Id"] ?>"><?php if(isset($item["SellPrice"])) echo $item["SellPrice"]; else echo  $item["RegularPrice"]; ?></td>
                         <td id="hesabfa-item-quantity-<?php echo $item["Id"] ?>"><?php echo $item["Quantity"]; ?></td>
                     </tr>
                     <?php
@@ -1283,7 +1410,7 @@ class Ssbhesabfa_Admin
 
             $wpFaService = new HesabfaWpFaService();
             $wpFa = $wpFaService->getWpFaByHesabfaId('product', $code);
-            if ($wpFa) {
+            if ($wpFa && $wpFa->active == 1) {
                 $result["error"] = true;
                 $result["message"] = "این کد به کالای دیگری متصل است. \n" . $wpFa->idWp . " - " . $wpFa->idWpAttribute;
                 echo json_encode($result);
@@ -1303,16 +1430,18 @@ class Ssbhesabfa_Admin
 
             $wpFa = $wpFaService->getWpFa('product', $productId, $attributeId);
             if ($wpFa) {
+                $wpFaService->updateActive($wpFa, false);
                 $wpFa->idHesabfa = $code;
-                $wpFaService->update($wpFa);
             } else {
                 $wpFa = new WpFa();
                 $wpFa->idHesabfa = $code;
                 $wpFa->idWp = $productId;
                 $wpFa->idWpAttribute = $attributeId;
                 $wpFa->objType = 'product';
-                $wpFaService->save($wpFa);
             }
+
+            $wpFaService->save($wpFa);
+
             $result["error"] = false;
             echo json_encode($result);
             die();
@@ -1330,7 +1459,8 @@ class Ssbhesabfa_Admin
             $wpFaService = new HesabfaWpFaService();
             $wpFa = $wpFaService->getWpFa('product', $productId, $attributeId);
             if ($wpFa) {
-                $wpFaService->delete($wpFa);
+//                $wpFaService->delete($wpFa);
+                $wpFaService->updateActive($wpFa, 0);
                 HesabfaLogService::writeLogStr("حذف ارتباط کالا. کد کالا: " . $productId . " - ". "کد متغیر:". $attributeId);
             }
 
@@ -1460,6 +1590,7 @@ class Ssbhesabfa_Admin
 
                 $wpFa = $wpFaService->getWpFa('product', $productId, $attributeId);
                 if ($wpFa) {
+                    //$wpFaService->updateActive($wpFa, false);
                     $wpFa->idHesabfa = $code;
                     $wpFaService->update($wpFa);
                 } else {
@@ -1486,7 +1617,8 @@ class Ssbhesabfa_Admin
             $result = array();
 
             $wpFaService = new HesabfaWpFaService();
-            $wpFaService->deleteAll($productId);
+//            $wpFaService->deleteAll($productId);
+            $wpFaService->updateActiveAll($productId, 0);
             HesabfaLogService::writeLogStr("حذف ارتباط کالاها. کد کالا: " . $productId);
 
             $result["error"] = false;
@@ -1567,15 +1699,17 @@ class Ssbhesabfa_Admin
         $EconomicCode_isActive = get_option('ssbhesabfa_contact_EconomicCode_checkbox_hesabfa');
         $RegistrationNumber_isActive = get_option('ssbhesabfa_contact_RegistrationNumber_checkbox_hesabfa');
         $Website_isActive = get_option('ssbhesabfa_contact_Website_checkbox_hesabfa');
+	    $Phone_isActive = get_option('ssbhesabfa_contact_Phone_checkbox_hesabfa');
 
 	    $NationalCode_isRequired = get_option('ssbhesabfa_contact_NationalCode_isRequired_hesabfa');
 	    $EconomicCode_isRequired = get_option('ssbhesabfa_contact_EconomicCode_isRequired_hesabfa');
 	    $RegistrationNumber_isRequired = get_option('ssbhesabfa_contact_RegistrationNumber_isRequired_hesabfa');
 	    $Website_isRequired = get_option('ssbhesabfa_contact_Website_isRequired_hesabfa');
+	    $Phone_isRequired = get_option('ssbhesabfa_contact_Phone_isRequired_hesabfa');
 
         //NationalCode
 	    if($NationalCode_isActive == 'yes'){
-		    $fields['billing']['billing_hesabfa_nationalcode'] = array(
+		    $fields['billing']['billing_hesabfa_national_code'] = array(
                'label'     => __('National code', 'ssbhesabfa'),
                'placeholder'   => __('please enter your National code', 'ssbhesabfa'),
                'priority' => 30,
@@ -1586,7 +1720,7 @@ class Ssbhesabfa_Admin
         }
         //Economic code
 	    if($EconomicCode_isActive == 'yes'){
-            $fields['billing']['billing_hesabfa_economiccode'] = array(
+            $fields['billing']['billing_hesabfa_economic_code'] = array(
                'label'     => __('Economic code', 'ssbhesabfa'),
                'placeholder'   => __('please enter your Economic code', 'ssbhesabfa'),
                'priority' => 31,
@@ -1596,7 +1730,7 @@ class Ssbhesabfa_Admin
 	    }
         //Registration Number
 	    if($RegistrationNumber_isActive == 'yes'){
-		    $fields['billing']['billing_hesabfa_registerationnumber'] = array(
+		    $fields['billing']['billing_hesabfa_registeration_number'] = array(
                'label'     => __('Registration number', 'ssbhesabfa'),
                'placeholder'   => __('please enter your Registration number', 'ssbhesabfa'),
                'priority' => 32,
@@ -1615,37 +1749,55 @@ class Ssbhesabfa_Admin
                'clear'     => true,
              );
 	    }
-        if(isset($_POST['billing_hesabfa_nationalcode']) || isset($_POST['billing_hesabfa_website'])) {
+        //Phone
+	    if($Phone_isActive == 'yes'){
+		    $fields['billing']['billing_hesabfa_phone'] = array(
+               'type' => 'url',
+               'label'     => __('Phone', 'ssbhesabfa'),
+               'placeholder'   => __('please enter your Phone', 'ssbhesabfa'),
+               'priority' => 34,
+               'required'  => (bool) $Phone_isRequired,
+               'clear'     => true,
+             );
+	    }
+        if(isset($_POST['billing_hesabfa_national_code']) || isset($_POST['billing_hesabfa_website'])) {
             $func = new Ssbhesabfa_Admin_Functions();
-            $NationalCode = $_POST['billing_hesabfa_nationalcode'];
+            $NationalCode = $_POST['billing_hesabfa_national_code'];
             $Website = $_POST['billing_hesabfa_website'];
             if($NationalCode_isRequired) {
                 $func->checkNationalCode($NationalCode);
-            }
+                if(get_option('ssbhesabfa_contact_check_mobile_and_national_code') == 'yes' && $Phone_isActive == 'yes' && $Phone_isRequired) {
+	                $mobile = '';
+                    if(get_option('ssbhesabfa_contact_add_additional_checkout_fields_hesabfa') == 1)
+                        $mobile = $_POST['billing_hesabfa_phone'];
+                    elseif(get_option('ssbhesabfa_contact_add_additional_checkout_fields_hesabfa') == 2)
+                        $mobile = get_option('ssbhesabfa_contact_Phone_text_hesabfa');
 
-            if($Website_isRequired) {
-                $func->checkWebsite($Website);
+	                $func->checkNationalCodeWithPhone($NationalCode, $mobile);
+                }
             }
+            if($Website_isRequired)
+                $func->checkWebsite($Website);
         }
-	        return $fields;
+        return $fields;
     }
 //=========================================================================================================================
     function show_additional_fields_in_order_detail($order) {
-        //this function is used to show codes and website in woocommerce orders detail
         $orderId = $order->get_id();
-	    $NationalCode = '_billing_hesabfa_nationalcode';
-        $EconomicCode = '_billing_hesabfa_economiccode';
-	    $RegistrationNumber = '_billing_hesabfa_registerationnumber';
+	    $NationalCode = '_billing_hesabfa_national_code';
+        $EconomicCode = '_billing_hesabfa_economic_code';
+	    $RegistrationNumber = '_billing_hesabfa_registeration_number';
 	    $Website = '_billing_hesabfa_website';
+	    $Phone = '_billing_hesabfa_phone';
 
 	    $NationalCode_isActive = get_option('ssbhesabfa_contact_NationalCode_checkbox_hesabfa');
 	    $EconomicCode_isActive = get_option('ssbhesabfa_contact_EconomicCode_checkbox_hesabfa');
 	    $RegistrationNumber_isActive = get_option('ssbhesabfa_contact_RegistrationNumber_checkbox_hesabfa');
 	    $Website_isActive = get_option('ssbhesabfa_contact_Website_checkbox_hesabfa');
+	    $Phone_isActive = get_option('ssbhesabfa_contact_Phone_checkbox_hesabfa');
 
-	    if($NationalCode_isActive == 'yes') {
+	    if($NationalCode_isActive == 'yes')
 		    echo '<p><strong>' . __('National code', 'ssbhesabfa')  . ': </strong> ' .'<br>'. '<strong>' . get_post_meta( $orderId, $NationalCode, true ) . '</strong></p>';
-        }
 
 	    if($EconomicCode_isActive == 'yes')
 		    echo '<p><strong>' . __('Economic code', 'ssbhesabfa')  . ': </strong> ' .'<br>'. '<strong>' . get_post_meta( $orderId, $EconomicCode, true ) . '</strong></p>';
@@ -1655,6 +1807,9 @@ class Ssbhesabfa_Admin
 
 	    if($Website_isActive == 'yes')
 		    echo '<p><strong>' . __('Website', 'ssbhesabfa')  . ': </strong> ' .'<br>'. '<a target="_blank" href="https://'.get_post_meta( $orderId, $Website, true ) .'">' . get_post_meta( $orderId, $Website, true ) . '</a></p>';
+
+        if($Phone_isActive == 'yes')
+		    echo '<p><strong>' . __('Phone', 'ssbhesabfa')  . ': </strong> ' .'<br>'. '<a target="_blank" href="https://'.get_post_meta( $orderId, $Phone, true ) .'">' . get_post_meta( $orderId, $Phone, true ) . '</a></p>';
     }
 //=========================================================================================================================
 }

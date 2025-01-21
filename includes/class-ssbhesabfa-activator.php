@@ -6,7 +6,7 @@
  * This class defines all code necessary to run during the plugin's activation.
  *
  * @class      Ssbhesabfa_Activator
- * @version    2.1.1
+ * @version    2.1.2
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/includes
@@ -30,6 +30,11 @@ class Ssbhesabfa_Activator {
         add_option('ssbhesabfa_last_log_check_id', 0);
         add_option('ssbhesabfa_live_mode', 0);
         add_option('ssbhesabfa_debug_mode', 0);
+        add_option('ssbhesabfa_check_for_sync', 0);
+        //add_option('ssbhesabfa_check_for_sync_webhook', 1);
+        add_option('ssbhesabfa_invoice_freight', 0);
+        add_option('ssbhesabfa_save_order_option', 0);
+        add_option('ssbhesabfa_check_for_sync_auto', 0);
         add_option('ssbhesabfa_contact_address_status', 1);
         add_option('ssbhesabfa_contact_node_family', 'مشتریان فروشگاه آن‌لاین');
         add_option('ssbhesabfa_contact_automaatic_save_node_family', 'yes');
@@ -42,6 +47,8 @@ class Ssbhesabfa_Activator {
         add_option('ssbhesabfa_contact_add_additional_checkout_fields_hesabfa', 1);
 
         self::ssbhesabfa_create_database_table();
+        self::ssbhesabfa_create_delete_trigger();
+        self::ssbhesabfa_alter_table();
 	}
 //===============================================================================================================
     public static function ssbhesabfa_create_database_table()
@@ -66,4 +73,66 @@ class Ssbhesabfa_Activator {
         update_option('ssbhesabfa_db_version', self::$ssbhesabfa_db_version);
     }
 //===============================================================================================================
+    public static function ssbhesabfa_create_delete_trigger()
+    {
+        global $wpdb;
+        $table_name = $wpdb->prefix . "ssbhesabfa";
+        $trigger_name = "prevent_delete";
+
+        $trigger_exists = $wpdb->get_var(
+            $wpdb->prepare(
+                "SELECT TRIGGER_NAME 
+                 FROM INFORMATION_SCHEMA.TRIGGERS 
+                 WHERE TRIGGER_SCHEMA = %s 
+                 AND EVENT_OBJECT_TABLE = %s 
+                 AND TRIGGER_NAME = %s",
+                DB_NAME,
+                $table_name,
+                $trigger_name
+            )
+        );
+
+        if ($trigger_exists)
+            return;
+
+        $sql = "
+            CREATE TRIGGER `$trigger_name`
+            BEFORE DELETE ON `$table_name`
+            FOR EACH ROW
+            BEGIN
+                SIGNAL SQLSTATE '45000'
+                SET MESSAGE_TEXT = 'حذف رکورد از این جدول مجاز نیست.';
+            END;
+        ";
+
+        $wpdb->query($sql);
+    }
+    //////////////////////////////////////////////////////////////////
+    public static function ssbhesabfa_alter_table() {
+        global $wpdb;
+        $table_name = $wpdb->prefix . "ssbhesabfa";
+
+        $column_exists = $wpdb->get_var(
+            $wpdb->prepare(
+                "SELECT COLUMN_NAME
+             FROM INFORMATION_SCHEMA.COLUMNS
+             WHERE TABLE_SCHEMA = %s
+             AND TABLE_NAME = %s
+             AND COLUMN_NAME = %s",
+                DB_NAME,
+                $table_name,
+                'active'
+            )
+        );
+
+        if ($column_exists)
+            return;
+
+        $sql = "
+            ALTER TABLE `$table_name`
+            ADD COLUMN `active` INT DEFAULT 1;
+        ";
+
+        $wpdb->query($sql);
+    }
 }
