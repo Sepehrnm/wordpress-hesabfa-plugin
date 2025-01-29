@@ -6,7 +6,7 @@ include_once(plugin_dir_path(__DIR__) . 'services/HesabfaWpFaService.php');
 
 /**
  * @class      Ssbhesabfa_Admin_Functions
- * @version    2.1.2
+ * @version    2.1.4
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin/functions
@@ -607,132 +607,150 @@ class Ssbhesabfa_Admin_Functions
 //========================================================================================================================
     public function setOrderPayment($id_order)
     {
-        if (!isset($id_order)) {
-            return false;
-        }
+        try {
+            if (!isset($id_order)) {
+                return false;
+            }
 
-        $hesabfa = new Ssbhesabfa_Api();
-        $number = $this->getInvoiceCodeByOrderId($id_order);
-        if (!$number)
-            return false;
+            $hesabfa = new Ssbhesabfa_Api();
+            $number = $this->getInvoiceCodeByOrderId($id_order);
+            if (!$number)
+                return false;
 
-        //$order = new WC_Order($id_order);
-        $order = wc_get_order($id_order);
+            //$order = new WC_Order($id_order);
+            $order = wc_get_order($id_order);
 
-        if ($order->get_total() <= 0)
-            return true;
+            if ($order->get_total() <= 0)
+                return true;
 
-        $transaction_id = $order->get_transaction_id();
-        //transaction id cannot be null or empty
-        if ($transaction_id == '') {
-            $transaction_id = '-';
-        }
+            $transaction_id = $order->get_transaction_id();
+            //transaction id cannot be null or empty
+            if ($transaction_id == '') {
+                $transaction_id = '-';
+            }
 
-        global $financialData;
-        if(get_option('ssbhesabfa_payment_option') == 'no') {
-            $bank_code = $this->getBankCodeByPaymentMethod($order->get_payment_method());
-            if ($bank_code != false) {
-                $payTempValue = substr($bank_code, 0, 4);
+            global $financialData;
+            if(get_option('ssbhesabfa_payment_option') == 'no') {
+                $bank_code = $this->getBankCodeByPaymentMethod($order->get_payment_method());
+                $isPosPluginActive = get_option("ssbhesabfa_woocommerce_point_of_sale_active");
+                if($order->get_payment_method() == '' && $isPosPluginActive == '1')
+                    $bank_code = $this->getBankCodeByPaymentMethod('pos');
 
-                switch($payTempValue) {
-                    case 'bank':
-                        $payTempValue = substr($bank_code, 4);
-                        $financialData = array('bankCode' => $payTempValue);break;
-                    case 'cash':
-                        $payTempValue = substr($bank_code, 4);
-                        $financialData = array('cashCode' => $payTempValue);break;
+                if ($bank_code != false) {
+                    $payTempValue = substr($bank_code, 0, 4);
+
+                    switch($payTempValue) {
+                        case 'bank':
+                            $payTempValue = substr($bank_code, 4);
+                            $financialData = array('bankCode' => $payTempValue);break;
+                        case 'cash':
+                            $payTempValue = substr($bank_code, 4);
+                            $financialData = array('cashCode' => $payTempValue);break;
+                    }
+                } else {
+                    HesabfaLogService::log(array("Cannot add Hesabfa Invoice payment - Bank Code not defined. Order ID: $id_order"));
+                    return false;
                 }
+            } elseif (get_option('ssbhesabfa_payment_option') == 'yes') {
+                $defaultBankCode = $this->convertPersianDigitsToEnglish(get_option('ssbhesabfa_default_payment_method_code'));
+                if($defaultBankCode != false) {
+                    $financialData = array('bankCode' => $defaultBankCode);
+                } else {
+                    HesabfaLogService::writeLogStr("Default Bank Code is not Defined");
+                    return false;
+                }
+            }
+
+            $date_obj = $order->get_date_paid();
+            if ($date_obj == null) {
+                $date_obj = $order->get_date_modified();
+            }
+
+            global $accountPath;
+
+            if(get_option("ssbhesabfa_cash_in_transit") == "1" || get_option("ssbhesabfa_cash_in_transit") == "yes") {
+                $func = new Ssbhesabfa_Admin_Functions();
+                $cashInTransitFullPath = $func->getCashInTransitFullPath();
+                if(!$cashInTransitFullPath) {
+                    HesabfaLogService::writeLogStr("Cash in Transit is not Defined in Hesabfa ---- وجوه در راه در حسابفا یافت نشد");
+                    return false;
+                } else {
+                    $accountPath = array("accountPath" => $cashInTransitFullPath);
+                }
+            }
+
+            $response = $hesabfa->invoiceGet($number);
+
+            if ($response->Success) {
+                $orderPaymentsNotToSubmit = ["cod", "cheque"];
+                if(in_array($order->get_payment_method(), $orderPaymentsNotToSubmit)) {
+                    if(get_option("ssbhesabfa_submit_receipt_card") == "yes") {
+                        $this->submitPayment($response, $order, $number, $financialData, $accountPath, $date_obj, $id_order, $transaction_id);
+                    }
+                } else {
+                    $this->submitPayment($response, $order, $number, $financialData, $accountPath, $date_obj, $id_order, $transaction_id);
+                }
+                return true;
             } else {
-                HesabfaLogService::log(array("Cannot add Hesabfa Invoice payment - Bank Code not defined. Order ID: $id_order"));
+                HesabfaLogService::log(array("Error while trying to get invoice. Invoice Number: $number. Error Code: " . (string)$response->ErrorCode . ". Error Message: " . (string)$response->ErrorMessage . "."));
                 return false;
             }
-        } elseif (get_option('ssbhesabfa_payment_option') == 'yes') {
-            $defaultBankCode = $this->convertPersianDigitsToEnglish(get_option('ssbhesabfa_default_payment_method_code'));
-            if($defaultBankCode != false) {
-                $financialData = array('bankCode' => $defaultBankCode);
-            } else {
-                HesabfaLogService::writeLogStr("Default Bank Code is not Defined");
-                return false;
-            }
-        }
-
-        $date_obj = $order->get_date_paid();
-        if ($date_obj == null) {
-            $date_obj = $order->get_date_modified();
-        }
-
-        global $accountPath;
-
-        if(get_option("ssbhesabfa_cash_in_transit") == "1" || get_option("ssbhesabfa_cash_in_transit") == "yes") {
-            $func = new Ssbhesabfa_Admin_Functions();
-            $cashInTransitFullPath = $func->getCashInTransitFullPath();
-            if(!$cashInTransitFullPath) {
-                HesabfaLogService::writeLogStr("Cash in Transit is not Defined in Hesabfa ---- وجوه در راه در حسابفا یافت نشد");
-                return false;
-            } else {
-                $accountPath = array("accountPath" => $cashInTransitFullPath);
-            }
-        }
-
-        $response = $hesabfa->invoiceGet($number);
-
-        if ($response->Success) {
-			$orderPaymentsNotToSubmit = ["cod", "cheque"];
-			if(in_array($order->get_payment_method(), $orderPaymentsNotToSubmit)) {
-				if(get_option("ssbhesabfa_submit_receipt_card") == "yes") {
-					$this->submitPayment($response, $order, $number, $financialData, $accountPath, $date_obj, $id_order, $transaction_id);
-				}
-			} else {
-				$this->submitPayment($response, $order, $number, $financialData, $accountPath, $date_obj, $id_order, $transaction_id);
-			}
-            return true;
-        } else {
-            HesabfaLogService::log(array("Error while trying to get invoice. Invoice Number: $number. Error Code: " . (string)$response->ErrorCode . ". Error Message: " . (string)$response->ErrorMessage . "."));
+        } catch(Exception $e) {
+            HesabfaLogService::log(array("Error Occurred. Error: " . $e->getMessage()));
             return false;
         }
     }
 //========================================================================================================================
 	public function submitPayment($response, $order, $number, $financialData, $accountPath, $date_obj, $id_order, $transaction_id): void {
-		$hesabfa = new Ssbhesabfa_Api();
-		if ($response->Result->Paid > 0) {
-			// payment submited before
-			if(get_option('ssbhesabfa_delete_old_receipt') == 'yes') {
-				$receipt = $hesabfa->getReceipts($response->Result->Number);
-				if($receipt->Success) {
-					if($receipt->Result->FilteredCount > 0) {
-						$isDeleted = $hesabfa->deleteReceipt($receipt->Result->List[0]->Number);
-						if($isDeleted->Success) {
-							HesabfaLogService::log(array("Receipt Deleted. Receipt Number: " . $receipt->Result->List[0]->Number));
-							$this->savePayment($order, $number, $financialData, $accountPath, $date_obj, $id_order, $transaction_id);
-						}
-						else HesabfaLogService::log(array("Can't Delete Receipt. Receipt Number: " . $receipt->Result->List[0]->Number));
-					}
-				} else {
-					HesabfaLogService::log(array('Error getting invoice receipts. Error Message: ' . $response->ErrorMessage . ', Error code: ' . $response->ErrorCode . ', invoice number: ' . $response->Result->Number));
-				}
-			}
-		} else {
-			$this->savePayment($order, $number, $financialData, $accountPath, $date_obj, $id_order, $transaction_id);
-		}
+        try {
+            $hesabfa = new Ssbhesabfa_Api();
+            if ($response->Result->Paid > 0) {
+                // payment submited before
+                if(get_option('ssbhesabfa_delete_old_receipt') == 'yes') {
+                    $receipt = $hesabfa->getReceipts($response->Result->Number);
+                    if($receipt->Success) {
+                        if($receipt->Result->FilteredCount > 0) {
+                            $isDeleted = $hesabfa->deleteReceipt($receipt->Result->List[0]->Number);
+                            if($isDeleted->Success) {
+                                HesabfaLogService::log(array("Receipt Deleted. Receipt Number: " . $receipt->Result->List[0]->Number));
+                                $this->savePayment($order, $number, $financialData, $accountPath, $date_obj, $id_order, $transaction_id);
+                            }
+                            else HesabfaLogService::log(array("Can't Delete Receipt. Receipt Number: " . $receipt->Result->List[0]->Number));
+                        }
+                    } else {
+                        HesabfaLogService::log(array('Error getting invoice receipts. Error Message: ' . $response->ErrorMessage . ', Error code: ' . $response->ErrorCode . ', invoice number: ' . $response->Result->Number));
+                    }
+                }
+            } else {
+                $this->savePayment($order, $number, $financialData, $accountPath, $date_obj, $id_order, $transaction_id);
+            }
+        } catch (Exception $e) {
+            HesabfaLogService::log(array("Error Occurred. Error: " . $e->getMessage()));
+        }
 	}
 //========================================================================================================================
     public function savePayment($order, $number, $financialData, $accountPath, $date_obj, $id_order, $transaction_id): bool {
-        $hesabfa = new Ssbhesabfa_Api();
-        $paymentMethod = $order->get_payment_method();
-        $transactionFee = 0;
-        if(isset($paymentMethod)) {
-            if(get_option("ssbhesabfa_payment_transaction_fee_$paymentMethod") > 0) $transactionFee = $this->formatTransactionFee(get_option("ssbhesabfa_payment_transaction_fee_$paymentMethod"), $this->getPriceInHesabfaDefaultCurrency($order->get_total()));
-            else $transactionFee = $this->formatTransactionFee(get_option("ssbhesabfa_invoice_transaction_fee"), $this->getPriceInHesabfaDefaultCurrency($order->get_total()));
-        }
+        try {
+            $hesabfa = new Ssbhesabfa_Api();
+            $paymentMethod = $order->get_payment_method();
+            $transactionFee = 0;
+            if(isset($paymentMethod)) {
+                if(get_option("ssbhesabfa_payment_transaction_fee_$paymentMethod") > 0) $transactionFee = $this->formatTransactionFee(get_option("ssbhesabfa_payment_transaction_fee_$paymentMethod"), $this->getPriceInHesabfaDefaultCurrency($order->get_total()));
+                else $transactionFee = $this->formatTransactionFee(get_option("ssbhesabfa_invoice_transaction_fee"), $this->getPriceInHesabfaDefaultCurrency($order->get_total()));
+            }
 
-        if(isset($transactionFee) && $transactionFee != null) $response = $hesabfa->invoiceSavePayment($number, $financialData, $accountPath, $date_obj->date('Y-m-d H:i:s'), $this->getPriceInHesabfaDefaultCurrency($order->get_total()), $transaction_id,'', $transactionFee);
-        else $response = $hesabfa->invoiceSavePayment($number, $financialData, $accountPath, $date_obj->date('Y-m-d H:i:s'), $this->getPriceInHesabfaDefaultCurrency($order->get_total()), $transaction_id,'', 0);
+            if(isset($transactionFee) && $transactionFee != null) $response = $hesabfa->invoiceSavePayment($number, $financialData, $accountPath, $date_obj->date('Y-m-d H:i:s'), $this->getPriceInHesabfaDefaultCurrency($order->get_total()), $transaction_id,'', $transactionFee);
+            else $response = $hesabfa->invoiceSavePayment($number, $financialData, $accountPath, $date_obj->date('Y-m-d H:i:s'), $this->getPriceInHesabfaDefaultCurrency($order->get_total()), $transaction_id,'', 0);
 
-        if ($response->Success) {
-            HesabfaLogService::log(array("Hesabfa invoice payment added. Order ID: $id_order"));
-            return true;
-        } else {
-            HesabfaLogService::log(array("Cannot add Hesabfa Invoice payment. Order ID: $id_order. Error Code: " . (string)$response->ErrorCode . ". Error Message: " . (string)$response->ErrorMessage . "."));
+            if ($response->Success) {
+                HesabfaLogService::log(array("Hesabfa invoice payment added. Order ID: $id_order"));
+                return true;
+            } else {
+                HesabfaLogService::log(array("Cannot add Hesabfa Invoice payment. Order ID: $id_order. Error Code: " . (string)$response->ErrorCode . ". Error Message: " . (string)$response->ErrorMessage . "."));
+                return false;
+            }
+        } catch (Exception $e) {
+            HesabfaLogService::log(array("Error Occurred. Error: " . $e->getMessage()));
             return false;
         }
     }
@@ -764,6 +782,8 @@ class Ssbhesabfa_Admin_Functions
 //========================================================================================================================
     public function getBankCodeByPaymentMethod($payment_method)
     {
+        if($payment_method == "pos_chip_and_pin")
+            $payment_method = "pos";
         $code = get_option('ssbhesabfa_payment_method_' . $payment_method);
 
         if (isset($code))

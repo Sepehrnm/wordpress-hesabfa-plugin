@@ -4,7 +4,7 @@ include_once( plugin_dir_path( __DIR__ ) . 'services/HesabfaLogService.php' );
 error_reporting(0);
 /**
  * @class      Ssbhesabfa_Setting
- * @version    2.1.2
+ * @version    2.1.4
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin/setting
@@ -310,7 +310,7 @@ class Ssbhesabfa_Setting {
                 echo "<script>alert('کد پایه ووکامرس را وارد نمایید.')</script>";
             } else {
                 if(isset($_POST['hesabfa_code']) && isset($_POST['woocommerce_code']) && isset($_POST['attribute_code'])) {
-                    $result = $func->SaveProductManuallyToHesabfa($_POST['woocommerce_code'],  $_POST['attribute_code'], $_POST['hesabfa_code']);
+                    $result = $func->SaveProductManuallyToHesabfa(sanitize_text_field($_POST['woocommerce_code']),  sanitize_text_field($_POST['attribute_code']), sanitize_text_field($_POST['hesabfa_code']));
                     if($result) {
                         echo '<script>alert("کالا ذخیره گردید")</script>';
                     } else {
@@ -321,11 +321,11 @@ class Ssbhesabfa_Setting {
         }
 
         if(isset($_POST["ssbhesabfa_integration"])) {
-            if(isset($_POST['ssbhesabfa_set_rpp_for_sync_products_into_hesabfa'])) update_option('ssbhesabfa_set_rpp_for_sync_products_into_hesabfa', $_POST['ssbhesabfa_set_rpp_for_sync_products_into_hesabfa']);
-            if(isset($_POST['ssbhesabfa_set_rpp_for_sync_products_into_woocommerce'])) update_option('ssbhesabfa_set_rpp_for_sync_products_into_woocommerce', $_POST['ssbhesabfa_set_rpp_for_sync_products_into_woocommerce']);
-            if(isset($_POST['ssbhesabfa_set_rpp_for_import_products'])) update_option('ssbhesabfa_set_rpp_for_import_products', $_POST['ssbhesabfa_set_rpp_for_import_products']);
-            if(isset($_POST['ssbhesabfa_set_rpp_for_export_products'])) update_option('ssbhesabfa_set_rpp_for_export_products', $_POST['ssbhesabfa_set_rpp_for_export_products']);
-            if(isset($_POST['ssbhesabfa_set_rpp_for_export_opening_products'])) update_option('ssbhesabfa_set_rpp_for_export_opening_products', $_POST['ssbhesabfa_set_rpp_for_export_opening_products']);
+            if(isset($_POST['ssbhesabfa_set_rpp_for_sync_products_into_hesabfa'])) update_option('ssbhesabfa_set_rpp_for_sync_products_into_hesabfa', sanitize_text_field($_POST['ssbhesabfa_set_rpp_for_sync_products_into_hesabfa']));
+            if(isset($_POST['ssbhesabfa_set_rpp_for_sync_products_into_woocommerce'])) update_option('ssbhesabfa_set_rpp_for_sync_products_into_woocommerce', sanitize_text_field($_POST['ssbhesabfa_set_rpp_for_sync_products_into_woocommerce']));
+            if(isset($_POST['ssbhesabfa_set_rpp_for_import_products'])) update_option('ssbhesabfa_set_rpp_for_import_products', sanitize_text_field($_POST['ssbhesabfa_set_rpp_for_import_products']));
+            if(isset($_POST['ssbhesabfa_set_rpp_for_export_products'])) update_option('ssbhesabfa_set_rpp_for_export_products', sanitize_text_field($_POST['ssbhesabfa_set_rpp_for_export_products']));
+            if(isset($_POST['ssbhesabfa_set_rpp_for_export_opening_products'])) update_option('ssbhesabfa_set_rpp_for_export_opening_products', sanitize_text_field($_POST['ssbhesabfa_set_rpp_for_export_opening_products']));
             header('refresh:0');
         }
         ?>
@@ -366,7 +366,7 @@ class Ssbhesabfa_Setting {
                     update_option("ssbhesabfa_check_for_sync", 1);
                 }
 
-                update_option("ssbhesabfa_check_for_sync_select", $_POST["ssbhesabfa_check_for_sync_select"]);
+                update_option("ssbhesabfa_check_for_sync_select", sanitize_text_field($_POST["ssbhesabfa_check_for_sync_select"]));
 
                 header('refresh:0');
             }
@@ -1180,6 +1180,28 @@ class Ssbhesabfa_Setting {
                         'default' => '0',
                         'class' => 'input-text'
                     );
+                }
+            }
+            /////////////////////////////////////////////////////////////////////////////////
+            if ($plugin_file === 'woocommerce-point-of-sale/woocommerce-point-of-sale.php') {
+                if(is_plugin_active('woocommerce-point-of-sale/woocommerce-point-of-sale.php')) {
+                    $fields[] = array(
+                        'title'   => 'افزونه ی پوز فروشگاهی ووکامرس',
+                        'id'      => 'ssbhesabfa_payment_method_pos',
+                        'type'    => 'select',
+                        'options' => $payInputValue,
+                        'class' => 'input-select'
+                    );
+
+                    $fields[] = array(
+                        'title'   => 'درصد کارمزد تراکنش برای پرداخت افزونه ی پوز فروشگاهی ووکامرس',
+                        'id'      => 'ssbhesabfa_payment_transaction_fee_pos',
+                        'type'    => 'text',
+                        'placeholder' => 'وارد نمایید',
+                        'default' => '0',
+                        'class' => 'input-text'
+                    );
+                    add_option('ssbhesabfa_woocommerce_point_of_sale_active', '1');
                 }
             }
         }
@@ -2267,7 +2289,7 @@ class Ssbhesabfa_Setting {
                     <label for="ssbhesabfa-log-download-submit"></label>
                     <div>
                         <a class="button button-secondary hesabfa-f" target="_blank"
-                           href="<?php if(isset($_POST["changeLogFile"])) echo WP_CONTENT_URL . '/ssbhesabfa-' . $_POST["changeLogFile"] . '.txt'; else echo WP_CONTENT_URL . '/ssbhesabfa-' . date("20y-m-d") . '.txt'; ?>">
+                           href="<?php if(isset($_POST["changeLogFile"])) echo WP_CONTENT_URL . '/ssbhesabfa-' . sanitize_text_field($_POST["changeLogFile"]) . '.txt'; else echo WP_CONTENT_URL . '/ssbhesabfa-' . date("20y-m-d") . '.txt'; ?>">
                             <?php echo __( 'Download log file', 'ssbhesabfa' ); ?>
                         </a>
                     </div>
@@ -2277,7 +2299,7 @@ class Ssbhesabfa_Setting {
                         <label for="ssbhesabfa-log-clean-submit"></label>
                         <div>
                             <div>
-                                <input name="currentLogFileDate" type="hidden" value="<?php if(isset($_POST["changeLogFile"])) echo $_POST["changeLogFile"]; else echo $_POST["ssbhesabfa_find_log_date"]; ?>">
+                                <input name="currentLogFileDate" type="hidden" value="<?php if(isset($_POST["changeLogFile"])) echo sanitize_text_field($_POST["changeLogFile"]); else echo sanitize_text_field($_POST["ssbhesabfa_find_log_date"]); ?>">
                                 <button class="button button-primary hesabfa-f" id="ssbhesabfa-log-clean-submit"
                                         name="ssbhesabfa-log-clean-submit"> <?php echo __( 'Clean current log', 'ssbhesabfa' ); ?></button>
                             </div>
@@ -2361,7 +2383,7 @@ class Ssbhesabfa_Setting {
                         document.getElementById("logFileContainer").innerHTML = "";
                     </script>';
 
-                    $URL = WP_CONTENT_DIR . '/ssbhesabfa-' . $_POST["changeLogFile"] . '.txt';
+                    $URL = WP_CONTENT_DIR . '/ssbhesabfa-' . sanitize_text_field($_POST["changeLogFile"]) . '.txt';
                     $logFileContent = HesabfaLogService::readLog($URL);
 
                     echo '<div id="logFileContainer" style="display: flex; justify-content: space-between; flex-direction: column;">'.
@@ -2403,7 +2425,7 @@ class Ssbhesabfa_Setting {
 //---------------------------------------
                 if(isset($_POST["ssbhesabfa-log-clean-submit"])) {
                     if($_POST["currentLogFileDate"]) {
-                        $file = WP_CONTENT_DIR . '/ssbhesabfa-' . $_POST["currentLogFileDate"] . '.txt';
+                        $file = WP_CONTENT_DIR . '/ssbhesabfa-' . sanitize_text_field($_POST["currentLogFileDate"]) . '.txt';
                     } else {
                         $file = WP_CONTENT_DIR . '/ssbhesabfa-' . date("20y-m-d") . '.txt';
                     }
@@ -2418,8 +2440,8 @@ class Ssbhesabfa_Setting {
                 }
 //---------------------------------------
                 if(isset($_POST["ssbhesabfa-delete-logs-between-two-dates"])) {
-                    $startDate = $_POST["ssbhesabfa_delete_log_date_from"];
-                    $endDate = $_POST["ssbhesabfa_delete_log_date_to"];
+                    $startDate = sanitize_text_field($_POST["ssbhesabfa_delete_log_date_from"]);
+                    $endDate = sanitize_text_field($_POST["ssbhesabfa_delete_log_date_to"]);
 
                     $directory = WP_CONTENT_DIR . '/ssbhesabfa-';
                     $files = glob($directory . '*');
@@ -2447,9 +2469,9 @@ class Ssbhesabfa_Setting {
                         document.getElementById("logFileContainer").innerHTML = "";
                     </script>';
 
-                    $URL = WP_CONTENT_DIR . '/ssbhesabfa-' . $_POST["ssbhesabfa_find_log_date"] . '.txt';
-                    if ( file_exists( WP_CONTENT_DIR . '/ssbhesabfa-' . $_POST["ssbhesabfa_find_log_date"] . '.txt' ) &&
-                        ( filesize( WP_CONTENT_DIR . '/ssbhesabfa-' . $_POST["ssbhesabfa_find_log_date"] . '.txt' ) / 1000 ) < 1000 ) {
+                    $URL = WP_CONTENT_DIR . '/ssbhesabfa-' . sanitize_text_field($_POST["ssbhesabfa_find_log_date"]) . '.txt';
+                    if ( file_exists( WP_CONTENT_DIR . '/ssbhesabfa-' . sanitize_text_field($_POST["ssbhesabfa_find_log_date"]) . '.txt' ) &&
+                        ( filesize( WP_CONTENT_DIR . '/ssbhesabfa-' . sanitize_text_field($_POST["ssbhesabfa_find_log_date"]) . '.txt' ) / 1000 ) < 1000 ) {
                             $logFileContent = HesabfaLogService::readLog($URL);
                     }
 

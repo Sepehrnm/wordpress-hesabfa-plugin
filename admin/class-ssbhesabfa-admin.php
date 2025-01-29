@@ -7,7 +7,7 @@ include_once(plugin_dir_path(__DIR__) . 'admin/services/HesabfaWpFaService.php')
  * The admin-specific functionality of the plugin.
  *
  * @class      Ssbhesabfa_Admin
- * @version    2.1.2
+ * @version    2.1.4
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin
@@ -1068,15 +1068,23 @@ class Ssbhesabfa_Admin
         if (get_option("ssbhesabfa_do_not_submit_product_automatically", "no") === "yes" || get_option("ssbhesabfa_do_not_submit_product_automatically", "no") == "1") {
             //change hesabfa item code
             $variable_field_id = "ssbhesabfa_hesabfa_item_code_" . $id_attribute;
-            $code = $_POST[$variable_field_id];
-            $id_product = $_POST['product_id'];
+            $code = sanitize_text_field($_POST[$variable_field_id]);
+            $id_product = sanitize_text_field($_POST['product_id']);
 
             if ($code === "")
                 return;
 
             if (isset($code)) {
                 global $wpdb;
-                $row = $wpdb->get_row("SELECT * FROM `" . $wpdb->prefix . "ssbhesabfa` WHERE `id_hesabfa` = " . $code . " AND `obj_type` = 'product'");
+//                $row = $wpdb->get_row("SELECT * FROM `" . $wpdb->prefix . "ssbhesabfa` WHERE `id_hesabfa` = " . $code . " AND `obj_type` = 'product'");
+
+                $table_name = $wpdb->prefix . 'ssbhesabfa';
+                $sql = $wpdb->prepare(
+                    "SELECT * FROM `$table_name` WHERE `id_hesabfa` = %d AND `obj_type` = 'product'",
+                    $code
+                );
+
+                $row = $wpdb->get_row($sql);
 
                 if (is_object($row)) {
                     if ($row->id_ps == $id_product && $row->id_ps_attribute == $id_attribute) {
@@ -1087,7 +1095,14 @@ class Ssbhesabfa_Admin
 
                     HesabfaLogService::log(array("The new Item code already used for another Item. Product ID: $id_product"));
                 } else {
-                    $row2 = $wpdb->get_row("SELECT * FROM `" . $wpdb->prefix . "ssbhesabfa` WHERE `id_ps` = $id_product AND `obj_type` = 'product' AND `id_ps_attribute` = $id_attribute");
+                    //$row2 = $wpdb->get_row("SELECT * FROM `" . $wpdb->prefix . "ssbhesabfa` WHERE `id_ps` = $id_product AND `obj_type` = 'product' AND `id_ps_attribute` = $id_attribute");
+
+                    $sql = $wpdb->prepare(
+                        "SELECT * FROM `{$wpdb->prefix}ssbhesabfa` WHERE `id_ps` = %d AND `obj_type` = 'product' AND `id_ps_attribute` = %d",
+                        $id_product, $id_attribute
+                    );
+
+                    $row2 = $wpdb->get_row($sql);
 
                     if (is_object($row2)) {
                         $wpdb->update($wpdb->prefix . 'ssbhesabfa', array(
@@ -1188,14 +1203,21 @@ class Ssbhesabfa_Admin
 //=========================================================================================================================
     public function ssbhesabfa_hook_process_product_meta($post_id)
     {
-        $itemCode = isset($_POST['ssbhesabfa_hesabfa_item_code_0']) ? $_POST['ssbhesabfa_hesabfa_item_code_0'] : '';
+        $itemCode = isset($_POST['ssbhesabfa_hesabfa_item_code_0']) ? sanitize_text_field($_POST['ssbhesabfa_hesabfa_item_code_0']) : '';
 
         if ($itemCode === "")
             return;
 
         if (isset($itemCode)) {
             global $wpdb;
-            $row = $wpdb->get_row("SELECT * FROM `" . $wpdb->prefix . "ssbhesabfa` WHERE `id_hesabfa` = " . $itemCode . " AND `obj_type` = 'product'");
+//            $row = $wpdb->get_row("SELECT * FROM `" . $wpdb->prefix . "ssbhesabfa` WHERE `id_hesabfa` = " . $itemCode . " AND `obj_type` = 'product'");
+
+            $table_name = $wpdb->prefix . 'ssbhesabfa';
+            $sql = $wpdb->prepare(
+                "SELECT * FROM `$table_name` WHERE `id_hesabfa` = %d AND `obj_type` = 'product'",
+                $itemCode
+            );
+            $row = $wpdb->get_row($sql);
 
             if (is_object($row)) {
                 //ToDo: show error to customer in BO
