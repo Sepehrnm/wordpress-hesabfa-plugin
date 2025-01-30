@@ -4,7 +4,7 @@ include_once( plugin_dir_path( __DIR__ ) . 'services/HesabfaLogService.php' );
 error_reporting(0);
 /**
  * @class      Ssbhesabfa_Setting
- * @version    2.1.4
+ * @version    2.1.5
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin/setting
@@ -132,7 +132,7 @@ class Ssbhesabfa_Setting {
             </ul>
         </div>
 
-        <h3><?php echo __( 'Extra Settings', 'ssbhesabfa' ); ?></h3>
+        <h3><?php echo esc_html__( 'Extra Settings', 'ssbhesabfa' ); ?></h3>
 
         <?php
             $ssbhesabf_setting_fields = self::ssbhesabfa_extra_setting_fields();
@@ -158,9 +158,9 @@ class Ssbhesabfa_Setting {
                         </thead>
                         <tbody>
                             <tr style="direction: ltr;">
-                                <td>' . $plugin_version . '</td>
-                                <td>' . $server_php_version . '</td>                                
-                                <td>' . $plugin_php_version . '</td>                                
+                                <td>' . esc_html($plugin_version) . '</td>
+                                <td>' . esc_html($server_php_version) . '</td>                                
+                                <td>' . esc_html($plugin_php_version) . '</td>                                
                             </tr>
                         </tbody>
                     '
@@ -171,12 +171,12 @@ class Ssbhesabfa_Setting {
                 <?php $Html_output->init( $ssbhesabf_setting_fields ); ?>
                 <div class="ssbhesabfa_set_rpp_container mt-2 d-flex align-items-center gap-2">
                     <label class="form-label" for="ssbhesabfa_set_rpp">
-                        <?php echo __('Set request amount per batch for sync products based on woocommerce in Hesabfa', 'ssbhesabfa');
+                        <?php echo esc_html__('Set request amount per batch for sync products based on woocommerce in Hesabfa', 'ssbhesabfa');
                             if(!(get_option('ssbhesabfa_set_rpp_for_sync_products_into_hesabfa'))) add_option('ssbhesabfa_set_rpp_for_sync_products_into_hesabfa-rpp', '-1');
                         ?>
                     </label>
                     <select style="max-width: 100px;" class="form-select" name="ssbhesabfa_set_rpp_for_sync_products_into_hesabfa" id="ssbhesabfa_set_rpp_for_sync_products_into_hesabfa">
-                        <option value="-1"  <?php if(!get_option('ssbhesabfa_set_rpp_for_sync_products_into_hesabfa')) echo 'selected'; ?>><?php echo __('select', 'ssbhesabfa');?></option>
+                        <option value="-1"  <?php if(!get_option('ssbhesabfa_set_rpp_for_sync_products_into_hesabfa')) echo 'selected'; ?>><?php echo esc_html__('select', 'ssbhesabfa');?></option>
                         <option value="50"  <?php if(get_option('ssbhesabfa_set_rpp_for_sync_products_into_hesabfa') == '50') echo 'selected'; ?>>50</option>
                         <option value="100" <?php if(get_option('ssbhesabfa_set_rpp_for_sync_products_into_hesabfa') == '100') echo 'selected'; ?>>100</option>
                         <option value="150" <?php if(get_option('ssbhesabfa_set_rpp_for_sync_products_into_hesabfa') == '150') echo 'selected'; ?>>150</option>
@@ -185,17 +185,17 @@ class Ssbhesabfa_Setting {
                         <option value="400" <?php if(get_option('ssbhesabfa_set_rpp_for_sync_products_into_hesabfa') == '400') echo 'selected'; ?>>400</option>
                         <option value="500" <?php if(get_option('ssbhesabfa_set_rpp_for_sync_products_into_hesabfa') == '500') echo 'selected'; ?>>500</option>
                     </select>
-                    <span><?php echo __("Plugin Default", "ssbhesabfa"); ?>: 500</span>
+                    <span><?php echo esc_html__("Plugin Default", "ssbhesabfa"); ?>: 500</span>
                 </div>
                 <br>
                 <div class="ssbhesabfa_set_rpp_container mt-2 d-flex align-items-center gap-2">
                     <label class="form-label" for="ssbhesabfa_set_rpp">
-                        <?php echo __('Set request amount per batch for sync products based on Hesabfa in Woocommerce', 'ssbhesabfa');
+                        <?php echo esc_html__('Set request amount per batch for sync products based on Hesabfa in Woocommerce', 'ssbhesabfa');
                         if(!(get_option('ssbhesabfa_set_rpp_for_sync_products_into_woocommerce'))) add_option('ssbhesabfa_set_rpp_for_sync_products_into_woocommerce', '-1');
                         ?>
                     </label>
                     <select style="max-width: 100px;" class="form-select" name="ssbhesabfa_set_rpp_for_sync_products_into_woocommerce" id="ssbhesabfa_set_rpp_for_sync_products_into_woocommerce">
-                        <option value="-1"  <?php if(!get_option('ssbhesabfa_set_rpp_for_sync_products_into_woocommerce')) echo 'selected'; ?>><?php echo __('select', 'ssbhesabfa');?></option>
+                        <option value="-1"  <?php if(!get_option('ssbhesabfa_set_rpp_for_sync_products_into_woocommerce')) echo 'selected'; ?>><?php echo esc_html__('select', 'ssbhesabfa');?></option>
                         <option value="50"  <?php if(get_option('ssbhesabfa_set_rpp_for_sync_products_into_woocommerce') == '50') echo 'selected'; ?>>50</option>
                         <option value="100" <?php if(get_option('ssbhesabfa_set_rpp_for_sync_products_into_woocommerce') == '100') echo 'selected'; ?>>100</option>
                         <option value="150" <?php if(get_option('ssbhesabfa_set_rpp_for_sync_products_into_woocommerce') == '150') echo 'selected'; ?>>150</option>
@@ -204,31 +204,31 @@ class Ssbhesabfa_Setting {
                         <option value="400" <?php if(get_option('ssbhesabfa_set_rpp_for_sync_products_into_woocommerce') == '400') echo 'selected'; ?>>400</option>
                         <option value="500" <?php if(get_option('ssbhesabfa_set_rpp_for_sync_products_into_woocommerce') == '500') echo 'selected'; ?>>500</option>
                     </select>
-                    <span><?php echo __("Plugin Default", "ssbhesabfa"); ?>: 200</span>
+                    <span><?php echo esc_html__("Plugin Default", "ssbhesabfa"); ?>: 200</span>
                 </div>
                 <br>
                 <div class="ssbhesabfa_set_rpp_container mt-2 d-flex align-items-center gap-2">
                     <label class="form-label" for="ssbhesabfa_set_rpp">
-                        <?php echo __('Set request amount per batch for import products', 'ssbhesabfa');
+                        <?php echo esc_html__('Set request amount per batch for import products', 'ssbhesabfa');
                         if(!(get_option('ssbhesabfa_set_rpp_for_import_products'))) add_option('ssbhesabfa_set_rpp_for_import_products', '-1');
                         ?>
                     </label>
                     <select style="max-width: 100px;" class="form-select" name="ssbhesabfa_set_rpp_for_import_products" id="ssbhesabfa_set_rpp_for_import_products">
-                        <option value="-1"  <?php if(!get_option('ssbhesabfa_set_rpp_for_import_products')) echo 'selected'; ?>><?php echo __('select', 'ssbhesabfa');?></option>
+                        <option value="-1"  <?php if(!get_option('ssbhesabfa_set_rpp_for_import_products')) echo 'selected'; ?>><?php echo esc_html__('select', 'ssbhesabfa');?></option>
                         <option value="50"  <?php if(get_option('ssbhesabfa_set_rpp_for_import_products') == '50') echo 'selected'; ?>>50</option>
                         <option value="100" <?php if(get_option('ssbhesabfa_set_rpp_for_import_products') == '100') echo 'selected'; ?>>100</option>
                     </select>
-                    <span><?php echo __("Plugin Default", "ssbhesabfa"); ?>: 100</span>
+                    <span><?php echo esc_html__("Plugin Default", "ssbhesabfa"); ?>: 100</span>
                 </div>
                 <br>
                 <div class="ssbhesabfa_set_rpp_container mt-2 d-flex align-items-center gap-2">
                     <label class="form-label" for="ssbhesabfa_set_rpp">
-                        <?php echo __('Set request amount per batch for export products', 'ssbhesabfa');
+                        <?php echo esc_html__('Set request amount per batch for export products', 'ssbhesabfa');
                         if(!(get_option('ssbhesabfa_set_rpp_for_export_products'))) add_option('ssbhesabfa_set_rpp_for_export_products', '-1');
                         ?>
                     </label>
                     <select style="max-width: 100px;" class="form-select" name="ssbhesabfa_set_rpp_for_export_products" id="ssbhesabfa_set_rpp_for_export_products">
-                        <option value="-1"  <?php if(!get_option('ssbhesabfa_set_rpp_for_export_products')) echo 'selected'; ?>><?php echo __('select', 'ssbhesabfa');?></option>
+                        <option value="-1"  <?php if(!get_option('ssbhesabfa_set_rpp_for_export_products')) echo 'selected'; ?>><?php echo esc_html__('select', 'ssbhesabfa');?></option>
                         <option value="50"  <?php if(get_option('ssbhesabfa_set_rpp_for_export_products') == '50') echo 'selected'; ?>>50</option>
                         <option value="100" <?php if(get_option('ssbhesabfa_set_rpp_for_export_products') == '100') echo 'selected'; ?>>100</option>
                         <option value="150" <?php if(get_option('ssbhesabfa_set_rpp_for_export_products') == '150') echo 'selected'; ?>>150</option>
@@ -237,17 +237,17 @@ class Ssbhesabfa_Setting {
                         <option value="400" <?php if(get_option('ssbhesabfa_set_rpp_for_export_products') == '400') echo 'selected'; ?>>400</option>
                         <option value="500" <?php if(get_option('ssbhesabfa_set_rpp_for_export_products') == '500') echo 'selected'; ?>>500</option>
                     </select>
-                    <span><?php echo __("Plugin Default", "ssbhesabfa"); ?>: 500</span>
+                    <span><?php echo esc_html__("Plugin Default", "ssbhesabfa"); ?>: 500</span>
                 </div>
                 <br>
                 <div class="ssbhesabfa_set_rpp_container mt-2 d-flex align-items-center gap-2">
                     <label class="form-label" for="ssbhesabfa_set_rpp">
-                        <?php echo __('Set request amount per batch for export opening quantity of products', 'ssbhesabfa');
+                        <?php echo esc_html__('Set request amount per batch for export opening quantity of products', 'ssbhesabfa');
                         if(!(get_option('ssbhesabfa_set_rpp_for_export_opening_products'))) add_option('ssbhesabfa_set_rpp_for_export_opening_products', '-1');
                         ?>
                     </label>
                     <select style="max-width: 100px;" class="form-select" name="ssbhesabfa_set_rpp_for_export_opening_products" id="ssbhesabfa_set_rpp_for_export_opening_products">
-                        <option value="-1"  <?php if(!get_option('ssbhesabfa_set_rpp_for_export_opening_products')) echo 'selected'; ?>><?php echo __('select', 'ssbhesabfa');?></option>
+                        <option value="-1"  <?php if(!get_option('ssbhesabfa_set_rpp_for_export_opening_products')) echo 'selected'; ?>><?php echo esc_html__('select', 'ssbhesabfa');?></option>
                         <option value="50"  <?php if(get_option('ssbhesabfa_set_rpp_for_export_opening_products') == '50') echo 'selected'; ?>>50</option>
                         <option value="100" <?php if(get_option('ssbhesabfa_set_rpp_for_export_opening_products') == '100') echo 'selected'; ?>>100</option>
                         <option value="150" <?php if(get_option('ssbhesabfa_set_rpp_for_export_opening_products') == '150') echo 'selected'; ?>>150</option>
@@ -256,7 +256,7 @@ class Ssbhesabfa_Setting {
                         <option value="400" <?php if(get_option('ssbhesabfa_set_rpp_for_export_opening_products') == '400') echo 'selected'; ?>>400</option>
                         <option value="500" <?php if(get_option('ssbhesabfa_set_rpp_for_export_opening_products') == '500') echo 'selected'; ?>>500</option>
                     </select>
-                    <span><?php echo __("Plugin Default", "ssbhesabfa"); ?>: 500</span>
+                    <span><?php echo esc_html__("Plugin Default", "ssbhesabfa"); ?>: 500</span>
                 </div>
             </div>
             <p class="submit hesabfa-p">
@@ -345,7 +345,7 @@ class Ssbhesabfa_Setting {
                 <strong>بازه بروزرسانی اتوماتیک</strong>
             </label>
             <select class="form-select" name="ssbhesabfa_check_for_sync_select" id="ssbhesabfa_check_for_sync_select">
-                <option value="0" <?php if(!get_option('ssbhesabfa_check_for_sync_select')) echo 'selected'; ?>><?php echo __('select', 'ssbhesabfa');?></option>
+                <option value="0" <?php if(!get_option('ssbhesabfa_check_for_sync_select')) echo 'selected'; ?>><?php echo esc_html__('select', 'ssbhesabfa');?></option>
                 <option value="4" <?php if(get_option('ssbhesabfa_check_for_sync_select') == '4') echo 'selected'; ?>>4 دقیقه</option>
                 <option value="10" <?php if(get_option('ssbhesabfa_check_for_sync_select') == '10') echo 'selected'; ?>>10 دقیقه</option>
                 <option value="60" <?php if(get_option('ssbhesabfa_check_for_sync_select') == '60') echo 'selected'; ?>>1 ساعت</option>
@@ -513,14 +513,14 @@ class Ssbhesabfa_Setting {
                                         }
                                         ?>
                                         <tr style="<?php if($hesabfaQuantity != $woocommerceQuantity) echo 'background: #FFCCCB'; ?>;">
-                                            <td><?php echo $item->id;?></td>
-                                            <td><?php echo $item->objType;?></td>
-                                            <td><?php echo $item->idHesabfa;?></td>
-                                            <td><?php echo $item->idWp;?></td>
-                                            <td><?php echo $item->idWpAttribute;?></td>
+                                            <td><?php echo esc_html($item->id);?></td>
+                                            <td><?php echo esc_html($item->objType);?></td>
+                                            <td><?php echo esc_html($item->idHesabfa);?></td>
+                                            <td><?php echo esc_html($item->idWp);?></td>
+                                            <td><?php echo esc_html($item->idWpAttribute);?></td>
                                             <td><?php echo $item->active == 1 ? "فعال" : "غیرفعال"; ?></td>
-                                            <td><?php echo $hesabfaQuantity; ?></td>
-                                            <td><?php echo $woocommerceQuantity; ?></td>
+                                            <td><?php echo esc_html($hesabfaQuantity); ?></td>
+                                            <td><?php echo esc_html($woocommerceQuantity); ?></td>
                                         </tr>
                                     <?php }
                                 } catch(Exception $e) {
@@ -530,11 +530,11 @@ class Ssbhesabfa_Setting {
                         } else {
                             foreach($wpFa as $item) { ?>
                                 <tr>
-                                    <td><?php echo $item->id;?></td>
-                                    <td><?php echo $item->objType;?></td>
-                                    <td><?php echo $item->idHesabfa;?></td>
-                                    <td><?php echo $item->idWp;?></td>
-                                    <td><?php echo $item->idWpAttribute;?></td>
+                                    <td><?php echo esc_html($item->id);?></td>
+                                    <td><?php echo esc_html($item->objType);?></td>
+                                    <td><?php echo esc_html($item->idHesabfa);?></td>
+                                    <td><?php echo esc_html($item->idWp);?></td>
+                                    <td><?php echo esc_html($item->idWpAttribute);?></td>
                                     <td><?php echo $item->active == 1 ? "فعال" : "غیرفعال"; ?></td>
                                     <td><?php echo "-"; ?></td>
                                     <td><?php echo "-"; ?></td>
@@ -797,14 +797,14 @@ class Ssbhesabfa_Setting {
             <div class="row my-3">
                 <div class="col-1 ml-4">
                     <label class="hesabfa-p mt-2"
-                           style="font-weight: bold"><?php echo __( 'Add additional fields to checkout page', 'ssbhesabfa' ) ?></label>
+                           style="font-weight: bold"><?php echo esc_html__( 'Add additional fields to checkout page', 'ssbhesabfa' ) ?></label>
                 </div>
                 <div class="col-4 mx-5">
                     <div class="form-check py-2">
                         <input type="radio" name="addFieldsRadio"
                                id="flexRadioDefault1" value="1"  <?php echo $add_fields == '1' ? 'checked' : '' ?>>
                         <label for="flexRadioDefault1" class="hesabfa-p">
-	                        <?php echo __( 'Customer add field to checkout by hesabfa', 'ssbhesabfa' ) ?>
+	                        <?php echo esc_html__( 'Customer add field to checkout by hesabfa', 'ssbhesabfa' ) ?>
                         </label>
                     </div>
 
@@ -812,7 +812,7 @@ class Ssbhesabfa_Setting {
                         <input type="radio" name="addFieldsRadio"
                                id="flexRadioDefault2" value="2"  <?php echo $add_fields == '2' ?  'checked' : ''?>>
                         <label for="flexRadioDefault2" class="hesabfa-p">
-	                        <?php echo __( 'Customer add field to checkout by postmeta', 'ssbhesabfa' ) ?>
+	                        <?php echo esc_html__( 'Customer add field to checkout by postmeta', 'ssbhesabfa' ) ?>
                         </label>
                     </div>
                 </div>
@@ -824,10 +824,10 @@ class Ssbhesabfa_Setting {
                     <table class="table table-light mt-4 ">
                         <thead>
                             <tr>
-                                <th class="col-1  hesabfa-p"><?php echo __( 'Show', 'ssbhesabfa' ) ?></th>
-                                <th class="col-1  hesabfa-p"><?php echo __( 'Required', 'ssbhesabfa' ) ?></th>
-                                <th class="col-1  hesabfa-p"><?php echo __( 'Title', 'ssbhesabfa' ) ?></th>
-                                <th class="col-4  hesabfa-p" ><?php echo __( 'Meta code in Postmeta', 'ssbhesabfa' ) ?></th>
+                                <th class="col-1  hesabfa-p"><?php echo esc_html__( 'Show', 'ssbhesabfa' ) ?></th>
+                                <th class="col-1  hesabfa-p"><?php echo esc_html__( 'Required', 'ssbhesabfa' ) ?></th>
+                                <th class="col-1  hesabfa-p"><?php echo esc_html__( 'Title', 'ssbhesabfa' ) ?></th>
+                                <th class="col-4  hesabfa-p" ><?php echo esc_html__( 'Meta code in Postmeta', 'ssbhesabfa' ) ?></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -836,35 +836,35 @@ class Ssbhesabfa_Setting {
                                            <?php echo $nationalCodeCheck ? 'checked' : '' ?> class="form-control"  value="yes"></td>
                                 <td><input type="checkbox" name="nationalCodeRequired" id="nationalCodeRequired"
 			                            <?php echo $nationalCodeRequired ? 'checked' : '' ?> class="form-control"  value="yes"></td>
-                                <td><span class="hesabfa-p"><?php echo __( 'National code', 'ssbhesabfa' ) ?></span></td>
+                                <td><span class="hesabfa-p"><?php echo esc_html__( 'National code', 'ssbhesabfa' ) ?></span></td>
                                 <td><input type="text" name="nationalCode" id="nationalCode"
-                                           value="<?php echo $nationalCodeMetaName ?>" class="contact_text_input form-control"></td>
+                                           value="<?php echo esc_attr_e($nationalCodeMetaName) ?>" class="contact_text_input form-control"></td>
                             </tr>
                             <tr>
                                 <td><input type="checkbox" name="economicCodeCheck" id="economicCodeCheck"
                                            <?php echo $economicCodeCheck ? 'checked' : '' ?> class="form-control" value="yes"></td>
                                 <td><input type="checkbox" name="economicCodeRequired" id="economicCodeRequired"
 			                            <?php echo $economicCodeRequired ? 'checked' : '' ?> class="form-control"  value="yes"></td>
-                                <td><span class="hesabfa-p"><?php echo __( 'Economic code', 'ssbhesabfa' ) ?></span></td>
+                                <td><span class="hesabfa-p"><?php echo esc_html__( 'Economic code', 'ssbhesabfa' ) ?></span></td>
                                 <td><input type="text" name="economicCode" id="economicCode"
-                                           value="<?php echo $economicCodeMetaName ?>" class="contact_text_input form-control"></td>
+                                           value="<?php echo esc_attr_e($economicCodeMetaName) ?>" class="contact_text_input form-control"></td>
                             </tr>
                             <tr>
                                 <td><input type="checkbox" name="registrationNumberCheck" id="registrationNumberCheck"
                                            <?php echo $registrationNumberCheck ? 'checked' : '' ?> class="form-control"  value="yes"></td>
                                 <td><input type="checkbox" name="registrationNumberRequired" id="registrationNumberRequired"
 			                            <?php echo $registrationNumberRequired ? 'checked' : '' ?> class="form-control"  value="yes"></td>
-                                <td><span class="hesabfa-p"><?php echo __( 'Registration number', 'ssbhesabfa' ) ?></span></td>
+                                <td><span class="hesabfa-p"><?php echo esc_html__( 'Registration number', 'ssbhesabfa' ) ?></span></td>
                                 <td><input type="text" name="registrationNumber" id="registrationNumber"
-                                           value="<?php echo $registrationNumberMetaName ?>" class="contact_text_input form-control"></td>
+                                           value="<?php echo esc_attr_e($registrationNumberMetaName) ?>" class="contact_text_input form-control"></td>
                             </tr>
                             <tr>
                                 <td><input type="checkbox" name="websiteCheck" id="websiteCheck"
                                            <?php echo $websiteCheck ? 'checked' : '' ?> class="form-control"  value="yes"></td>
                                 <td><input type="checkbox" name="websiteRequired" id="websiteRequired"
 			                            <?php echo $websiteRequired ? 'checked' : '' ?> class="form-control"  value="yes"></td>
-                                <td><span><?php echo __( 'Website', 'ssbhesabfa' ) ?></span></td>
-                                <td><input type="text" name="website" id="website" value="<?php echo $websiteMetaName ?>"
+                                <td><span><?php echo esc_html__( 'Website', 'ssbhesabfa' ) ?></span></td>
+                                <td><input type="text" name="website" id="website" value="<?php echo esc_attr_e($websiteMetaName) ?>"
                                            class="contact_text_input form-control"></td>
                             </tr>
 
@@ -873,8 +873,8 @@ class Ssbhesabfa_Setting {
 			                            <?php echo $phoneCheck ? 'checked' : '' ?> class="form-control"  value="yes"></td>
                                 <td><input type="checkbox" name="phoneRequired" id="phoneRequired"
 			                            <?php echo $phoneRequired ? 'checked' : '' ?> class="form-control"  value="yes"></td>
-                                <td><span><?php echo __( 'Phone', 'ssbhesabfa' ) ?></span></td>
-                                <td><input type="text" name="phone" id="phone" value="<?php echo $phoneMetaName ?>"
+                                <td><span><?php echo esc_html__( 'Phone', 'ssbhesabfa' ) ?></span></td>
+                                <td><input type="text" name="phone" id="phone" value="<?php echo esc_attr_e($phoneMetaName) ?>"
                                            class="contact_text_input form-control"></td>
                             </tr>
                         </tbody>
@@ -1411,15 +1411,15 @@ class Ssbhesabfa_Setting {
             <strong>اطلاعات کسب و کار</strong>
             <div class="row mt-2">
                 <div class="col">نام کسب و کار:</div>
-                <div class="col text-info fw-bold"><?php echo $businessInfo["businessName"] ?></div>
+                <div class="col text-info fw-bold"><?php echo esc_html($businessInfo["businessName"]) ?></div>
                 <div class="col">طرح:</div>
-                <div class="col text-info fw-bold"><?php echo $businessInfo["plan"] ?></div>
+                <div class="col text-info fw-bold"><?php echo esc_html($businessInfo["plan"]) ?></div>
             </div>
             <div class="row mt-2">
                 <div class="col">اعتبار سند:</div>
-                <div class="col text-info fw-bold"><?php echo $businessInfo["credit"] ?></div>
+                <div class="col text-info fw-bold"><?php echo esc_html($businessInfo["credit"]) ?></div>
                 <div class="col">تاریخ انقضا:</div>
-                <div class="col text-info fw-bold"><?php echo $expireDateStr ?></div>
+                <div class="col text-info fw-bold"><?php echo esc_html($expireDateStr) ?></div>
             </div>
         </div>
 
@@ -1457,21 +1457,21 @@ class Ssbhesabfa_Setting {
 			$processed = ( isset( $_GET['processed'] ) ) ? wc_clean( $_GET['processed'] ) : null;
 			if ( $processed == 0 ) {
 				echo '<div class="updated">';
-				echo '<p class="hesabfa-p">' . __( 'No products were exported, All products were exported or there are no product', 'ssbhesabfa' );
+				echo '<p class="hesabfa-p">' . esc_html__( 'No products were exported, All products were exported or there are no product', 'ssbhesabfa' );
 				echo '</div>';
 			} else {
 				echo '<div class="updated">';
-				echo '<p class="hesabfa-p">' . sprintf( __( 'Export products completed. %s products added/updated.', 'ssbhesabfa' ), $processed );
+				echo '<p class="hesabfa-p">' . esc_html(sprintf( __( 'Export products completed. %s products added/updated.', 'ssbhesabfa' ), $processed ));
 				echo '</div>';
 			}
 		} elseif ( $productExportResult === 'false' ) {
 			if ( ! is_null( $error ) && $error === '-1' ) {
 				echo '<div class="updated">';
-				echo '<p class="hesabfa-p">' . __( 'Export products fail. Hesabfa has already contained products.', 'ssbhesabfa' );
+				echo '<p class="hesabfa-p">' . esc_html__( 'Export products fail. Hesabfa has already contained products.', 'ssbhesabfa' );
 				echo '</div>';
 			} else {
 				echo '<div class="updated">';
-				echo '<p class="hesabfa-p">' . __( 'Export products fail. Please check the log file.', 'ssbhesabfa' );
+				echo '<p class="hesabfa-p">' . esc_html__( 'Export products fail. Please check the log file.', 'ssbhesabfa' );
 				echo '</div>';
 			}
 		}
@@ -1480,16 +1480,16 @@ class Ssbhesabfa_Setting {
 			$processed = ( isset( $_GET['processed'] ) ) ? wc_clean( $_GET['processed'] ) : null;
 			if ( $processed == 0 ) {
 				echo '<div class="updated">';
-				echo '<p class="hesabfa-p">' . __( 'No products were imported, All products were imported or there are no product', 'ssbhesabfa' );
+				echo '<p class="hesabfa-p">' . esc_html__( 'No products were imported, All products were imported or there are no product', 'ssbhesabfa' );
 				echo '</div>';
 			} else {
 				echo '<div class="updated">';
-				echo '<p class="hesabfa-p">' . sprintf( __( 'Import products completed. %s products added/updated.', 'ssbhesabfa' ), $processed );
+				echo '<p class="hesabfa-p">' . esc_html(sprintf( __( 'Import products completed. %s products added/updated.', 'ssbhesabfa' ), $processed ));
 				echo '</div>';
 			}
 		} elseif ( $productImportResult === 'false' ) {
 			echo '<div class="updated">';
-			echo '<p class="hesabfa-p">' . __( 'Import products fail. Please check the log file.', 'ssbhesabfa' );
+			echo '<p class="hesabfa-p">' . esc_html__( 'Import products fail. Please check the log file.', 'ssbhesabfa' );
 			echo '</div>';
 		}
 
@@ -1497,22 +1497,22 @@ class Ssbhesabfa_Setting {
 		$productOpeningQuantityExportResult = ( isset( $_GET['productOpeningQuantityExportResult'] ) ) ? wc_clean( $_GET['productOpeningQuantityExportResult'] ) : null;
 		if ( ! is_null( $productOpeningQuantityExportResult ) && $productOpeningQuantityExportResult === 'true' ) {
 			echo '<div class="updated">';
-			echo '<p class="hesabfa-p">' . __( 'Export product opening quantity completed.', 'ssbhesabfa' );
+			echo '<p class="hesabfa-p">' . esc_html__( 'Export product opening quantity completed.', 'ssbhesabfa' );
 			echo '</div>';
 		} elseif ( ! is_null( $productOpeningQuantityExportResult ) && $productOpeningQuantityExportResult === 'false' ) {
 			$shareholderError = ( isset( $_GET['shareholderError'] ) ) ? wc_clean( $_GET['shareholderError'] ) : null;
 			$noProduct        = ( isset( $_GET['noProduct'] ) ) ? wc_clean( $_GET['noProduct'] ) : null;
 			if ( $shareholderError == 'true' ) {
 				echo '<div class="error">';
-				echo '<p class="hesabfa-p">' . __( 'Export product opening quantity fail. No Shareholder exists, Please define Shareholder in Hesabfa', 'ssbhesabfa' );
+				echo '<p class="hesabfa-p">' . esc_html__( 'Export product opening quantity fail. No Shareholder exists, Please define Shareholder in Hesabfa', 'ssbhesabfa' );
 				echo '</div>';
 			} elseif ( $noProduct == 'true' ) {
 				echo '<div class="error">';
-				echo '<p class="hesabfa-p">' . __( 'No product available for Export product opening quantity.', 'ssbhesabfa' );
+				echo '<p class="hesabfa-p">' . esc_html__( 'No product available for Export product opening quantity.', 'ssbhesabfa' );
 				echo '</div>';
 			} else {
 				echo '<div class="error">';
-				echo '<p class="hesabfa-p">' . __( 'Export product opening quantity fail. Please check the log file.', 'ssbhesabfa' );
+				echo '<p class="hesabfa-p">' . esc_html__( 'Export product opening quantity fail. Please check the log file.', 'ssbhesabfa' );
 				echo '</div>';
 			}
 		}
@@ -1524,42 +1524,42 @@ class Ssbhesabfa_Setting {
 			$processed = ( isset( $_GET['processed'] ) ) ? wc_clean( $_GET['processed'] ) : null;
 			if ( $processed == 0 ) {
 				echo '<div class="updated">';
-				echo '<p class="hesabfa-p">' . __( 'No customers were exported, All customers were exported or there are no customer', 'ssbhesabfa' );
+				echo '<p class="hesabfa-p">' . esc_html__( 'No customers were exported, All customers were exported or there are no customer', 'ssbhesabfa' );
 				echo '</div>';
 			} else {
 				echo '<div class="updated">';
-				echo '<p class="hesabfa-p">' . sprintf( __( 'Export customers completed. %s customers added.', 'ssbhesabfa' ), $processed );
+				echo '<p class="hesabfa-p">' . esc_html(sprintf( __( 'Export customers completed. %s customers added.', 'ssbhesabfa' ), $processed ));
 				echo '</div>';
 			}
 		} elseif ( ! is_null( $customerExportResult ) && $customerExportResult === 'false' ) {
 			if ( ! is_null( $error ) && $error === '-1' ) {
 				echo '<div class="updated">';
-				echo '<p class="hesabfa-p">' . __( 'Export customers fail. Hesabfa has already contained customers.', 'ssbhesabfa' );
+				echo '<p class="hesabfa-p">' . esc_html__( 'Export customers fail. Hesabfa has already contained customers.', 'ssbhesabfa' );
 				echo '</div>';
 			} else {
 				echo '<div class="updated">';
-				echo '<p class="hesabfa-p">' . __( 'Export customers fail. Please check the log file.', 'ssbhesabfa' );
+				echo '<p class="hesabfa-p">' . esc_html__( 'Export customers fail. Please check the log file.', 'ssbhesabfa' );
 				echo '</div>';
 			}
 		}
 
 		?>
         <div class="notice notice-info">
-            <p class="hesabfa-p"><?php echo __( 'Export can take several minutes.', 'ssbhesabfa' ) ?></p>
+            <p class="hesabfa-p"><?php echo esc_html__( 'Export can take several minutes.', 'ssbhesabfa' ) ?></p>
         </div>
         <br>
         <form class="card hesabfa-card" id="ssbhesabfa_export_products" autocomplete="off"
-              action="<?php echo admin_url( 'admin.php?page=ssbhesabfa-option&tab=export' ); ?>"
+              action="<?php echo esc_attr_e(admin_url( 'admin.php?page=ssbhesabfa-option&tab=export' )); ?>"
               method="post">
             <div>
                 <div>
                     <label for="ssbhesabfa-export-product-submit"></label>
                     <div>
                         <button class="button button-primary hesabfa-f" id="ssbhesabfa-export-product-submit"
-                                name="ssbhesabfa-export-product-submit"><?php echo __( 'Export Products', 'ssbhesabfa' ); ?></button>
+                                name="ssbhesabfa-export-product-submit"><?php echo esc_html__( 'Export Products', 'ssbhesabfa' ); ?></button>
                     </div>
                 </div>
-                <p class="hesabfa-p mt-2"><?php echo __( 'Export and add all online store products to Hesabfa', 'ssbhesabfa' ); ?></p>
+                <p class="hesabfa-p mt-2"><?php echo esc_html__( 'Export and add all online store products to Hesabfa', 'ssbhesabfa' ); ?></p>
                 <div class="progress mt-1 mb-2" style="height: 5px; max-width: 400px; border: 1px solid silver"
                      id="exportProductsProgress">
                     <div class="progress-bar progress-bar-striped bg-success" id="exportProductsProgressBar"
@@ -1584,7 +1584,7 @@ class Ssbhesabfa_Setting {
         </form>
 
         <form class="card hesabfa-card hesabfa-f" id="ssbhesabfa_export_products_opening_quantity" autocomplete="off"
-              action="<?php echo admin_url( 'admin.php?page=ssbhesabfa-option&tab=export' ); ?>"
+              action="<?php echo esc_attr(admin_url( 'admin.php?page=ssbhesabfa-option&tab=export' )); ?>"
               method="post">
             <div>
                 <div>
@@ -1594,10 +1594,10 @@ class Ssbhesabfa_Setting {
                                 id="ssbhesabfa-export-product-opening-quantity-submit"
                                 name="ssbhesabfa-export-product-opening-quantity-submit"<?php if ( get_option( 'ssbhesabfa_use_export_product_opening_quantity' ) == true ) {
 							echo 'disabled';
-						} ?>><?php echo __( 'Export Products opening quantity', 'ssbhesabfa' ); ?></button>
+						} ?>><?php echo esc_html__( 'Export Products opening quantity', 'ssbhesabfa' ); ?></button>
                     </div>
                 </div>
-                <p class="hesabfa-p mt-2"><?php echo __( 'Export the products quantity and record the \'products opening quantity\' in the Hesabfa', 'ssbhesabfa' ); ?></p>
+                <p class="hesabfa-p mt-2"><?php echo esc_html__( 'Export the products quantity and record the \'products opening quantity\' in the Hesabfa', 'ssbhesabfa' ); ?></p>
                 <div class="progress mt-1 mb-2" style="height: 5px; max-width: 400px; border: 1px solid silver"
                      id="exportProductsOpeningQuantityProgress">
                     <div class="progress-bar progress-bar-striped bg-success"
@@ -1620,17 +1620,17 @@ class Ssbhesabfa_Setting {
         </form>
 
         <form class="card hesabfa-card hesabfa-f" id="ssbhesabfa_export_customers" autocomplete="off"
-              action="<?php echo admin_url( 'admin.php?page=ssbhesabfa-option&tab=export' ); ?>"
+              action="<?php echo esc_attr(admin_url( 'admin.php?page=ssbhesabfa-option&tab=export' )); ?>"
               method="post">
             <div>
                 <div>
                     <label for="ssbhesabfa-export-customer-submit"></label>
                     <div>
                         <button class="button button-primary hesabfa-f" id="ssbhesabfa-export-customer-submit"
-                                name="ssbhesabfa-export-customer-submit"><?php echo __( 'Export Customers', 'ssbhesabfa' ); ?></button>
+                                name="ssbhesabfa-export-customer-submit"><?php echo esc_html__( 'Export Customers', 'ssbhesabfa' ); ?></button>
                     </div>
                 </div>
-                <p class="hesabfa-p mt-2"><?php echo __( 'Export and add all online store customers to Hesabfa.', 'ssbhesabfa' ); ?></p>
+                <p class="hesabfa-p mt-2"><?php echo esc_html__( 'Export and add all online store customers to Hesabfa.', 'ssbhesabfa' ); ?></p>
                 <div class="progress mt-1 mb-2" style="height: 5px; max-width: 400px; border: 1px solid silver"
                      id="exportCustomersProgress">
                     <div class="progress-bar progress-bar-striped bg-success" id="exportCustomersProgressBar"
@@ -1651,18 +1651,18 @@ class Ssbhesabfa_Setting {
         </form>
 
         <form class="card hesabfa-card hesabfa-f" id="ssbhesabfa_import_products" autocomplete="off"
-              action="<?php echo admin_url( 'admin.php?page=ssbhesabfa-option&tab=export' ); ?>"
+              action="<?php echo esc_attr(admin_url( 'admin.php?page=ssbhesabfa-option&tab=export' )); ?>"
               method="post">
             <div>
                 <div>
                     <label for="ssbhesabfa-import-product-submit"></label>
                     <div>
                         <button class="button button-primary hesabfa-f" id="ssbhesabfa-import-product-submit"
-                                name="ssbhesabfa-import-product-submit"><?php echo __( 'Import Products', 'ssbhesabfa' ); ?></button>
+                                name="ssbhesabfa-import-product-submit"><?php echo esc_html__( 'Import Products', 'ssbhesabfa' ); ?></button>
                     </div>
                 </div>
                 <p class="hesabfa-p mt-2">
-					<?php echo __( 'Import and add all products from Hesabfa to online store', 'ssbhesabfa' ); ?>
+					<?php echo esc_html__( 'Import and add all products from Hesabfa to online store', 'ssbhesabfa' ); ?>
                 </p>
                 <div class="progress mt-1 mb-2" style="height: 5px; max-width: 400px; border: 1px solid silver"
                      id="importProductsProgress">
@@ -1699,7 +1699,7 @@ class Ssbhesabfa_Setting {
 		$changesSyncResult = ( isset( $_GET['changesSyncResult'] ) ) ? wc_clean( $_GET['changesSyncResult'] ) : false;
 		if ( ! is_null( $changesSyncResult ) && $changesSyncResult == 'true' ) {
 			echo '<div class="updated">';
-			echo '<p class="hesabfa-p">' . __( 'Sync completed, All hesabfa changes synced successfully.', 'ssbhesabfa' );
+			echo '<p class="hesabfa-p">' . esc_html__( 'Sync completed, All hesabfa changes synced successfully.', 'ssbhesabfa' );
 			echo '</div>';
 		}
 
@@ -1707,11 +1707,11 @@ class Ssbhesabfa_Setting {
 		$productSyncResult = ( isset( $_GET['productSyncResult'] ) ) ? wc_clean( $_GET['productSyncResult'] ) : null;
 		if ( ! is_null( $productSyncResult ) && $productSyncResult == 'true' ) {
 			echo '<div class="updated">';
-			echo '<p class="hesabfa-p">' . __( 'Sync completed, All products price/quantity synced successfully.', 'ssbhesabfa' );
+			echo '<p class="hesabfa-p">' . esc_html__( 'Sync completed, All products price/quantity synced successfully.', 'ssbhesabfa' );
 			echo '</div>';
 		} elseif ( ! is_null( $productSyncResult ) && ! $productSyncResult == 'false' ) {
 			echo '<div class="error">';
-			echo '<p class="hesabfa-p">' . __( 'Sync products fail. Please check the log file.', 'ssbhesabfa' );
+			echo '<p class="hesabfa-p">' . esc_html__( 'Sync products fail. Please check the log file.', 'ssbhesabfa' );
 			echo '</div>';
 		}
 
@@ -1721,18 +1721,18 @@ class Ssbhesabfa_Setting {
 		if ( ! is_null( $orderSyncResult ) && $orderSyncResult === 'true' ) {
 			$processed = ( isset( $_GET['processed'] ) ) ? wc_clean( $_GET['processed'] ) : null;
 			echo '<div class="updated">';
-			echo '<p class="hesabfa-p">' . sprintf( __( 'Order sync completed. %s order added.', 'ssbhesabfa' ), $processed );
+			echo '<p class="hesabfa-p">' . esc_html(sprintf( __( 'Order sync completed. %s order added.', 'ssbhesabfa' ), $processed ));
 			echo '</div>';
 		} elseif ( ! is_null( $orderSyncResult ) && $orderSyncResult === 'false' ) {
 			$fiscal = ( isset( $_GET['fiscal'] ) ) ? wc_clean( $_GET['fiscal'] ) : false;
 
 			if ( $fiscal === 'true' ) {
 				echo '<div class="error">';
-				echo '<p class="hesabfa-p">' . __( 'The date entered is not within the fiscal year.', 'ssbhesabfa' );
+				echo '<p class="hesabfa-p">' . esc_html__( 'The date entered is not within the fiscal year.', 'ssbhesabfa' );
 				echo '</div>';
 			} else {
 				echo '<div class="error">';
-				echo '<p class="hesabfa-p">' . __( 'Cannot sync orders. Please enter valid Date format.', 'ssbhesabfa' );
+				echo '<p class="hesabfa-p">' . esc_html__( 'Cannot sync orders. Please enter valid Date format.', 'ssbhesabfa' );
 				echo '</div>';
 			}
 		}
@@ -1741,11 +1741,11 @@ class Ssbhesabfa_Setting {
 		$productUpdateResult = ( isset( $_GET['$productUpdateResult'] ) ) ? wc_clean( $_GET['$productUpdateResult'] ) : null;
 		if ( ! is_null( $productUpdateResult ) && $productUpdateResult == 'true' ) {
 			echo '<div class="updated">';
-			echo '<p class="hesabfa-p">' . __( 'Update completed successfully.', 'ssbhesabfa' );
+			echo '<p class="hesabfa-p">' . esc_html__( 'Update completed successfully.', 'ssbhesabfa' );
 			echo '</div>';
 		} elseif ( ! is_null( $productUpdateResult ) && ! $productUpdateResult == 'false' ) {
 			echo '<div class="error">';
-			echo '<p class="hesabfa-p">' . __( 'Update failed. Please check the log file.', 'ssbhesabfa' );
+			echo '<p class="hesabfa-p">' . esc_html__( 'Update failed. Please check the log file.', 'ssbhesabfa' );
 			echo '</div>';
 		}
 
@@ -1753,38 +1753,38 @@ class Ssbhesabfa_Setting {
         $productUpdateWithFilterResult = ( isset( $_GET['$productUpdateWithFilterResult'] ) ) ? wc_clean( $_GET['$productUpdateWithFilterResult'] ) : null;
         if ( ! is_null( $productUpdateWithFilterResult ) && $productUpdateWithFilterResult == 'true' ) {
             echo '<div class="updated">';
-            echo '<p class="hesabfa-p">' . __( 'Update completed successfully.', 'ssbhesabfa' );
+            echo '<p class="hesabfa-p">' . esc_html__( 'Update completed successfully.', 'ssbhesabfa' );
             echo '</div>';
         } elseif ( ! is_null( $productUpdateWithFilterResult ) && ! $productUpdateWithFilterResult == 'false' ) {
             echo '<div class="error">';
-            echo '<p class="hesabfa-p">' . __( 'Update failed. Please check the log file.', 'ssbhesabfa' );
+            echo '<p class="hesabfa-p">' . esc_html__( 'Update failed. Please check the log file.', 'ssbhesabfa' );
             echo '</div>';
         }
 		?>
 
         <div class="notice notice-info mt-3">
-            <p class="hesabfa-p"><?php echo __( 'Number of products in store:', 'ssbhesabfa' ) . ' <b>' . $storeProductsCount . '</b>' ?></p>
-            <p class="hesabfa-p"><?php echo __( 'Number of products in hesabfa:', 'ssbhesabfa' ) . ' <b>' . $hesabfaProductsCount . '</b>' ?></p>
-            <p class="hesabfa-p"><?php echo __( 'Number of linked products:', 'ssbhesabfa' ) . ' <b>' . $linkedProductsCount . '</b>' ?></p>
+            <p class="hesabfa-p"><?php echo esc_html__( 'Number of products in store:', 'ssbhesabfa' ) . ' <b>' . esc_html($storeProductsCount) . '</b>' ?></p>
+            <p class="hesabfa-p"><?php echo esc_html__( 'Number of products in hesabfa:', 'ssbhesabfa' ) . ' <b>' . esc_html($hesabfaProductsCount) . '</b>' ?></p>
+            <p class="hesabfa-p"><?php echo esc_html__( 'Number of linked products:', 'ssbhesabfa' ) . ' <b>' . esc_html($linkedProductsCount) . '</b>' ?></p>
         </div>
 
         <div class="notice notice-info">
-            <p class="hesabfa-p"><?php echo __( 'Sync can take several minutes.', 'ssbhesabfa' ) ?></p>
+            <p class="hesabfa-p"><?php echo esc_html__( 'Sync can take several minutes.', 'ssbhesabfa' ) ?></p>
         </div>
 
         <br>
         <form class="card hesabfa-card hesabfa-f d-none" id="ssbhesabfa_sync_changes" autocomplete="off"
-              action="<?php echo admin_url( 'admin.php?page=ssbhesabfa-option&tab=sync' ); ?>"
+              action="<?php echo esc_attr(admin_url( 'admin.php?page=ssbhesabfa-option&tab=sync' )); ?>"
               method="post">
             <div>
                 <div>
                     <label for="ssbhesabfa-sync-changes-submit"></label>
                     <div>
                         <button class="button button-primary hesabfa-f" id="ssbhesabfa-sync-changes-submit"
-                                name="ssbhesabfa-sync-changes-submit"><?php echo esc_attr_e( 'Sync Changes', 'ssbhesabfa' ); ?></button>
+                                name="ssbhesabfa-sync-changes-submit"><?php echo esc_html__( 'Sync Changes', 'ssbhesabfa' ); ?></button>
                     </div>
                 </div>
-                <p class="hesabfa-p mt-2"><?php echo __( 'Sync all Hesabfa changes with Online Store.', 'ssbhesabfa' ); ?></p>
+                <p class="hesabfa-p mt-2"><?php echo esc_html__( 'Sync all Hesabfa changes with Online Store.', 'ssbhesabfa' ); ?></p>
                 <div class="p-2 hesabfa-f">
                     <label class="fw-bold mb-2">نکات مهم:</label>
                     <ul>
@@ -1801,7 +1801,7 @@ class Ssbhesabfa_Setting {
         </form>
 
         <form class="card hesabfa-card hesabfa-f" id="ssbhesabfa_sync_products" autocomplete="off"
-              action="<?php echo admin_url( 'admin.php?page=ssbhesabfa-option&tab=sync' ); ?>"
+              action="<?php echo esc_attr(admin_url( 'admin.php?page=ssbhesabfa-option&tab=sync' )); ?>"
               method="post">
             <div>
                 <div>
@@ -1810,15 +1810,15 @@ class Ssbhesabfa_Setting {
                         <?php
                             if(get_option('ssbhesabfa_item_update_price') == 'no' && get_option('ssbhesabfa_item_update_quantity') == 'no') { ?>
                                 <button disabled class="button button-primary hesabfa-f" id="ssbhesabfa-sync-products-submit"
-                                        name="ssbhesabfa-sync-products-submit"><?php echo __( 'Sync Products Quantity and Price', 'ssbhesabfa' ); ?></button>
+                                        name="ssbhesabfa-sync-products-submit"><?php echo esc_html__( 'Sync Products Quantity and Price', 'ssbhesabfa' ); ?></button>
                            <?php } else {
                         ?>
                         <button class="button button-primary hesabfa-f" id="ssbhesabfa-sync-products-submit"
-                                name="ssbhesabfa-sync-products-submit"><?php echo __( 'Sync Products Quantity and Price', 'ssbhesabfa' ); ?></button>
+                                name="ssbhesabfa-sync-products-submit"><?php echo esc_html__( 'Sync Products Quantity and Price', 'ssbhesabfa' ); ?></button>
                         <?php } ?>
                     </div>
                 </div>
-                <p class="hesabfa-p mt-2"><?php echo __( 'Sync quantity and price of products in hesabfa with online store.', 'ssbhesabfa' ); ?></p>
+                <p class="hesabfa-p mt-2"><?php echo esc_html__( 'Sync quantity and price of products in hesabfa with online store.', 'ssbhesabfa' ); ?></p>
                 <div class="progress mt-1 mb-2" style="height: 5px; max-width: 400px; border: 1px solid silver"
                      id="syncProductsProgress">
                     <div class="progress-bar progress-bar-striped bg-success" id="syncProductsProgressBar"
@@ -1838,7 +1838,7 @@ class Ssbhesabfa_Setting {
         </form>
 
         <form class="card hesabfa-card hesabfa-f" id="ssbhesabfa_sync_orders" autocomplete="off"
-              action="<?php echo admin_url( 'admin.php?page=ssbhesabfa-option&tab=sync' ); ?>"
+              action="<?php echo esc_attr(admin_url( 'admin.php?page=ssbhesabfa-option&tab=sync' )); ?>"
               method="post">
             <div>
                 <div>
@@ -1851,10 +1851,10 @@ class Ssbhesabfa_Setting {
                                class="datepicker"/>
 
                         <button class="button button-primary hesabfa-f" id="ssbhesabfa-sync-orders-submit"
-                                name="ssbhesabfa-sync-orders-submit"><?php echo __( 'Sync Orders', 'ssbhesabfa' ); ?></button>
+                                name="ssbhesabfa-sync-orders-submit"><?php echo esc_html__( 'Sync Orders', 'ssbhesabfa' ); ?></button>
                     </div>
                 </div>
-                <p class="hesabfa-p mt-2"><?php echo __( 'Sync/Add orders in online store with hesabfa from above date.', 'ssbhesabfa' ); ?></p>
+                <p class="hesabfa-p mt-2"><?php echo esc_html__( 'Sync/Add orders in online store with hesabfa from above date.', 'ssbhesabfa' ); ?></p>
                 <div class="progress mt-1 mb-2" style="height: 5px; max-width: 400px; border: 1px solid silver"
                      id="syncOrdersProgress">
                     <div class="progress-bar progress-bar-striped bg-success" id="syncOrdersProgressBar"
@@ -1879,17 +1879,17 @@ class Ssbhesabfa_Setting {
         </form>
 
         <form class="card hesabfa-card hesabfa-f" id="ssbhesabfa_update_products" autocomplete="off"
-              action="<?php echo admin_url( 'admin.php?page=ssbhesabfa-option&tab=sync' ); ?>"
+              action="<?php echo esc_attr(admin_url( 'admin.php?page=ssbhesabfa-option&tab=sync' )); ?>"
               method="post">
             <div>
                 <div>
                     <label for="ssbhesabfa-update-products-submit"></label>
                     <div>
                         <button class="button button-primary hesabfa-f" id="ssbhesabfa-update-products-submit"
-                                name="ssbhesabfa-update-products-submit"><?php echo __( 'Update Products in Hesabfa based on store', 'ssbhesabfa' ); ?></button>
+                                name="ssbhesabfa-update-products-submit"><?php echo esc_html__( 'Update Products in Hesabfa based on store', 'ssbhesabfa' ); ?></button>
                     </div>
                 </div>
-                <p class="hesabfa-p mt-2"><?php echo __( 'Update products in hesabfa based on products definition in store.', 'ssbhesabfa' ); ?></p>
+                <p class="hesabfa-p mt-2"><?php echo esc_html__( 'Update products in hesabfa based on products definition in store.', 'ssbhesabfa' ); ?></p>
                 <div class="progress mt-1 mb-2" style="height: 5px; max-width: 400px; border: 1px solid silver"
                      id="updateProductsProgress">
                     <div class="progress-bar progress-bar-striped bg-success" id="updateProductsProgressBar"
@@ -1910,21 +1910,21 @@ class Ssbhesabfa_Setting {
 
         <form
             class="card hesabfa-card hesabfa-f" name="ssbhesabfa_update_products_with_filter" id="ssbhesabfa_update_products_with_filter" autocomplete="off" method="post"
-            action="<?php echo admin_url( 'admin.php?page=ssbhesabfa-option&tab=sync' ); ?>"
+            action="<?php echo esc_attr(admin_url( 'admin.php?page=ssbhesabfa-option&tab=sync' )); ?>"
         >
             <div>
                 <div>
                     <label for="ssbhesabfa-update-products-with-filter-submit"></label>
                     <div>
-                        <input style="min-width: 250px;" type="text" id="ssbhesabfa-update-products-offset" name="ssbhesabfa-update-products-offset" placeholder="<?php echo __('Start ID', 'ssbhesabfa'); ?>" />
+                        <input style="min-width: 250px;" type="text" id="ssbhesabfa-update-products-offset" name="ssbhesabfa-update-products-offset" placeholder="<?php echo esc_html__('Start ID', 'ssbhesabfa'); ?>" />
                         <br><br>
-                        <input style="min-width: 250px;" type="text" id="ssbhesabfa-update-products-rpp" name="ssbhesabfa-update-products-rpp" placeholder="<?php echo __('End ID', 'ssbhesabfa'); ?>"  />
+                        <input style="min-width: 250px;" type="text" id="ssbhesabfa-update-products-rpp" name="ssbhesabfa-update-products-rpp" placeholder="<?php echo esc_html__('End ID', 'ssbhesabfa'); ?>"  />
                         <br><br>
                         <button class="button button-primary hesabfa-f" id="ssbhesabfa-update-products-with-filter-submit"
-                                name="ssbhesabfa-update-products-with-filter-submit"><?php echo __( 'Update Products in Hesabfa based on store with filter', 'ssbhesabfa' ); ?></button>
+                                name="ssbhesabfa-update-products-with-filter-submit"><?php echo esc_html__( 'Update Products in Hesabfa based on store with filter', 'ssbhesabfa' ); ?></button>
                     </div>
                 </div>
-                <p class="hesabfa-p mt-2"><?php echo __( 'Update products in hesabfa based on products definition in store.', 'ssbhesabfa' ); ?></p>
+                <p class="hesabfa-p mt-2"><?php echo esc_html__( 'Update products in hesabfa based on products definition in store.', 'ssbhesabfa' ); ?></p>
                 <div class="p-2 hesabfa-f">
                     <label class="fw-bold mb-2">نکات مهم:</label>
                     <ul>
@@ -2052,7 +2052,7 @@ class Ssbhesabfa_Setting {
 					}
 				} else {
 					echo '<div class="error">';
-					echo '<p class="hesabfa-p">' . __( 'Cannot check the last change ID. Error Message: ', 'ssbhesabfa' ) . $changes->ErrorMessage . '</p>';
+					echo '<p class="hesabfa-p">' . esc_html__( 'Cannot check the last change ID. Error Message: ', 'ssbhesabfa' ) . esc_html($changes->ErrorMessage) . '</p>';
 					echo '</div>';
 
 					HesabfaLogService::log( array("Cannot check the last change ID. Error Message: $changes->ErrorMessage. Error Code: $changes->ErrorCode") );
@@ -2062,7 +2062,7 @@ class Ssbhesabfa_Setting {
 				//check if date in fiscalYear
 				if ( Ssbhesabfa_Admin_Functions::isDateInFiscalYear( date( 'Y-m-d H:i:s' ) ) === 0 ) {
 					echo '<div class="error">';
-					echo '<p class="hesabfa-p">' . __( 'The fiscal year has passed or not arrived. Please check the fiscal year settings in Hesabfa.', 'ssbhesabfa' ) . '</p>';
+					echo '<p class="hesabfa-p">' . esc_html__( 'The fiscal year has passed or not arrived. Please check the fiscal year settings in Hesabfa.', 'ssbhesabfa' ) . '</p>';
 					echo '</div>';
 
 					update_option( 'ssbhesabfa_live_mode', 0 );
@@ -2080,12 +2080,12 @@ class Ssbhesabfa_Setting {
 						update_option( 'ssbhesabfa_live_mode', 0 );
 
 						echo '<div class="error">';
-						echo '<p class="hesabfa-p">' . __( 'Hesabfa and WooCommerce default currency must be same.', 'ssbhesabfa' );
+						echo '<p class="hesabfa-p">' . esc_html__( 'Hesabfa and WooCommerce default currency must be same.', 'ssbhesabfa' );
 						echo '</div>';
 					}
 				} else {
 					echo '<div class="error">';
-					echo '<p class="hesabfa-p">' . __( 'Cannot check the Hesabfa default currency. Error Message: ', 'ssbhesabfa' ) . $default_currency->ErrorMessage . '</p>';
+					echo '<p class="hesabfa-p">' . esc_html__( 'Cannot check the Hesabfa default currency. Error Message: ', 'ssbhesabfa' ) . esc_html($default_currency->ErrorMessage) . '</p>';
 					echo '</div>';
 
 					HesabfaLogService::log( array( "Cannot check the Hesabfa default currency. Error Message: $default_currency->ErrorMessage. Error Code: $default_currency->ErrorCode" ) );
@@ -2093,7 +2093,7 @@ class Ssbhesabfa_Setting {
 
 				if ( get_option( 'ssbhesabfa_live_mode' ) ) {
 					echo '<div class="updated">';
-					echo '<p class="hesabfa-p">' . __( 'API Setting updated. Test Successfully', 'ssbhesabfa' ) . '</p>';
+					echo '<p class="hesabfa-p">' . esc_html__( 'API Setting updated. Test Successfully', 'ssbhesabfa' ) . '</p>';
 					echo '</div>';
 				}
 
@@ -2126,12 +2126,12 @@ class Ssbhesabfa_Setting {
 
 				if ( $response->ErrorCode === 108 ) {
 					echo '<div class="error">';
-					echo '<p class="hesabfa-p">' . __( 'Cannot connect to Hesabfa. Business expired.', 'ssbhesabfa' ) . $response->ErrorMessage . '</p>';
+					echo '<p class="hesabfa-p">' . esc_html__( 'Cannot connect to Hesabfa. Business expired.', 'ssbhesabfa' ) . esc_html($response->ErrorMessage) . '</p>';
 					echo '</div>';
 					update_option( 'ssbhesabfa_business_expired', 1 );
 				} else {
 					echo '<div class="error">';
-					echo '<p class="hesabfa-p">' . __( 'Cannot set Hesabfa webHook. Error Message:', 'ssbhesabfa' ) . $response->ErrorMessage . '</p>';
+					echo '<p class="hesabfa-p">' . esc_html__( 'Cannot set Hesabfa webHook. Error Message:', 'ssbhesabfa' ) . esc_html($response->ErrorMessage) . '</p>';
 					echo '</div>';
 					update_option( 'ssbhesabfa_business_expired', 0 );
 				}
@@ -2142,7 +2142,7 @@ class Ssbhesabfa_Setting {
 			update_option( 'ssbhesabfa_live_mode', 0 );
 
 			echo '<div class="error">';
-			echo '<p class="hesabfa-p">' . __( 'Cannot connect to Hesabfa servers. Please check your Internet connection', 'ssbhesabfa' ) . '</p>';
+			echo '<p class="hesabfa-p">' . esc_html__( 'Cannot connect to Hesabfa servers. Please check your Internet connection', 'ssbhesabfa' ) . '</p>';
 			echo '</div>';
 
 			HesabfaLogService::log( array("Cannot connect to hesabfa servers. Check your internet connection" ) );
@@ -2173,7 +2173,7 @@ class Ssbhesabfa_Setting {
 			update_option( 'ssbhesabfa_live_mode', 0 );
 
 			echo '<div class="error">';
-			echo '<p class="hesabfa-p">' . __( 'Cannot get Banks detail.', 'ssbhesabfa' ) . '</p>';
+			echo '<p class="hesabfa-p">' . esc_html__( 'Cannot get Banks detail.', 'ssbhesabfa' ) . '</p>';
 			echo '</div>';
 
 			HesabfaLogService::log( array("Cannot get banking information. Error Code: $banks->ErrorCode. Error Message: $banks->ErrorMessage." ) );
@@ -2214,7 +2214,7 @@ class Ssbhesabfa_Setting {
 		} else {
 			update_option( 'ssbhesabfa_live_mode', 0 );
 			echo '<div class="error">';
-			echo '<p class="hesabfa-p">' . __( 'Cannot get Projects detail.', 'ssbhesabfa' ) . '</p>';
+			echo '<p class="hesabfa-p">' . esc_html__( 'Cannot get Projects detail.', 'ssbhesabfa' ) . '</p>';
 			echo '</div>';
 			HesabfaLogService::log( array("Cannot get projects information. Error Code:$projects->ErrorCode. Error Message: $projects->ErrorMessage.") );
 
@@ -2239,7 +2239,7 @@ class Ssbhesabfa_Setting {
 		} else {
 			update_option( 'ssbhesabfa_live_mode', 0 );
 			echo '<div class="error">';
-			echo '<p class="hesabfa-p">' . __( 'Cannot get Salesmen detail.', 'ssbhesabfa' ) . '</p>';
+			echo '<p class="hesabfa-p">' . esc_html__( 'Cannot get Salesmen detail.', 'ssbhesabfa' ) . '</p>';
 			echo '</div>';
 			HesabfaLogService::log( array("Cannot get salesmen information. Error Code: $salesmen->ErrorCode Error Message: .$salesmen->ErrorMessage.") );
 
@@ -2252,11 +2252,11 @@ class Ssbhesabfa_Setting {
 
 		if ( ! is_null( $cleanLogResult ) && $cleanLogResult === 'true' ) {
 			echo '<div class="updated">';
-			echo '<p class="hesabfa-p">' . __( 'The log file was cleared.', 'ssbhesabfa' ) . '</p>';
+			echo '<p class="hesabfa-p">' . esc_html__( 'The log file was cleared.', 'ssbhesabfa' ) . '</p>';
 			echo '</div>';
 		} elseif ( $cleanLogResult === 'false' ) {
 			echo '<div class="updated">';
-			echo '<p class="hesabfa-p">' . __( 'Log file not found.', 'ssbhesabfa' ) . '</p>';
+			echo '<p class="hesabfa-p">' . esc_html__( 'Log file not found.', 'ssbhesabfa' ) . '</p>';
 			echo '</div>';
 		}
 
@@ -2273,14 +2273,14 @@ class Ssbhesabfa_Setting {
                 <br>
                 فهرست تاریخچه لاگ ها، لاگ های موجود در سیستم در بازه 10 روز گذشته را نمایش می دهد.
             </div>
-            <h3 class="hesabfa-tab-page-title"><?php echo __( 'Events and bugs log', 'ssbhesabfa' ) ?></h3>
+            <h3 class="hesabfa-tab-page-title"><?php echo esc_html__( 'Events and bugs log', 'ssbhesabfa' ) ?></h3>
             <div style="display:flex;align-items: center;">
                 <div style="display: inline-block;">
                     <label for="ssbhesabfa-clean-log-files"></label>
                     <form method="post">
                         <div>
                             <div>
-                                <button name="deleteLogFiles" class="button button-primary hesabfa-f" style="cursor: pointer; margin: 0.4rem 0;"><?php echo __("Delete All Log Files", "ssbhesabfa"); ?></button>
+                                <button name="deleteLogFiles" class="button button-primary hesabfa-f" style="cursor: pointer; margin: 0.4rem 0;"><?php echo esc_html__("Delete All Log Files", "ssbhesabfa"); ?></button>
                             </div>
                         </div>
                     </form>
@@ -2289,8 +2289,8 @@ class Ssbhesabfa_Setting {
                     <label for="ssbhesabfa-log-download-submit"></label>
                     <div>
                         <a class="button button-secondary hesabfa-f" target="_blank"
-                           href="<?php if(isset($_POST["changeLogFile"])) echo WP_CONTENT_URL . '/ssbhesabfa-' . sanitize_text_field($_POST["changeLogFile"]) . '.txt'; else echo WP_CONTENT_URL . '/ssbhesabfa-' . date("20y-m-d") . '.txt'; ?>">
-                            <?php echo __( 'Download log file', 'ssbhesabfa' ); ?>
+                           href="<?php if(isset($_POST["changeLogFile"])) echo esc_attr_e(WP_CONTENT_URL . '/ssbhesabfa-' . sanitize_text_field($_POST["changeLogFile"]) . '.txt'); else echo esc_attr_e(WP_CONTENT_URL . '/ssbhesabfa-' . date("20y-m-d") . '.txt'); ?>">
+                            <?php echo esc_html__( 'Download log file', 'ssbhesabfa' ); ?>
                         </a>
                     </div>
                 </div>
@@ -2299,9 +2299,9 @@ class Ssbhesabfa_Setting {
                         <label for="ssbhesabfa-log-clean-submit"></label>
                         <div>
                             <div>
-                                <input name="currentLogFileDate" type="hidden" value="<?php if(isset($_POST["changeLogFile"])) echo sanitize_text_field($_POST["changeLogFile"]); else echo sanitize_text_field($_POST["ssbhesabfa_find_log_date"]); ?>">
+                                <input name="currentLogFileDate" type="hidden" value="<?php if(isset($_POST["changeLogFile"])) echo esc_attr(sanitize_text_field($_POST["changeLogFile"])); else echo esc_attr(sanitize_text_field($_POST["ssbhesabfa_find_log_date"])); ?>">
                                 <button class="button button-primary hesabfa-f" id="ssbhesabfa-log-clean-submit"
-                                        name="ssbhesabfa-log-clean-submit"> <?php echo __( 'Clean current log', 'ssbhesabfa' ); ?></button>
+                                        name="ssbhesabfa-log-clean-submit"> <?php echo esc_html__( 'Clean current log', 'ssbhesabfa' ); ?></button>
                             </div>
                         </div>
                     </form>
@@ -2317,7 +2317,7 @@ class Ssbhesabfa_Setting {
                             <input type="date" id="ssbhesabfa_find_log_date" name="ssbhesabfa_find_log_date" value=""
                                    class="datepicker"/>
                             <button class="button button-primary hesabfa-f" id="ssbhesabfa-find-log-submit"
-                                    name="ssbhesabfa-find-log-submit"><?php echo __( 'Find Log File', 'ssbhesabfa' ); ?></button>
+                                    name="ssbhesabfa-find-log-submit"><?php echo esc_html__( 'Find Log File', 'ssbhesabfa' ); ?></button>
                         </div>
                     </form>
                 </div>
@@ -2334,7 +2334,7 @@ class Ssbhesabfa_Setting {
                             <input type="date" id="ssbhesabfa_delete_log_date_to" name="ssbhesabfa_delete_log_date_to" value=""
                                    class="datepicker"/>
                             <button class="button button-primary hesabfa-f" id="ssbhesabfa-delete-logs-between-two-dates"
-                                    name="ssbhesabfa-delete-logs-between-two-dates"><?php echo __( 'Delete Logs Between These Tow Dates', 'ssbhesabfa' ); ?></button>
+                                    name="ssbhesabfa-delete-logs-between-two-dates"><?php echo esc_html__( 'Delete Logs Between These Tow Dates', 'ssbhesabfa' ); ?></button>
                         </div>
                     </form>
                 </div>
@@ -2351,7 +2351,7 @@ class Ssbhesabfa_Setting {
 				$str = __( 'The log file size is large, clean log file.', 'ssbhesabfa' );
 
 				echo '<div class="notice notice-warning">' .
-				     '<p class="hesabfa-p">' . $str . ' (' . $fileSizeInMb . 'MB)' . '</p>'
+				     '<p class="hesabfa-p">' . esc_html($str) . ' (' . esc_html($fileSizeInMb) . 'MB)' . '</p>'
 				     . '</div>';
 
 			} else if ( file_exists( WP_CONTENT_DIR . '/ssbhesabfa-' . date("20y-m-d") . '.txt' ) ) {
@@ -2362,19 +2362,19 @@ class Ssbhesabfa_Setting {
 
                 echo '<div id="logFileContainer" style="display: flex; justify-content: space-between; flex-direction: column;">'.
                     '<div style="direction: ltr;display: flex; flex-direction: column; align-items: center;">
-                        <h3>' . __("Log History", "ssbhesabfa") . '</h3>
+                        <h3>' . esc_html__("Log History", "ssbhesabfa") . '</h3>
                         <form method="post"">
                             <ul>';
                             for($i = 0 ; $i < 10 ; $i++) {
                                 if( file_exists( WP_CONTENT_DIR . '/ssbhesabfa-' . date("20y-m-d", strtotime(-$i."day")) . '.txt' ) ) {
-                                    echo '<li class="button button-secondary" id="'.date("20y-m-d", strtotime(-$i."day")).'" style="cursor: pointer; margin: 0.4rem;"><input style="background: transparent;border: none; color: #2271B1" name="changeLogFile" type="submit" value="'. date("20y-m-d", strtotime(-$i."day")) .'" /></li>';
+                                    echo '<li class="button button-secondary" id="'.esc_html(date("20y-m-d", strtotime(-$i."day"))).'" style="cursor: pointer; margin: 0.4rem;"><input style="background: transparent;border: none; color: #2271B1" name="changeLogFile" type="submit" value="'. esc_html(date("20y-m-d", strtotime(-$i."day"))) .'" /></li>';
                                 }
                             }
                             echo '
                             </ul>          
                         </form>
                     </div>';
-				echo '<textarea id="textarea" rows="35" style="width: 100%; box-sizing: border-box; direction: ltr; margin-left: 10px; background-color: whitesmoke">' . $logFileContent . '</textarea>';
+				echo '<textarea id="textarea" rows="35" style="width: 100%; box-sizing: border-box; direction: ltr; margin-left: 10px; background-color: whitesmoke">' . esc_html($logFileContent) . '</textarea>';
                 echo '</div>';
 //---------------------------------------
                 if(isset($_POST["changeLogFile"])) {
@@ -2388,19 +2388,19 @@ class Ssbhesabfa_Setting {
 
                     echo '<div id="logFileContainer" style="display: flex; justify-content: space-between; flex-direction: column;">'.
                         '<div style="direction: ltr;display: flex; flex-direction: column; align-items: center;">
-                        <h3>' . __("Log History", "ssbhesabfa") . '</h3>
+                        <h3>' . esc_html__("Log History", "ssbhesabfa") . '</h3>
                         <form method="post">
                             <ul>';
                     for($i = 0 ; $i < 10 ; $i++) {
                         if( file_exists( WP_CONTENT_DIR . '/ssbhesabfa-' . date("20y-m-d", strtotime(-$i."day")) . '.txt' ) ) {
-                            echo '<li class="button button-secondary" id="'.date("20y-m-d", strtotime(-$i."day")).'" style="cursor: pointer; margin: 0.4rem;"><input style="background: transparent;border: none; color: #2271B1" name="changeLogFile" type="submit" value="'. date("20y-m-d", strtotime(-$i."day")) .'" /></li>';
+                            echo '<li class="button button-secondary" id="'.esc_html(date("20y-m-d", strtotime(-$i."day"))).'" style="cursor: pointer; margin: 0.4rem;"><input style="background: transparent;border: none; color: #2271B1" name="changeLogFile" type="submit" value="'. esc_html(date("20y-m-d", strtotime(-$i."day"))) .'" /></li>';
                         }
                     }
                     echo '
                             </ul>          
                         </form>
                     </div>';
-                    echo '<textarea id="textarea" rows="35" style="width: 100%; box-sizing: border-box; direction: ltr; margin-left: 10px; background-color: whitesmoke">' . $logFileContent . '</textarea>';
+                    echo '<textarea id="textarea" rows="35" style="width: 100%; box-sizing: border-box; direction: ltr; margin-left: 10px; background-color: whitesmoke">' . esc_html($logFileContent) . '</textarea>';
                     echo '</div>';
                 }
 //---------------------------------------
@@ -2478,19 +2478,19 @@ class Ssbhesabfa_Setting {
 
                     echo '<div id="logFileContainer" style="display: flex; justify-content: space-between; flex-direction: column;">'.
                                 '<div style="direction: ltr;display: flex; flex-direction: column; align-items: center;">
-                                <h3>' . __("Log History", "ssbhesabfa") . '</h3>
+                                <h3>' . esc_html__("Log History", "ssbhesabfa") . '</h3>
                                 <form method="post">
                                     <ul>';
                             for($i = 0 ; $i < 10 ; $i++) {
                                 if( file_exists( WP_CONTENT_DIR . '/ssbhesabfa-' . date("20y-m-d", strtotime(-$i."day")) . '.txt' ) ) {
-                                    echo '<li class="button button-secondary" id="'.date("20y-m-d", strtotime(-$i."day")).'" style="cursor: pointer; margin: 0 0.4rem;"><input style="background: transparent;border: none; color: #2271B1" name="changeLogFile" type="submit" value="'. date("20y-m-d", strtotime(-$i."day")) .'" /></li>';
+                                    echo '<li class="button button-secondary" id="'.esc_html(date("20y-m-d", strtotime(-$i."day"))).'" style="cursor: pointer; margin: 0 0.4rem;"><input style="background: transparent;border: none; color: #2271B1" name="changeLogFile" type="submit" value="'. esc_html(date("20y-m-d", strtotime(-$i."day"))) .'" /></li>';
                                 }
                             }
                             echo '
                                     </ul>          
                                 </form>
                             </div>';
-                            echo '<textarea id="textarea" rows="35" style="width: 100%; box-sizing: border-box; direction: ltr; margin-left: 10px; background-color: whitesmoke">' . $logFileContent . '</textarea>';
+                            echo '<textarea id="textarea" rows="35" style="width: 100%; box-sizing: border-box; direction: ltr; margin-left: 10px; background-color: whitesmoke">' . esc_html($logFileContent) . '</textarea>';
                             echo '</div>';
                 }
 			?>
@@ -2520,7 +2520,7 @@ class Ssbhesabfa_Setting {
 		} else {
 			update_option( 'ssbhesabfa_live_mode', 0 );
 			echo '<div class="error">';
-			echo '<p class="hesabfa-p">' . __( 'Cannot get warehouses.', 'ssbhesabfa' ) . '</p>';
+			echo '<p class="hesabfa-p">' . esc_html__( 'Cannot get warehouses.', 'ssbhesabfa' ) . '</p>';
 			echo '</div>';
 			HesabfaLogService::log( array("Cannot get warehouses. Error Code: $warehouses->ErrorCode. Error Message: .$warehouses->ErrorMessage.") );
 

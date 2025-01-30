@@ -1,7 +1,7 @@
 <?php
 /*
  * @class      Ssbhesabfa_Html_output
- * @version    2.1.4
+ * @version    2.1.5
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin/output
@@ -62,7 +62,7 @@ class Ssbhesabfa_Html_output {
                             echo '<h3 class="hesabfa-tab-page-title">' . esc_html($value['title']) . '</h3>';
                         }
                         if (!empty($value['desc'])) {
-                            echo wpautop(wptexturize(wp_kses_post($value['desc'])));
+                            echo esc_html(wpautop(wptexturize(wp_kses_post($value['desc']))));
                         }
                         echo '<table class="form-table hesabfa-p">' . "\n\n";
                         break;
@@ -85,9 +85,9 @@ class Ssbhesabfa_Html_output {
                         ?><tr style="vertical-align: top">
                             <th scope="row" class="titledesc">
                                 <label for="<?php echo esc_attr($value['id']); ?>"><?php echo esc_html($value['title']); ?></label>
-                                <?php echo $tip; ?>
+                                <?php echo esc_html($tip); ?>
                             </th>
-                            <td class="forminp forminp-<?php echo sanitize_title($value['type']) ?>">
+                            <td class="forminp forminp-<?php echo esc_html(sanitize_title($value['type'])) ?>">
                                 <input
                                     name="<?php echo esc_attr($value['id']); ?>"
                                     id="<?php echo esc_attr($value['id']); ?>"
@@ -96,8 +96,8 @@ class Ssbhesabfa_Html_output {
                                     value="<?php echo esc_attr($option_value); ?>"
                                     class="<?php echo esc_attr($value['class']); ?>"
                                     placeholder="<?php echo esc_attr($placeholder); ?>"
-                                    <?php echo implode(' ', $custom_attributes); ?>
-                                    /> <?php echo $description; ?>
+                                    <?php echo esc_attr(implode(' ', $custom_attributes)); ?>
+                                    /> <?php echo esc_html($description); ?>
                             </td>
                         </tr><?php
                         break;
@@ -106,14 +106,14 @@ class Ssbhesabfa_Html_output {
                         ?><tr style="vertical-align: top">
                             <th scope="row" class="titledesc">
                                 <label for="<?php echo esc_attr($value['id']); ?>"><?php echo esc_html($value['title']); ?></label>
-                                <?php echo $tip; ?>
+                                <?php echo esc_html($tip) ?>
                             </th>
-                            <td class="forminp forminp-<?php echo sanitize_title($value['type']) ?>">
-                                <?php echo $description; ?>
+                            <td class="forminp forminp-<?php echo esc_html(sanitize_title($value['type'])) ?>">
+                                <?php echo esc_html($description); ?>
                                 <?php
                                 if (isset($value['editor']) && $value['editor'] == 'true') {
 
-                                    echo wp_editor($option_value, $value['id']);
+                                    echo esc_html(wp_editor($option_value, $value['id']));
                                 } else {
                                     ?>
                                     <textarea
@@ -121,7 +121,7 @@ class Ssbhesabfa_Html_output {
                                         id="<?php echo esc_attr($value['id']); ?>"
                                         style="<?php echo esc_attr($value['css']); ?>"
                                         class="<?php echo esc_attr($value['class']); ?>"
-                                        <?php echo implode(' ', $custom_attributes); ?>
+                                        <?php echo esc_attr(implode(' ', $custom_attributes)); ?>
                                         ><?php echo esc_textarea($option_value); ?></textarea>
                                     <?php } ?>
                             </td>
@@ -133,15 +133,15 @@ class Ssbhesabfa_Html_output {
                         ?><tr style="vertical-align: top">
                             <th scope="row" class="titledesc">
                                 <label for="<?php echo esc_attr($value['id']); ?>"><?php echo esc_html($value['title']); ?></label>
-                                <?php echo $tip; ?>
+                                <?php echo esc_html($tip); ?>
                             </th>
-                            <td class="forminp forminp-<?php echo sanitize_title($value['type']) ?>">
+                            <td class="forminp forminp-<?php echo esc_html(sanitize_title($value['type'])) ?>">
                                 <select
                                     name="<?php echo esc_attr($value['id']); ?><?php if ($value['type'] == 'multiselect') echo '[]'; ?>"
                                     id="<?php echo esc_attr($value['id']); ?>"
                                     style="<?php echo esc_attr($value['css']); ?>"
                                     class="<?php echo esc_attr($value['class']); ?>"
-                                    <?php echo implode(' ', $custom_attributes); ?>
+                                    <?php echo esc_attr(implode(' ', $custom_attributes)); ?>
                                     <?php echo ( 'multiselect' == $value['type'] ) ? 'multiple="multiple"' : ''; ?>
                                     >
                                         <?php
@@ -153,11 +153,11 @@ class Ssbhesabfa_Html_output {
                                         } else {
                                             selected($option_value, $key);
                                         }
-                                        ?>><?php echo $val ?></option>
+                                        ?>><?php echo esc_html($val) ?></option>
                                                 <?php
                                             }
                                             ?>
-                                </select> <?php echo $description; ?>
+                                </select> <?php echo esc_html($description); ?>
                             </td>
                         </tr><?php
                         break;
@@ -166,11 +166,11 @@ class Ssbhesabfa_Html_output {
                         ?><tr style="vertical-align: top">
                             <th scope="row" class="titledesc">
                                 <label for="<?php echo esc_attr($value['id']); ?>"><?php echo esc_html($value['title']); ?></label>
-                                <?php echo $tip; ?>
+                                <?php echo esc_html($tip); ?>
                             </th>
-                            <td class="forminp forminp-<?php echo sanitize_title($value['type']) ?>">
+                            <td class="forminp forminp-<?php echo esc_html(sanitize_title($value['type'])) ?>">
                                 <fieldset>
-                                    <?php echo $description; ?>
+                                    <?php echo esc_html($description); ?>
                                     <ul>
                                         <?php
                                         foreach ($value['options'] as $key => $val) {
@@ -178,13 +178,13 @@ class Ssbhesabfa_Html_output {
                                             <li>
                                                 <label><input
                                                         name="<?php echo esc_attr($value['id']); ?>"
-                                                        value="<?php echo $key; ?>"
+                                                        value="<?php echo esc_attr($key); ?>"
                                                         type="radio"
                                                         style="<?php echo esc_attr($value['css']); ?>"
                                                         class="<?php echo esc_attr($value['class']); ?>"
-                                                        <?php echo implode(' ', $custom_attributes); ?>
+                                                        <?php echo esc_attr(implode(' ', $custom_attributes)); ?>
                                                         <?php checked($key, $option_value); ?>
-                                                        /> <?php echo $val ?></label>
+                                                        /> <?php echo esc_html($val) ?></label>
                                             </li>
                                             <?php
                                         }
@@ -230,16 +230,16 @@ class Ssbhesabfa_Html_output {
                                             <?php
                                         }
                                         ?>
-                                        <label for="<?php echo $value['id'] ?>">
+                                        <label for="<?php echo esc_attr($value['id']) ?>">
                                             <input
                                                 name="<?php echo esc_attr($value['id']); ?>"
                                                 id="<?php echo esc_attr($value['id']); ?>"
                                                 type="checkbox"
                                                 value="1"
                                                 <?php checked($option_value, 'yes'); ?>
-                                                <?php echo implode(' ', $custom_attributes); ?>
-                                                /> <?php echo $description ?>
-                                        </label> <?php echo $tip; ?>
+                                                <?php echo esc_attr(implode(' ', $custom_attributes)); ?>
+                                                /> <?php echo esc_html($description) ?>
+                                        </label> <?php echo esc_html($tip); ?>
                                         <?php
                                         if (!isset($value['checkboxgroup']) || 'end' == $value['checkboxgroup']) {
                                             ?>
@@ -268,9 +268,9 @@ class Ssbhesabfa_Html_output {
                             $args = wp_parse_args($value['args'], $args);
                         }
                         ?><tr style="vertical-align: top" class="single_select_page">
-                            <th scope="row" class="titledesc"><?php echo esc_html($value['title']) ?> <?php echo $tip; ?></th>
+                            <th scope="row" class="titledesc"><?php echo esc_html($value['title']) ?> <?php echo esc_html($tip); ?></th>
                             <td class="forminp">
-                                <?php echo str_replace(' id=', " data-placeholder='" . __('Select a page&hellip;', 'Option') . "' style='" . $value['css'] . "' class='" . $value['class'] . "' id=", wp_dropdown_pages($args)); ?> <?php echo $description; ?>
+                                <?php echo esc_html(str_replace(' id=', " data-placeholder='" . __('Select a page&hellip;', 'Option') . "' style='" . $value['css'] . "' class='" . $value['class'] . "' id=", wp_dropdown_pages($args))); ?> <?php echo esc_html($description); ?>
                             </td>
                         </tr><?php
                         break;
@@ -362,7 +362,7 @@ class Ssbhesabfa_Html_output {
         foreach ($update_options as $name => $value) {
             update_option($name, wc_clean($value));
         }
-        echo '<div class="updated"><p class="hesabfa-p">' . __( 'Settings were saved successfully.', 'ssbhesabfa' ) . '</p></div>';
+        echo '<div class="updated"><p class="hesabfa-p">' . esc_html__( 'Settings were saved successfully.', 'ssbhesabfa' ) . '</p></div>';
         return true;
     }
 //=====================================================================================================

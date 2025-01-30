@@ -184,7 +184,7 @@ class Ssbhesabfa_Webhook
 //=================================================================================================================================
     public function ssbhesabfa_business_expired_notice()
     {
-        echo '<div class="error"><p>' . __('Cannot connect to Hesabfa. Business expired.', 'ssbhesabfa') . '</p></div>';
+        echo '<div class="error"><p>' . esc_html__('Cannot connect to Hesabfa. Business expired.', 'ssbhesabfa') . '</p></div>';
     }
 //=================================================================================================================================
     public function setChanges()

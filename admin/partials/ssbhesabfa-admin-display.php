@@ -2,7 +2,7 @@
 
 /**
  * @class      Ssbhesabfa_Admin_Display
- * @version    2.1.4
+ * @version    2.1.5
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin/display
@@ -78,7 +78,7 @@ class Ssbhesabfa_Admin_Display
                 <strong>خطا</strong><br> کدهای زیر در حسابفا پیدا نشد:
                 <br>
                 <?php foreach ($codesNotFoundInHesabfa as $code): ?>
-                    <span class="badge bg-secondary"><?= $code ?></span>&nbsp;
+                    <span class="badge bg-secondary"><?= esc_html($code) ?></span>&nbsp;
                 <?php endforeach; ?>
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
@@ -107,7 +107,7 @@ class Ssbhesabfa_Admin_Display
 
             </p>
             <form id="ssbhesabfa_sync_products_manually" autocomplete="off"
-                  action="<?php echo admin_url('admin.php?page=hesabfa-sync-products-manually&p=1'); ?>"
+                  action="<?php echo esc_attr(admin_url('admin.php?page=hesabfa-sync-products-manually&p=1')); ?>"
                   method="post">
 
                 <table class="table">
@@ -124,13 +124,13 @@ class Ssbhesabfa_Admin_Display
                     <?php foreach ($result["data"] as $p):
                         $i++; ?>
                         <tr class="<?= $p->id_hesabfa ? 'table-success' : 'table-danger'; ?>">
-                            <th scope="row"><?= $i; ?></th>
-                            <td><?= $p->ID; ?></td>
-                            <td><?= $p->post_title; ?></td>
-                            <td><?= $p->sku; ?></td>
+                            <th scope="row"><?= esc_html($i); ?></th>
+                            <td><?= esc_html($p->ID); ?></td>
+                            <td><?= esc_html($p->post_title); ?></td>
+                            <td><?= esc_html($p->sku); ?></td>
                             <td>
-                                <input type="text" class="form-control code-input" id="<?= $p->ID; ?>"
-                                       data-parent-id="<?= $p->post_parent; ?>" value="<?= $p->id_hesabfa; ?>"
+                                <input type="text" class="form-control code-input" id="<?= esc_attr($p->ID); ?>"
+                                       data-parent-id="<?= esc_attr($p->post_parent); ?>" value="<?= esc_attr($p->id_hesabfa); ?>"
                                        style="width: 100px">
                             </td>
                         </tr>
@@ -138,36 +138,36 @@ class Ssbhesabfa_Admin_Display
                     </tbody>
                 </table>
 
-                <label><?= $result["totalCount"] ?> رکورد </label> |
-                <label><?= $pageCount ?> صفحه </label> |
+                <label><?= esc_html($result["totalCount"]) ?> رکورد </label> |
+                <label><?= esc_html($pageCount) ?> صفحه </label> |
                 <label>صفحه جاری: </label>
-                <input id="pageNumber" class="form-control form-control-sm d-inline" type="text" value="<?= $page ?>"
+                <input id="pageNumber" class="form-control form-control-sm d-inline" type="text" value="<?= esc_attr($page) ?>"
                        style="width: 80px">
-                <a id="goToPage" class="btn btn-outline-secondary btn-sm" data-rpp="<?= $rpp ?>"
+                <a id="goToPage" class="btn btn-outline-secondary btn-sm" data-rpp="<?= esc_attr($rpp) ?>"
                    href="javascript:void(0)">برو</a>
 
                 <div class="dropdown d-inline">
                     <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button"
                             id="dropdownMenuButton1"
                             data-bs-toggle="dropdown" aria-expanded="false">
-                        <?= $rpp . ' ' ?>ردیف در هر صفحه
+                        <?= esc_html($rpp) . ' ' ?>ردیف در هر صفحه
                     </button>
                     <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
                         <?php foreach ($rpp_options as $option): ?>
                             <li><a class="dropdown-item"
-                                   href="?page=hesabfa-sync-products-manually&p=<?= $page ?>&rpp=<?= $option ?>"><?= $option ?></a>
+                                   href="?page=hesabfa-sync-products-manually&p=<?= esc_attr($page) ?>&rpp=<?= esc_attr($option) ?>"><?= esc_html($option) ?></a>
                             </li>
                         <?php endforeach; ?>
                     </ul>
                 </div>
                 <a class="btn btn-outline-secondary btn-sm <?= $page == 1 ? 'disabled' : '' ?>"
-                   href="?page=hesabfa-sync-products-manually&p=<?= $page - 1 ?>&rpp=<?= $rpp ?>">< صفحه قبل</a>
+                   href="?page=hesabfa-sync-products-manually&p=<?= esc_attr($page) - 1 ?>&rpp=<?= esc_attr($rpp) ?>">< صفحه قبل</a>
                 <a class="btn btn-outline-secondary btn-sm <?= $page == $pageCount ? 'disabled' : '' ?>"
-                   href="?page=hesabfa-sync-products-manually&p=<?= $page + 1 ?>&rpp=<?= $rpp ?>">صفحه بعد ></a>
+                   href="?page=hesabfa-sync-products-manually&p=<?= esc_attr($page) + 1 ?>&rpp=<?= esc_attr($rpp) ?>">صفحه بعد ></a>
 
                 <div class="mt-3">
                     <button class="btn btn-success" id="ssbhesabfa_sync_products_manually-submit"
-                            name="ssbhesabfa_sync_products_manually-submit"><?php echo __('Save changes', 'ssbhesabfa'); ?></button>
+                            name="ssbhesabfa_sync_products_manually-submit"><?php echo esc_html__('Save changes', 'ssbhesabfa'); ?></button>
                 </div>
             </form>
         </div>
@@ -226,10 +226,10 @@ class Ssbhesabfa_Admin_Display
                 <?php foreach ($rows as $p):
                     $i++; ?>
                     <tr>
-                        <th scope="row"><?= $i; ?></th>
-                        <td><?= $p->id_hesabfa; ?></td>
-                        <td><?= $p->id_ps; ?></td>
-                        <td><?= $p->id_ps_attribute; ?></td>
+                        <th scope="row"><?= esc_html($i); ?></th>
+                        <td><?= esc_html($p->id_hesabfa); ?></td>
+                        <td><?= esc_html($p->id_ps); ?></td>
+                        <td><?= esc_html($p->id_ps_attribute); ?></td>
                     </tr>
                 <?php endforeach; ?>
                 </tbody>
@@ -352,7 +352,15 @@ class Ssbhesabfa_Admin_Display
                 foreach ($setting_tabs as $name => $label) {
                     $iconUrl = plugins_url("/hesabfa-accounting/admin/img/icons/$iconsArray[$i].svg");
                     $i++;
-                    echo '<a href="' . admin_url('admin.php?page=ssbhesabfa-option&tab=' . $name) . '" class="nav-tab ' . ($current_tab == $name ? 'nav-tab-active' : '') . '">' . "<svg width='16' height='16' class='hesabfa-tab-icon'><image href='$iconUrl' width='16' height='16' /></svg>" . $label . '</a>';
+	                echo '
+                    <a 
+                        href="' . esc_attr(admin_url('admin.php?page=ssbhesabfa-option&tab=' . $name)) . '" 
+                        class="nav-tab ' . ($current_tab == $name ? 'nav-tab-active' : '') . '"
+                    >
+                        <svg width="16" height="16" class="hesabfa-tab-icon">
+                            <image href="' . esc_attr($iconUrl) . '" width="16" height="16" />
+                        </svg>' . esc_html($label) . '
+                    </a>';
                 }
                 ?>
             </h2>
@@ -366,7 +374,7 @@ class Ssbhesabfa_Admin_Display
                 }
             }
         } else {
-            echo '<div class="wrap">' . __('Hesabfa Plugin requires the WooCommerce to work!, Please install/activate woocommerce and try again', 'ssbhesabfa') . '</div>';
+            echo '<div class="wrap">' . esc_html__('Hesabfa Plugin requires the WooCommerce to work!, Please install/activate woocommerce and try again', 'ssbhesabfa') . '</div>';
         }
     }
 //========================================================================================================================================
@@ -377,7 +385,7 @@ class Ssbhesabfa_Admin_Display
         <div class="hesabfa-header">
             <div class="row">
                 <div class="col-auto">
-                    <img src="<?php echo $logoUrl ?>" alt="حسابفا">
+                    <img src="<?php echo esc_attr($logoUrl) ?>" alt="حسابفا">
                 </div>
                 <div class="col"></div>
                 <div class="col-auto">

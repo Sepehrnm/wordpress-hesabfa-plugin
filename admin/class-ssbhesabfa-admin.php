@@ -7,7 +7,7 @@ include_once(plugin_dir_path(__DIR__) . 'admin/services/HesabfaWpFaService.php')
  * The admin-specific functionality of the plugin.
  *
  * @class      Ssbhesabfa_Admin
- * @version    2.1.4
+ * @version    2.1.5
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin
@@ -155,7 +155,7 @@ class Ssbhesabfa_Admin
 //=========================================================================================================================
     public function ssbhesabfa_missing_notice()
     {
-        echo '<div class="error"><p>' . sprintf(__('Hesabfa Plugin requires the %s to work!', 'ssbhesabfa'), '<a href="https://wordpress.org/plugins/woocommerce/" target="_blank">' . __('WooCommerce', 'ssbhesabfa') . '</a>') . '</p></div>';
+        echo '<div class="error"><p>' . esc_html(sprintf(__('Hesabfa Plugin requires the %s to work!', 'ssbhesabfa'), '<a href="https://wordpress.org/plugins/woocommerce/" target="_blank">' . __('WooCommerce', 'ssbhesabfa') . '</a>') . '</p></div>');
     }
 
     /**
@@ -166,12 +166,12 @@ class Ssbhesabfa_Admin
 //=========================================================================================================================
     public function ssbhesabfa_live_mode_notice()
     {
-        echo '<div class="error"><p>' . __('Hesabfa Plugin need to connect to Hesabfa Accounting, Please check the API credential!', 'ssbhesabfa') . '</p></div>';
+        echo '<div class="error"><p>' . esc_html__('Hesabfa Plugin need to connect to Hesabfa Accounting, Please check the API credential!', 'ssbhesabfa') . '</p></div>';
     }
 //=========================================================================================================================
     public function ssbhesabfa_business_expired_notice()
     {
-        echo '<div class="error"><p>' . __('Cannot connect to Hesabfa. Business expired.', 'ssbhesabfa') . '</p></div>';
+        echo '<div class="error"><p>' . esc_html__('Cannot connect to Hesabfa. Business expired.', 'ssbhesabfa') . '</p></div>';
     }
 
     /**
@@ -182,17 +182,17 @@ class Ssbhesabfa_Admin
 //=========================================================================================================================
     public function ssbhesabfa_currency_notice()
     {
-        echo '<div class="error"><p>' . __('Hesabfa Plugin cannot works! because WooCommerce currency in not match with Hesabfa.', 'ssbhesabfa') . '</p></div>';
+        echo '<div class="error"><p>' . esc_html__('Hesabfa Plugin cannot works! because WooCommerce currency in not match with Hesabfa.', 'ssbhesabfa') . '</p></div>';
     }
 //=========================================================================================================================
     public function ssbhesabfa_general_notices() {
         if (!empty( $_REQUEST['submit_selected_orders_invoice_in_hesabfa'])) {
             if(!empty($_REQUEST['error_msg']) && $_REQUEST['error_msg'] == "select_max_10_items") {
-                printf( '<div class="notice notice-error is-dismissible"><p>%s</p></div>',
-                    __('Error: Select maximum 10 orders. Due to some limitations in Hesabfa API, sending too many requests in one minute is not possible.', 'ssbhesabfa'));
+	            printf( '<div class="notice notice-error is-dismissible"><p>%s</p></div>',
+                    esc_html__('Error: Select maximum 10 orders. Due to some limitations in Hesabfa API, sending too many requests in one minute is not possible.', 'ssbhesabfa'));
             } else {
                 $success_count = intval( $_REQUEST['success_count'] );
-                printf( '<div class="notice notice-success is-dismissible"><p>%s %d</p></div>', __('Selected orders invoices have been saved. Number of saved invoices: ', 'ssbhesabfa'), $success_count);
+	            printf( '<div class="notice notice-success is-dismissible"><p>%s %d</p></div>', esc_html__('Selected orders invoices have been saved. Number of saved invoices: ', 'ssbhesabfa'), esc_html($success_count));
             }
         }
     }
@@ -328,7 +328,7 @@ class Ssbhesabfa_Admin
             new Ssbhesabfa_Webhook();
 
             $redirect_url = admin_url('admin.php?page=ssbhesabfa-option&tab=sync&changesSyncResult=true');
-            echo $redirect_url;
+            echo esc_html($redirect_url);
 
             die();
         }
@@ -492,7 +492,7 @@ class Ssbhesabfa_Admin
                 $data = implode(",", $res["data"]);
                 $redirect_url = admin_url("admin.php?page=hesabfa-sync-products-manually&p=$page&rpp=$rpp&result=false&data=$data");
             }
-            echo $redirect_url;
+            echo esc_html($redirect_url);
 
             die();
         }
@@ -887,18 +887,18 @@ class Ssbhesabfa_Admin
         <table class="form-table">
             <tr>
                 <th><label for="user_hesabfa_code"
-                           class="text-info"><?php echo __('Contact Code in Hesabfa', 'ssbhesabfa'); ?></label>
+                           class="text-info"><?php echo esc_html__('Contact Code in Hesabfa', 'ssbhesabfa'); ?></label>
                 </th>
                 <td>
                     <input
                             type="text"
-                            value="<?php if($code != null) echo $code; ?>"
+                            value="<?php if($code != null) echo esc_html($code); ?>"
                             name="user_hesabfa_code"
                             id="user_hesabfa_code"
                             class="regular-text"
                     ><br/>
                     <div class="description mt-2">
-                        <?php echo __("The contact code of this user in Hesabfa, if you want to map this user "
+                        <?php echo esc_html__("The contact code of this user in Hesabfa, if you want to map this user "
                             . "to a contact in Hesabfa, enter the Contact code.", 'ssbhesabfa'); ?>
                     </div>
                 </td>
@@ -1091,7 +1091,7 @@ class Ssbhesabfa_Admin
                         return false;
                     }
 
-                    echo '<div class="error"><p>' . __('The new Item code already used for another Item', 'ssbhesabfa') . '</p></div>';
+                    echo '<div class="error"><p>' . esc_html__('The new Item code already used for another Item', 'ssbhesabfa') . '</p></div>';
 
                     HesabfaLogService::log(array("The new Item code already used for another Item. Product ID: $id_product"));
                 } else {
@@ -1221,7 +1221,7 @@ class Ssbhesabfa_Admin
 
             if (is_object($row)) {
                 //ToDo: show error to customer in BO
-                echo '<div class="error"><p>' . __('The new Item code already used for another Item', 'ssbhesabfa') . '</p></div>';
+                echo '<div class="error"><p>' . esc_html__('The new Item code already used for another Item', 'ssbhesabfa') . '</p></div>';
 
                 HesabfaLogService::log(array("The new Item code already used for another Item. Product ID: $post_id"));
             } else {
@@ -1275,7 +1275,7 @@ class Ssbhesabfa_Admin
             } else {
                 $redirect_url = admin_url('admin.php?page=ssbhesabfa-option&tab=log&cleanLogResult=false');
             }
-            echo $redirect_url;
+            echo esc_html($redirect_url);
 
             die();
         }
@@ -1304,7 +1304,7 @@ class Ssbhesabfa_Admin
         if ($product->get_status() === "auto-draft") {
             ?>
             <div id="panel_product_data_hesabfa" class="panel woocommerce_options_panel"
-                 data-product-id="<?php echo $id_product ?>">
+                 data-product-id="<?php echo esc_attr($id_product) ?>">
                 هنوز محصول ذخیره نشده است.
                 <br>
                 پس از ذخیره محصول، در این قسمت می توانید ارتباط محصول و متغیرهای آن با حسابفا
@@ -1333,7 +1333,7 @@ class Ssbhesabfa_Admin
 
         ?>
         <div id="panel_product_data_hesabfa" class="panel woocommerce_options_panel"
-             data-product-id="<?php echo $id_product ?>">
+             data-product-id="<?php echo esc_attr($id_product) ?>">
             <table class="table table-striped">
                 <tr class="small fw-bold">
                     <td>نام کالا</td>
@@ -1348,18 +1348,18 @@ class Ssbhesabfa_Admin
                 foreach ($items as $item) {
                     ?>
                     <tr>
-                        <td><?php echo $item["Name"]; ?></td>
-                        <td><input type="text" value="<?php echo $item["Code"]; ?>"
-                                   id="hesabfa-item-<?php echo $item["Id"]; ?>" style="width: 75px;"
-                                   class="hesabfa-item-code" data-id="<?php echo $item["Id"]; ?>"></td>
-                        <td><input type="button" value="ذخیره" data-id="<?php echo $item["Id"]; ?>"
+                        <td><?php echo esc_html($item["Name"]); ?></td>
+                        <td><input type="text" value="<?php echo esc_attr($item["Code"]); ?>"
+                                   id="hesabfa-item-<?php echo esc_attr($item["Id"]); ?>" style="width: 75px;"
+                                   class="hesabfa-item-code" data-id="<?php echo esc_attr($item["Id"]); ?>"></td>
+                        <td><input type="button" value="ذخیره" data-id="<?php echo esc_attr($item["Id"]); ?>"
                                    class="button hesabfa-item-save"></td>
-                        <td><input type="button" value="حذف ارتباط" data-id="<?php echo $item["Id"]; ?>"
+                        <td><input type="button" value="حذف ارتباط" data-id="<?php echo esc_attr($item["Id"]); ?>"
                                    class="button hesabfa-item-delete-link"></td>
-                        <td><input type="button" value="بروزرسانی" data-id="<?php echo $item["Id"]; ?>"
+                        <td><input type="button" value="بروزرسانی" data-id="<?php echo esc_attr($item["Id"]); ?>"
                                    class="button button-primary hesabfa-item-update"></td>
-                        <td id="hesabfa-item-price-<?php echo $item["Id"] ?>"><?php if(isset($item["SellPrice"])) echo $item["SellPrice"]; else echo  $item["RegularPrice"]; ?></td>
-                        <td id="hesabfa-item-quantity-<?php echo $item["Id"] ?>"><?php echo $item["Quantity"]; ?></td>
+                        <td id="hesabfa-item-price-<?php echo esc_attr($item["Id"]) ?>"><?php if(isset($item["SellPrice"])) echo esc_html($item["SellPrice"]); else echo  esc_html($item["RegularPrice"]); ?></td>
+                        <td id="hesabfa-item-quantity-<?php echo esc_attr($item["Id"]) ?>"><?php echo esc_html($item["Quantity"]); ?></td>
                     </tr>
                     <?php
                 }
@@ -1406,7 +1406,7 @@ class Ssbhesabfa_Admin
         foreach ($items as $item) {
             if ( $column == 'hesabfaID' ) {
                 $hesabfaId = $item["Code"];
-                echo "<span class='button button-secondary'>" . $hesabfaId . " " . "</span>";
+                echo "<span class='button button-secondary'>" . esc_html($hesabfaId) . " " . "</span>";
             }
         }
         echo '</div>';
@@ -1819,19 +1819,19 @@ class Ssbhesabfa_Admin
 	    $Phone_isActive = get_option('ssbhesabfa_contact_Phone_checkbox_hesabfa');
 
 	    if($NationalCode_isActive == 'yes')
-		    echo '<p><strong>' . __('National code', 'ssbhesabfa')  . ': </strong> ' .'<br>'. '<strong>' . get_post_meta( $orderId, $NationalCode, true ) . '</strong></p>';
+		    echo '<p><strong>' . esc_html__('National code', 'ssbhesabfa')  . ': </strong> ' .'<br>'. '<strong>' . esc_attr(get_post_meta( $orderId, $NationalCode, true )) . '</strong></p>';
 
 	    if($EconomicCode_isActive == 'yes')
-		    echo '<p><strong>' . __('Economic code', 'ssbhesabfa')  . ': </strong> ' .'<br>'. '<strong>' . get_post_meta( $orderId, $EconomicCode, true ) . '</strong></p>';
+		    echo '<p><strong>' . esc_html__('Economic code', 'ssbhesabfa')  . ': </strong> ' .'<br>'. '<strong>' . esc_attr(get_post_meta( $orderId, $EconomicCode, true )) . '</strong></p>';
 
 	    if($RegistrationNumber_isActive == 'yes')
-		    echo '<p><strong>' . __('Registration number', 'ssbhesabfa')  . ': </strong> ' .'<br>'. '<strong>' . get_post_meta( $orderId, $RegistrationNumber, true ) . '</strong></p>';
+		    echo '<p><strong>' . esc_html__('Registration number', 'ssbhesabfa')  . ': </strong> ' .'<br>'. '<strong>' . esc_attr(get_post_meta( $orderId, $RegistrationNumber, true )) . '</strong></p>';
 
 	    if($Website_isActive == 'yes')
-		    echo '<p><strong>' . __('Website', 'ssbhesabfa')  . ': </strong> ' .'<br>'. '<a target="_blank" href="https://'.get_post_meta( $orderId, $Website, true ) .'">' . get_post_meta( $orderId, $Website, true ) . '</a></p>';
+		    echo '<p><strong>' . esc_html__('Website', 'ssbhesabfa')  . ': </strong> ' .'<br>'. '<a target="_blank" href="https://'. esc_attr(get_post_meta( $orderId, $Website, true )) .'">' . esc_html(get_post_meta( $orderId, $Website, true )) . '</a></p>';
 
         if($Phone_isActive == 'yes')
-		    echo '<p><strong>' . __('Phone', 'ssbhesabfa')  . ': </strong> ' .'<br>'. '<a target="_blank" href="https://'.get_post_meta( $orderId, $Phone, true ) .'">' . get_post_meta( $orderId, $Phone, true ) . '</a></p>';
+		    echo '<p><strong>' . esc_html__('Phone', 'ssbhesabfa')  . ': </strong> ' .'<br>'. '<a target="_blank" href="https://'. esc_attr(get_post_meta( $orderId, $Phone, true )) .'">' . esc_html(get_post_meta( $orderId, $Phone, true )) . '</a></p>';
     }
 //=========================================================================================================================
 }

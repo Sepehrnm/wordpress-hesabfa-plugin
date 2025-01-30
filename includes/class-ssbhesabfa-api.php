@@ -4,7 +4,7 @@ include_once(plugin_dir_path(__DIR__) . 'admin/services/HesabfaLogService.php');
 
 /**
  * @class      Ssbhesabfa_Api
- * @version    2.1.4
+ * @version    2.1.5
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/api
