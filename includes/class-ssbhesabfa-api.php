@@ -4,7 +4,7 @@ include_once(plugin_dir_path(__DIR__) . 'admin/services/HesabfaLogService.php');
 
 /**
  * @class      Ssbhesabfa_Api
- * @version    2.1.5
+ * @version    2.1.6
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/api
@@ -350,7 +350,7 @@ class Ssbhesabfa_Api
             'transactionFee' => $transactionFee,
         );
 
-        $data = array_merge($data, $financialData);
+        if($financialData != null) $data = array_merge($data, $financialData);
         if($accountPath != []) $data = array_merge($data, $accountPath);
 
         return $this->apiRequest($method, $data);

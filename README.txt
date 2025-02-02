@@ -458,3 +458,6 @@ by clicking update stock and price button in hesabfa tab in product edit page
 
 = 2.1.5 - 30.01.2025 =
 * add esc methods
+
+= 2.1.6 - 02.02.2025 =
+* set quantity change refactored

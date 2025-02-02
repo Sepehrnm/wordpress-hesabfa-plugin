@@ -6,7 +6,7 @@ include_once(plugin_dir_path(__DIR__) . 'services/HesabfaWpFaService.php');
 
 /**
  * @class      Ssbhesabfa_Admin_Functions
- * @version    2.1.5
+ * @version    2.1.6
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin/functions
@@ -630,6 +630,7 @@ class Ssbhesabfa_Admin_Functions
             }
 
             global $financialData;
+			$financialData = [];
             if(get_option('ssbhesabfa_payment_option') == 'no') {
                 $bank_code = $this->getBankCodeByPaymentMethod($order->get_payment_method());
                 $isPosPluginActive = get_option("ssbhesabfa_woocommerce_point_of_sale_active");
@@ -1318,9 +1319,9 @@ class Ssbhesabfa_Admin_Functions
 //========================================================================================================================
     public function syncProducts($batch, $totalBatch, $total)
     {
+	    $result = array();
         try {
             HesabfaLogService::writeLogStr("Sync products price and quantity from hesabfa to store: part $batch");
-            $result = array();
             $result["error"] = false;
             $extraSettingRPP = get_option("ssbhesabfa_set_rpp_for_sync_products_into_woocommerce");
 
@@ -1374,8 +1375,9 @@ class Ssbhesabfa_Admin_Functions
             $result["totalBatch"] = $totalBatch;
             $result["total"] = $total;
             return $result;
-        } catch (Error $error) {
-            HesabfaLogService::writeLogStr("Error in sync products: " . $error->getMessage());
+        } catch (Exception $e) {
+            HesabfaLogService::writeLogStr("Error in sync products: " . $e->getMessage());
+			return $result;
         }
     }
 //========================================================================================================================
@@ -1559,55 +1561,59 @@ class Ssbhesabfa_Admin_Functions
 //========================================================================================================================
     public static function setItemChanges($item)
     {
-        if (!is_object($item)) return false;
+	    $result = array();
+	    $result["newPrice"] = null;
+	    $result["newQuantity"] = null;
 
-        if ($item->Quantity || !$item->Stock)
-            $item->Stock = $item->Quantity;
+	    try {
+		    if (!is_object($item)) return false;
 
-        $wpFaService = new HesabfaWpFaService();
-        global $wpdb;
+		    if ($item->Quantity || !$item->Stock)
+			    $item->Stock = $item->Quantity;
 
-        $wpFa = $wpFaService->getWpFaByHesabfaId('product', $item->Code);
-        if (!$wpFa) return false;
+		    $wpFaService = new HesabfaWpFaService();
+		    global $wpdb;
 
-        $id_product = $wpFa->idWp;
-        $id_attribute = $wpFa->idWpAttribute;
+		    $wpFa = $wpFaService->getWpFaByHesabfaId('product', $item->Code);
+		    if (!$wpFa) return false;
 
-        if ($id_product == 0) {
-            HesabfaLogService::log(array("Item with code: $item->Code is not defined in Online store"));
-            return false;
-        }
+		    $id_product = $wpFa->idWp;
+		    $id_attribute = $wpFa->idWpAttribute;
 
-        $found = $wpdb->get_var(
-            $wpdb->prepare(
-                "SELECT COUNT(*) FROM {$wpdb->posts}
-                WHERE ID = %d",
-                $id_product
-            )
-        );
+		    if ($id_product == 0) {
+			    HesabfaLogService::log(array("Item with code: $item->Code is not defined in Online store"));
+			    return false;
+		    }
 
+		    $found = $wpdb->get_var(
+			    $wpdb->prepare(
+				    "SELECT COUNT(*) FROM {$wpdb->posts}
+                	WHERE ID = %d",
+				    $id_product
+			    )
+		    );
 
-        if (!$found) {
-            HesabfaLogService::writeLogStr("product not found in woocommerce.code: $item->Code, product id: $id_product, variation id: $id_attribute");
-            return false;
-        }
+		    if (!$found) {
+			    HesabfaLogService::writeLogStr("product not found in woocommerce.code: $item->Code, product id: $id_product, variation id: $id_attribute");
+			    return $result;
+		    }
 
-        $product = wc_get_product($id_product);
-        $variation = $id_attribute != 0 ? wc_get_product($id_attribute) : null;
+		    $product = wc_get_product($id_product);
+		    $variation = $id_attribute != 0 ? wc_get_product($id_attribute) : null;
 
-        $result = array();
-        $result["newPrice"] = null;
-        $result["newQuantity"] = null;
+		    $p = $variation ? $variation : $product;
 
-        $p = $variation ? $variation : $product;
+		    if (get_option('ssbhesabfa_item_update_price') == 'yes')
+			    $result = self::setItemNewPrice($p, $item, $id_attribute, $id_product, $result);
 
-        if (get_option('ssbhesabfa_item_update_price') == 'yes')
-            $result = self::setItemNewPrice($p, $item, $id_attribute, $id_product, $result);
+		    if (get_option('ssbhesabfa_item_update_quantity') == 'yes')
+			    $result = self::setItemNewQuantity($p, $item, $id_product, $id_attribute, $result);
 
-        if (get_option('ssbhesabfa_item_update_quantity') == 'yes')
-            $result = self::setItemNewQuantity($p, $item, $id_product, $id_attribute, $result);
-
-        return $result;
+		    return $result;
+	    } catch(Exception $e) {
+			HesabfaLogService::log(array("Error in set item change: " . $e->getMessage()));
+		    return $result;
+	    }
     }
 //========================================================================================================================
     private static function setItemNewPrice($product, $item, $id_attribute, $id_product, array $result)
@@ -1646,17 +1652,20 @@ class Ssbhesabfa_Admin_Functions
 
                 HesabfaLogService::log(array("product ID $id_product-$id_attribute Price changed. Old Price: $old_price. New Price: $new_price"));
                 $result["newPrice"] = $new_price;
+	            return $result;
             }
-
-            return $result;
         } catch (Error $error) {
             HesabfaLogService::writeLogStr("Error in Set Item New Price -> $error");
         }
+	    return false;
     }
 //========================================================================================================================
     private static function setItemNewQuantity($product, $item, $id_product, $id_attribute, array $result)
     {
         try {
+	        if (!$product)
+		        return $result;
+
             $old_quantity = $product->get_stock_quantity();
             if ($item->Stock != $old_quantity) {
                 $new_quantity = $item->Stock;
@@ -1668,19 +1677,18 @@ class Ssbhesabfa_Admin_Functions
 
                 $product = wc_get_product( $post_id );
                 if ( $product ) {
-
                     $product->set_stock_quantity( $new_quantity );
                     $product->set_stock_status( $new_stock_status );
                     $product->save();
                     HesabfaLogService::log(array("product ID $id_product-$id_attribute quantity changed. Old quantity: $old_quantity. New quantity: $new_quantity"));
                     $result["newQuantity"] = $new_quantity;
+	                return $result;
                 }
             }
-
-            return $result;
-        } catch (Error $error) {
-            HesabfaLogService::writeLogStr("Error in Set Item New Quantity -> $error");
+        } catch (Exception $e) {
+            HesabfaLogService::log(array("Error in Set Item New Quantity -> " . $e->getMessage()));
         }
+	    return false;
     }
 //=========================================================================================================================
     public static function syncLastChangeID(): bool {

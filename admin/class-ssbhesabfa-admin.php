@@ -7,7 +7,7 @@ include_once(plugin_dir_path(__DIR__) . 'admin/services/HesabfaWpFaService.php')
  * The admin-specific functionality of the plugin.
  *
  * @class      Ssbhesabfa_Admin
- * @version    2.1.5
+ * @version    2.1.6
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin
@@ -1300,6 +1300,9 @@ class Ssbhesabfa_Admin
         $id_product = $post->ID;
 //        $product = new WC_Product($id_product);
         $product = wc_get_product($id_product);
+
+        if (!$product)
+		    return;
 
         if ($product->get_status() === "auto-draft") {
             ?>

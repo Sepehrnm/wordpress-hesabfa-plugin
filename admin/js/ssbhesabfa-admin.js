@@ -256,36 +256,41 @@ jQuery(function ($) {
     });
 //=====================================================================================================================
     function syncProducts(batch, totalBatch, total) {
-        const data = {
-            'action': 'adminSyncProducts',
-            'batch': batch,
-            'totalBatch': totalBatch,
-            'total': total
-        };
-        //$.post(URL, DATA, CALLBACK)
-        $.post(ajaxurl, data, function (response) {
-            if (response !== 'failed') {
-                const res = JSON.parse(response);
-                res.batch = parseInt(res.batch);
-                if (res.batch < res.totalBatch) {
-                    let progress = (res.batch * 100) / res.totalBatch;
-                    progress = Math.round(progress);
-                    $('#syncProductsProgressBar').css('width', progress + '%').attr('aria-valuenow', progress);
-                    //alert('batch: ' + res.batch + ', totalBatch: ' + res.totalBatch + ', total: ' + res.total);
-                    syncProducts(res.batch + 1, res.totalBatch, res.total);
-                    return false;
+        try {
+            const data = {
+                'action': 'adminSyncProducts',
+                'batch': batch,
+                'totalBatch': totalBatch,
+                'total': total
+            };
+            //$.post(URL, DATA, CALLBACK)
+            $.post(ajaxurl, data, function (response) {
+                if (response !== 'failed') {
+                    const res = JSON.parse(response);
+                    res.batch = parseInt(res.batch);
+                    if (res.batch < res.totalBatch) {
+                        let progress = (res.batch * 100) / res.totalBatch;
+                        progress = Math.round(progress);
+                        $('#syncProductsProgressBar').css('width', progress + '%').attr('aria-valuenow', progress);
+                        //alert('batch: ' + res.batch + ', totalBatch: ' + res.totalBatch + ', total: ' + res.total);
+                        syncProducts(res.batch + 1, res.totalBatch, res.total);
+                        return false;
+                    } else {
+                        $('#syncProductsProgressBar').css('width', 100 + '%').attr('aria-valuenow', 100);
+                        setTimeout(() => {
+                            top.location.replace(res.redirectUrl);
+                        }, 1000);
+                        return false;
+                    }
                 } else {
-                    $('#syncProductsProgressBar').css('width', 100 + '%').attr('aria-valuenow', 100);
-                    setTimeout(() => {
-                        top.location.replace(res.redirectUrl);
-                    }, 1000);
+                    alert('خطا در همگام سازی محصولات');
                     return false;
                 }
-            } else {
-                alert('خطا در همگام سازی محصولات');
-                return false;
-            }
-        });
+            });
+        } catch (error) {
+            console.log("Error in sync products: " + error);
+            return false;
+        }
     }
 //=====================================================================================================================
     $(function () {
