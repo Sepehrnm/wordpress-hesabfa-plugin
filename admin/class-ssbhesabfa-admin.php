@@ -7,7 +7,7 @@ include_once(plugin_dir_path(__DIR__) . 'admin/services/HesabfaWpFaService.php')
  * The admin-specific functionality of the plugin.
  *
  * @class      Ssbhesabfa_Admin
- * @version    2.1.6
+ * @version    2.1.7
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin
@@ -620,44 +620,6 @@ class Ssbhesabfa_Admin
         }
     }
 //=========================================================================================================================
-//    private function checkForSyncChanges()
-//    {
-//        $syncChangesLastDate = get_option('ssbhesabfa_sync_changes_last_date');
-//        if (!isset($syncChangesLastDate) || $syncChangesLastDate == false) {
-//            add_option('ssbhesabfa_sync_changes_last_date', new DateTime());
-//            $syncChangesLastDate = new DateTime();
-//        }
-//
-//        $nowDateTime = new DateTime();
-//        $diff = $nowDateTime->diff($syncChangesLastDate);
-//        $timeInterval = 4;
-//        $extraSettingTimeInterval = get_option("ssbhesabfa_check_for_sync_select");
-//
-//        if($extraSettingTimeInterval) {
-//            if($extraSettingTimeInterval != '-1' && $extraSettingTimeInterval != '0') {
-//                $timeInterval = $extraSettingTimeInterval;
-//            }
-//        }
-//
-//        if($timeInterval == 120 || $timeInterval == 720) {
-//            $totalDiffInMinutes = ($diff->h * 60) + $diff->i;
-//
-//            if ($totalDiffInMinutes >= $timeInterval) {
-//                HesabfaLogService::writeLogStr('Sync Changes Automatically');
-//                update_option('ssbhesabfa_sync_changes_last_date', new DateTime());
-//                require_once plugin_dir_path(dirname(__FILE__)) . 'includes/class-ssbhesabfa-webhook.php';
-//                new Ssbhesabfa_Webhook();
-//            }
-//        } else {
-//            if ($diff->i >= $timeInterval) {
-//                HesabfaLogService::writeLogStr('Sync Changes Automatically');
-//                update_option('ssbhesabfa_sync_changes_last_date', new DateTime());
-//                require_once plugin_dir_path(dirname(__FILE__)) . 'includes/class-ssbhesabfa-webhook.php';
-//                new Ssbhesabfa_Webhook();
-//            }
-//        }
-//    }
-
     private function checkForSyncChanges()
     {
         // Get the last sync time
@@ -1300,9 +1262,6 @@ class Ssbhesabfa_Admin
         $id_product = $post->ID;
 //        $product = new WC_Product($id_product);
         $product = wc_get_product($id_product);
-
-        if (!$product)
-		    return;
 
         if ($product->get_status() === "auto-draft") {
             ?>

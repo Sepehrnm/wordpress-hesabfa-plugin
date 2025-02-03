@@ -106,30 +106,26 @@ class HesabfaWpFaService
 //=========================================================================================================
     public function getWpFaByHesabfaId($objType, $hesabfaId, $active = 1)
     {
-	    try {
-		    if (!isset($objType) || !isset($hesabfaId)) return false;
-		    global $wpdb;
+        if (!isset($objType) || !isset($hesabfaId)) return false;
 
-		    $row = $wpdb->get_row(
-			    $wpdb->prepare(
-				    "SELECT *
-	                FROM {$wpdb->prefix}ssbhesabfa
-	                WHERE `id_hesabfa` = %d
-	                AND `obj_type` = %s
-	                AND `active` = %d",
-				    $hesabfaId,
-				    $objType,
-				    $active
-			    )
-		    );
+        global $wpdb;
 
-		    if (isset($row))
-			    return $this->mapWpFa($row);
-	    } catch(Exception $e) {
-			HesabfaLogService::log(array("Error in Get WpFa By Hesabfa Id" . $e->getMessage()));
-			return null;
-	    }
-		return null;
+        $row = $wpdb->get_row(
+            $wpdb->prepare(
+                "SELECT *
+                FROM {$wpdb->prefix}ssbhesabfa
+                WHERE `id_hesabfa` = %d
+                AND `obj_type` = %s
+                AND `active` = %d",
+                $hesabfaId,
+                $objType,
+                $active
+            )
+        );
+
+        if (isset($row))
+            return $this->mapWpFa($row);
+        return null;
     }
 //=========================================================================================================
     public function getWpFaId($objType, $idWp, $idWpAttribute = 0)
