@@ -75,6 +75,12 @@ class Ssbhesabfa_Admin
         }
     }
 //=========================================================================================================================
+    public function ssbhesabfa_check_db() {
+        HesabfaLogService::writeLogStr("Check DB");
+	    require_once plugin_dir_path(__DIR__) . 'includes/class-ssbhesabfa-activator.php';
+	    Ssbhesabfa_Activator::activate();
+    }
+//=========================================================================================================================
     /**
      * Register the stylesheets for the admin area.
      *

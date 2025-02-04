@@ -317,14 +317,22 @@ class Ssbhesabfa_Api
 //================================================================================================
     public function invoiceSave($invoice, $GUID='')
     {
-        $method = 'invoice/save';
-        $data = array(
-            'invoice' => $invoice,
-        );
-        if($GUID != '') $data['requestUniqueId'] = $GUID;
-        $this->saveStatistics();
+		$response = [];
+		$method = 'invoice/save';
+		$data = array(
+		'invoice' => $invoice,
+		);
+		if (!empty($GUID)) {
+		$data['requestUniqueId'] = $GUID;
+		}
 
-        return $this->apiRequest($method, $data);
+		if (isset($data['requestUniqueId'])) {
+			$this->saveStatistics();
+			return $this->apiRequest($method, $data);
+		}
+
+		$response["Success"] = false;
+		return $response;
     }
 //================================================================================================
     public function invoiceDelete($number, $type = 0)

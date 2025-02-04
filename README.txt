@@ -464,3 +464,6 @@ by clicking update stock and price button in hesabfa tab in product edit page
 
 = 2.1.7 - 03.02.2025 =
 * set quantity change refactored
+
+= 2.1.8 - 05.02.2025 =
+* add extra validation for invoice GUID

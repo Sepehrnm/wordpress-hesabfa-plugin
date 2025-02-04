@@ -158,6 +158,9 @@ class Ssbhesabfa
         $this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_styles');
         $this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts');
 
+//	    $this->loader->add_action( 'plugins_loaded', $plugin_admin, 'ssbhesabfa_check_db');
+	    $this->loader->add_action( 'upgrader_process_complete', $plugin_admin, 'ssbhesabfa_check_db', 20, 2 );
+
         //Related to webhook set
         $this->loader->add_filter('query_vars', $plugin_admin, 'ssbhesabfa_query_vars');
         $this->loader->add_action('parse_request', $plugin_admin, 'ssbhesabfa_parse_request');
