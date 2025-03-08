@@ -7,13 +7,13 @@ include_once(plugin_dir_path(__DIR__) . 'admin/services/HesabfaWpFaService.php')
  * The admin-specific functionality of the plugin.
  *
  * @class      Ssbhesabfa_Admin
- * @version    2.1.7
+ * @version    2.1.9
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin
  * @author     Saeed Sattar Beglou <saeed.sb@gmail.com>
  * @author     HamidReza Gharahzadeh <hamidprime@gmail.com>
- * @author     Sepehr Najafi <sepehrn249@gmail.com>
+ * @author     Sepehr Najafi <sepehrnm78@yahoo.com>
  */
 class Ssbhesabfa_Admin
 {
@@ -945,6 +945,7 @@ class Ssbhesabfa_Admin
 
             if ($status == $to) {
                 $orderResult = $function->setOrder($id_order);
+                sleep(2);
                 if ($orderResult) {
                     // set payment
                     foreach (get_option('ssbhesabfa_payment_status') as $statusPayment) {

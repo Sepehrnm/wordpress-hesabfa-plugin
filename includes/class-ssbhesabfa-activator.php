@@ -6,13 +6,13 @@
  * This class defines all code necessary to run during the plugin's activation.
  *
  * @class      Ssbhesabfa_Activator
- * @version    2.1.7
+ * @version    2.1.9
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/includes
  * @author     Saeed Sattar Beglou <saeed.sb@gmail.com>
  * @author     HamidReza Gharahzadeh <hamidprime@gmail.com>
- * @author     Sepehr Najafi <sepehrn249@gmail.com>
+ * @author     Sepehr Najafi <sepehrnm78@yahoo.com>
  */
 class Ssbhesabfa_Activator {
     public static $ssbhesabfa_db_version = '1.1';
@@ -51,88 +51,128 @@ class Ssbhesabfa_Activator {
         self::ssbhesabfa_alter_table();
 	}
 //===============================================================================================================
-    public static function ssbhesabfa_create_database_table()
-    {
-        global $wpdb;
-        $table_name = $wpdb->prefix . "ssbhesabfa";
-        $charset_collate = $wpdb->get_charset_collate();
+	public static function ssbhesabfa_create_database_table() {
+		global $wpdb;
+		$table_name = $wpdb->prefix . "ssbhesabfa";
 
-        $sql = "
-            CREATE TABLE $table_name (
-                id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-                obj_type varchar(32) NOT NULL,
-                id_hesabfa int(11) UNSIGNED NOT NULL,
-                id_ps int(11) UNSIGNED NOT NULL,
-                id_ps_attribute int(11) UNSIGNED NOT NULL DEFAULT 0,
-                PRIMARY KEY  (id)
-            ) $charset_collate;";
+		if ($wpdb->get_var("SHOW TABLES LIKE '$table_name'") === $table_name) {
+			return; // Table exists, exit the function
+		}
 
-        require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-      	dbDelta($sql);
+		$charset_collate = $wpdb->get_charset_collate();
 
-        update_option('ssbhesabfa_db_version', self::$ssbhesabfa_db_version);
-    }
+		$sql = "
+	    CREATE TABLE $table_name (
+	        id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+	        obj_type varchar(32) NOT NULL,
+	        id_hesabfa int(11) UNSIGNED NOT NULL,
+	        id_ps int(11) UNSIGNED NOT NULL,
+	        id_ps_attribute int(11) UNSIGNED NOT NULL DEFAULT 0,
+	        PRIMARY KEY  (id)
+	    ) $charset_collate;";
+
+		require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+
+		$wpdb->query('START TRANSACTION');
+		try {
+			dbDelta($sql);
+			update_option('ssbhesabfa_db_version', self::$ssbhesabfa_db_version);
+			$wpdb->query('COMMIT');
+		} catch (Exception $e) {
+			$wpdb->query('ROLLBACK');
+			error_log("Error creating database table: " . $e->getMessage());
+		}
+	}
+
 //===============================================================================================================
-    public static function ssbhesabfa_create_delete_trigger()
-    {
-        global $wpdb;
-        $table_name = $wpdb->prefix . "ssbhesabfa";
-        $trigger_name = "prevent_delete";
+	public static function ssbhesabfa_create_delete_trigger() {
+		global $wpdb;
+		$table_name = $wpdb->prefix . "ssbhesabfa";
+		$trigger_name = "prevent_delete";
 
-        $trigger_exists = $wpdb->get_var(
-            $wpdb->prepare(
-                "SELECT TRIGGER_NAME 
-                 FROM INFORMATION_SCHEMA.TRIGGERS 
-                 WHERE TRIGGER_SCHEMA = %s 
-                 AND EVENT_OBJECT_TABLE = %s 
-                 AND TRIGGER_NAME = %s",
-                DB_NAME,
-                $table_name,
-                $trigger_name
-            )
-        );
+		$max_retries = 3;
+		$retry_count = 0;
 
-        if ($trigger_exists)
-            return;
+		while ($retry_count < $max_retries) {
+			try {
+				$trigger_exists = $wpdb->get_var(
+					$wpdb->prepare(
+						"SELECT TRIGGER_NAME 
+                     FROM INFORMATION_SCHEMA.TRIGGERS 
+                     WHERE TRIGGER_SCHEMA = %s 
+                     AND EVENT_OBJECT_TABLE = %s 
+                     AND TRIGGER_NAME = %s",
+						DB_NAME,
+						$table_name,
+						$trigger_name
+					)
+				);
 
-        $sql = "
-            CREATE TRIGGER `$trigger_name`
-            BEFORE DELETE ON `$table_name`
-            FOR EACH ROW
-            BEGIN
-                SIGNAL SQLSTATE '45000'
-                SET MESSAGE_TEXT = 'حذف رکورد از این جدول مجاز نیست.';
-            END;
-        ";
+				if ($trigger_exists)
+					return;
 
-        $wpdb->query($sql);
-    }
+				$sql = "
+                CREATE TRIGGER `$trigger_name`
+                BEFORE DELETE ON `$table_name`
+                FOR EACH ROW
+                BEGIN
+                    SIGNAL SQLSTATE '45000'
+                    SET MESSAGE_TEXT = 'حذف رکورد از این جدول مجاز نیست.';
+                END;
+            ";
+
+				$wpdb->query($sql);
+				break; // Exit the loop if the query succeeds
+			} catch (Exception $e) {
+				$retry_count++;
+				if ($retry_count >= $max_retries) {
+					error_log("Error creating trigger after $max_retries attempts: " . $e->getMessage());
+				} else {
+					sleep(1); // Wait for 1 second before retrying
+				}
+			}
+		}
+	}
     //////////////////////////////////////////////////////////////////
-    public static function ssbhesabfa_alter_table() {
-        global $wpdb;
-        $table_name = $wpdb->prefix . "ssbhesabfa";
+	public static function ssbhesabfa_alter_table() {
+		global $wpdb;
+		$table_name = $wpdb->prefix . "ssbhesabfa";
 
-        $column_exists = $wpdb->get_var(
-            $wpdb->prepare(
-                "SELECT COLUMN_NAME
-             FROM INFORMATION_SCHEMA.COLUMNS
-             WHERE TABLE_SCHEMA = %s
-             AND TABLE_NAME = %s
-             AND COLUMN_NAME = %s",
-                DB_NAME,
-                $table_name,
-                'active'
-            )
-        );
+		try {
+			// Use $wpdb->dbname instead of DB_NAME for better security
+			$column_exists = $wpdb->get_var(
+				$wpdb->prepare(
+				"SELECT COLUMN_NAME 
+                 FROM INFORMATION_SCHEMA.COLUMNS 
+                 WHERE TABLE_SCHEMA = %s 
+                 AND TABLE_NAME = %s 
+                 AND COLUMN_NAME = %s",
+					$wpdb->dbname,
+					$table_name,
+					'active'
+				)
+			);
 
-        if ($column_exists)
-            return;
+			if ($column_exists) {
+				return; // If column exists, exit early
+			}
 
-        $sql = "
-            ALTER TABLE `$table_name`
-            ADD COLUMN `active` INT DEFAULT 1;
-        ";
+			// Start transaction
+			$wpdb->query('START TRANSACTION');
 
-        $wpdb->query($sql);
-    }
+			$sql = "ALTER TABLE `$table_name` ADD COLUMN `active` INT DEFAULT 1;";
+			$result = $wpdb->query($sql);
+
+			if ($result === false) {
+				throw new Exception($wpdb->last_error);
+			}
+
+			// Commit transaction
+			$wpdb->query('COMMIT');
+		} catch (Exception $e) {
+			// Rollback in case of failure
+			$wpdb->query('ROLLBACK');
+			error_log("Error altering table `$table_name`: " . $e->getMessage());
+		}
+	}
 }

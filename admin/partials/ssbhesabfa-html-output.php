@@ -1,13 +1,13 @@
 <?php
 /*
  * @class      Ssbhesabfa_Html_output
- * @version    2.1.7
+ * @version    2.1.9
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin/output
  * @author     Saeed Sattar Beglou <saeed.sb@gmail.com>
  * @author     HamidReza Gharahzadeh <hamidprime@gmail.com>
- * @author     Sepehr Najafi <sepehrn249@gmail.com>
+ * @author     Sepehr Najafi <sepehrnm78@yahoo.com>
  */
 
 class Ssbhesabfa_Html_output {
@@ -45,7 +45,7 @@ class Ssbhesabfa_Html_output {
                 } elseif ($description && in_array($value['type'], array('checkbox'))) {
                     $description = wp_kses_post($description);
                 } elseif ($description) {
-                    $description = '<span class="description">' . wp_kses_post($description) . '</span>';
+                    //$description = '<span class="description">' . wp_kses_post($description) . '</span>';
                 }
                 if (isset($value['placeholder']) && !empty($value['placeholder'])) {
                     $placeholder = $value['placeholder'];
@@ -97,7 +97,7 @@ class Ssbhesabfa_Html_output {
                                     class="<?php echo esc_attr($value['class']); ?>"
                                     placeholder="<?php echo esc_attr($placeholder); ?>"
                                     <?php echo esc_attr(implode(' ', $custom_attributes)); ?>
-                                    /> <?php echo esc_html($description); ?>
+                                    /> <?php echo wp_kses_post($description); ?>
                             </td>
                         </tr><?php
                         break;
@@ -309,6 +309,10 @@ class Ssbhesabfa_Html_output {
 //=====================================================================================================
     public static function save_fields($options) {
         if (empty($_POST)) return false;
+
+        if (!isset($_POST['ssbhesabfa_api_nonce']) || !wp_verify_nonce($_POST['ssbhesabfa_api_nonce'], 'ssbhesabfa_api_nonce')) {
+			wp_die(__('Security check failed', 'ssbhesabfa'));
+		}
 
         $update_options = array();
         foreach ($options as $value) {

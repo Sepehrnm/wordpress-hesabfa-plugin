@@ -3,7 +3,7 @@
 /**
  * @author     Saeed Sattar Beglou <saeed.sb@gmail.com>
  * @author     HamidReza Gharahzadeh <hamidprime@gmail.com>
- * @author     Sepehr Najafi <sepehrn249@gmail.com>
+ * @author     Sepehr Najafi <sepehrnm78@yahoo.com>
  * @since      1.0.0
  *
  * @package    ssbhesabfa

@@ -1,10 +1,10 @@
 === Hesabfa Accounting ===
-Contributors: saeedsb, hamidprime, sepehrnajafi78
+Contributors: saeedsb, hamidprime, sepehr-najafi
 Tags: accounting cloud hesabfa
 Requires at least: 5.2
 Tested up to: 6.7.1
 Requires PHP: 5.6
-Stable tag: 2.1.7
+Stable tag: 2.1.9
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -384,40 +384,40 @@ by clicking update stock and price button in hesabfa tab in product edit page
 * unnecessary files removed
 * bug fix: fix woocommerce state bug
 * persian log removed
-* some functions refactored
+* bug fix: some functions refactored
 
 = 2.0.81 - 30.10.2023 =
-* salesman percentage option added
+* add feature: salesman percentage option added
 
 = 2.0.83 - 01.11.2023 =
-* api option added
+* add feature: api option added
 
 = 2.0.90 - 25.11.2023 =
-* Log date format fixed
-* Transaction fee percentage added
-* Submit Invoice Receipt Cash in Transit feature added
+* bug fix: Log date format fixed
+* add feature: Transaction fee percentage added
+* add feature: Submit Invoice Receipt Cash in Transit feature added
 
 = 2.0.92 - 28.11.2023 =
-* Hesabfa Webhook Call fixed
+* bug fix: Hesabfa Webhook Call fixed
 
 = 2.0.93 - 16.12.2023 =
-* GUID for invoice save feature added
-* Save Stock Method Changed
+* add feature: GUID for invoice save feature added
+* bug fix: Save Stock Method Changed
 
 = 2.0.95 - 08.01.2024 =
 * bug fix: variation bug fixed
 * bug fix: address bug fixed
 
 = 2.0.96 - 05.02.2024 =
-* snapp pay added to gateways
+* add feature: snapp pay added to gateways
 
 = 2.0.97 - 02.03.2024 =
 * bug fix: postal code bug fixed
 * add feature: jaayegah-woocommerce-plugin added and city fixed
 
 = 2.0.98 - 06.04.2024 =
-* add feature: sync last change id feature added
 * bug fix: woocommerce HPOS compatibility added
+* add feature: sync last change id feature added
 * add feature: transaction fee for each payment gateway added
 
 = 2.0.99 - 20.05.2024 =
@@ -440,10 +440,10 @@ by clicking update stock and price button in hesabfa tab in product edit page
 * bug fix: add date compatibility for persian woocommerce date
 * bug fix: add extra method to get shipping state
 * bug fix: add extra field for regular price to fix show price bug
+* bug fix: fix snapppay plugin not recognizing
 * add feature: add sync changes option
 * add feature: add company to customer items
 * add feature: delete old receipts option in sync orders
-* bug fix: fix snapppay plugin not recognizing
 * add feature: add invoice freight person option
 * add feature: add national code and mobile match check option
 * add feature: add mobile to woocommerce checkout fields
@@ -451,19 +451,23 @@ by clicking update stock and price button in hesabfa tab in product edit page
 * add feature: add hesabfa and woocommerce quantity to extra settings tab
 
 = 2.1.3 - 27.01.2025 =
-* add form sanitize to fields
+* add feature: add form sanitize to fields
 
 = 2.1.4 - 29.01.2025 =
-* improve SQL commands
+* add feature: improve SQL commands
 
 = 2.1.5 - 30.01.2025 =
-* add esc methods
+* add feature: add esc methods
 
 = 2.1.6 - 02.02.2025 =
-* set quantity change refactored
+* bug fix: set quantity change refactored
 
 = 2.1.7 - 03.02.2025 =
-* set quantity change refactored
+* bug fix: set quantity change refactored
 
 = 2.1.8 - 05.02.2025 =
-* add extra validation for invoice GUID
+* add feature: add extra validation for invoice GUID
+
+= 2.1.9 - 03.08.2025 =
+* add feature: add form validations
+* add feature: add pagination for link table list view

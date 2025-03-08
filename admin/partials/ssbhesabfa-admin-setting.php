@@ -4,13 +4,13 @@ include_once( plugin_dir_path( __DIR__ ) . 'services/HesabfaLogService.php' );
 error_reporting(0);
 /**
  * @class      Ssbhesabfa_Setting
- * @version    2.1.7
+ * @version    2.1.9
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin/setting
  * @author     Saeed Sattar Beglou <saeed.sb@gmail.com>
  * @author     HamidReza Gharahzadeh <hamidprime@gmail.com>
- * @author     Sepehr Najafi <sepehrn249@gmail.com>
+ * @author     Sepehr Najafi <sepehrnm78@yahoo.com>
  */
 class Ssbhesabfa_Setting {
 
@@ -260,6 +260,7 @@ class Ssbhesabfa_Setting {
                 </div>
             </div>
             <p class="submit hesabfa-p">
+                <input type="hidden" name="ssbhesabfa_api_nonce" value="<?php echo wp_create_nonce('ssbhesabfa_api_nonce'); ?>">
                 <input type="submit" name="ssbhesabfa_integration" class="button-primary"
                        value="<?php esc_attr_e( 'Save changes', 'ssbhesabfa' ); ?>"/>
             </p>
@@ -399,8 +400,10 @@ class Ssbhesabfa_Setting {
         }
         ?>
         <br><br>
-        <form class="p-4 rounded" style="max-width: 90%; background: rgba(211,211,211,0.48);" id="ssbhesabfa_search_form" enctype="multipart/form-data" method="post">
+        <form class="p-4 rounded" style="max-width: 90%; background: rgba(211,211,211,0.48);" id="ssbhesabfa_search_form" enctype="multipart/form-data" method="GET" action="admin.php">
             <h3>مشاهده آیتم های جدول ارتباط</h3>
+            <input type="hidden" name="page" value="ssbhesabfa-option" />
+            <input type="hidden" name="tab" value="extra" />
             <label for="woocommerce_search_code" class="form-label"><strong>کد پایه ووکامرس</strong></label>
             <input type="text" name="woocommerce_search_code" id="woocommerce_search_code">
 
@@ -421,19 +424,28 @@ class Ssbhesabfa_Setting {
                    value="مشاهده"/>
         </form>
         <?php
-        if(isset($_POST["ssbhesabfa_search_form_button"])) {
-            $woocommerce_search_code = isset($_POST["woocommerce_search_code"]) ? sanitize_text_field($_POST["woocommerce_search_code"]) : '';
-            $woocommerce_attribute_search_code = isset($_POST["woocommerce_attribute_search_code"]) ? sanitize_text_field($_POST["woocommerce_attribute_search_code"]) : '';
-            $hesabfa_search_code = isset($_POST["hesabfa_search_code"]) ? sanitize_text_field($_POST["hesabfa_search_code"]) : '';
-            $obj_type_search = isset($_POST["obj_type_search"]) ? sanitize_text_field($_POST["obj_type_search"]) : '';
+	    if (isset($_GET["ssbhesabfa_search_form_button"])) {
+		    $woocommerce_search_code = isset($_GET["woocommerce_search_code"]) ? sanitize_text_field($_GET["woocommerce_search_code"]) : '';
+		    $woocommerce_attribute_search_code = isset($_GET["woocommerce_attribute_search_code"]) ? sanitize_text_field($_GET["woocommerce_attribute_search_code"]) : '';
+		    $hesabfa_search_code = isset($_GET["hesabfa_search_code"]) ? sanitize_text_field($_GET["hesabfa_search_code"]) : '';
+		    $obj_type_search = isset($_GET["obj_type_search"]) ? sanitize_text_field($_GET["obj_type_search"]) : '';
 
-            if (empty($woocommerce_search_code) && empty($woocommerce_attribute_search_code) && empty($hesabfa_search_code) && $obj_type_search == '0') {
-                return;
-            }
+		    if (empty($woocommerce_search_code) && empty($woocommerce_attribute_search_code) && empty($hesabfa_search_code) && $obj_type_search == '0') {
+			    return;
+		    }
 
-            $wpFaService = new HesabfaWpFaService();
-            $wpFa = $wpFaService->getWpFaSearch($woocommerce_search_code, $woocommerce_attribute_search_code, $hesabfa_search_code, $obj_type_search);
-            ?>
+		    $wpFaService = new HesabfaWpFaService();
+		    $wpFa = $wpFaService->getWpFaSearch($woocommerce_search_code, $woocommerce_attribute_search_code, $hesabfa_search_code, $obj_type_search);
+
+		    // Use a separate query parameter for pagination to avoid conflict with the admin 'page' parameter
+		    $current_page = isset($_GET['pageno']) ? max(1, intval($_GET['pageno'])) : 1;
+		    $items_per_page = 500;
+		    $offset = ($current_page - 1) * $items_per_page;
+
+		    $wpFa_paged = array_slice($wpFa, $offset, $items_per_page);
+		    $total_pages = ceil(count($wpFa) / $items_per_page);
+		    ?>
+
             <div class="table-responsive mt-2 p-2" style="max-height: 400px; overflow-y: auto; max-width:92%; border: 1px solid #333; border-radius: 5px;">
                 <table class="table table-striped table-hover">
                     <thead>
@@ -449,104 +461,115 @@ class Ssbhesabfa_Setting {
                     </tr>
                     </thead>
                     <tbody>
-                    <?php if(!empty($wpFa)) {
-                        if($obj_type_search == "product") {
-                            $api = new Ssbhesabfa_Api();
-                            $func = new Ssbhesabfa_Admin_Functions();
-                            $warehouse = get_option('ssbhesabfa_item_update_quantity_based_on', "-1");
+				    <?php if (!empty($wpFa_paged)) {
+					    if ($obj_type_search == "product") {
+						    $api = new Ssbhesabfa_Api();
+						    $func = new Ssbhesabfa_Admin_Functions();
+						    $warehouse = get_option('ssbhesabfa_item_update_quantity_based_on', "-1");
 
-                            // Batching API calls
-                            $hesabfaCodes = [];
-                            $hesabfaQuantities = [];
+						    $hesabfaCodes = [];
+						    $hesabfaQuantities = [];
 
-                            foreach ($wpFa as $item) {
-                                $hesabfaCodes[] = $item->idHesabfa;
+						    foreach ($wpFa_paged as $item) {
+							    $hesabfaCodes[] = $item->idHesabfa;
 
-                                if (count($hesabfaCodes) >= 500) { // Batch size is 500
-                                    $response = $api->itemGetQuantity($warehouse, $hesabfaCodes);
+							    if (count($hesabfaCodes) >= 500) {
+								    $response = $api->itemGetQuantity($warehouse, $hesabfaCodes);
+								    if (is_object($response) && $response->Success) {
+									    foreach ($response->Result as $result) {
+										    $code = ltrim($result->Code, '0');
+										    $hesabfaQuantities[$code] = $result->Quantity;
+									    }
+								    } else {
+									    HesabfaLogService::log(["API Error: " . print_r($response, true)]);
+								    }
+								    $hesabfaCodes = [];
+							    }
+						    }
 
-                                    if ($response->Success) {
-                                        foreach ($response->Result as $result) {
-                                            $codeWithoutLeadingZeros = ltrim($result->Code, '0');
-                                            $hesabfaQuantities[$codeWithoutLeadingZeros] = $result->Quantity;
-                                        }
-                                    } else {
-                                        // Debug error if API call fails
-                                        HesabfaLogService::log(array("API Error: " . print_r($response, true)));
-                                    }
+						    if (!empty($hesabfaCodes)) {
+							    $response = $api->itemGetQuantity($warehouse, $hesabfaCodes);
+							    if (is_object($response) && $response->Success) {
+								    foreach ($response->Result as $result) {
+									    $code = ltrim($result->Code, '0');
+									    $hesabfaQuantities[$code] = $result->Quantity;
+								    }
+							    }
+						    }
 
-                                    $hesabfaCodes = []; // Clear the batch
-                                }
-                            }
+						    $productIds = array_map(fn($item) => $item->idWp, $wpFa_paged);
+						    $wooQuantities = [];
 
-                            // Process the remaining codes in the batch
-                            if (!empty($hesabfaCodes)) {
-                                $response = $api->itemGetQuantity($warehouse, $hesabfaCodes);
+						    foreach (array_chunk($productIds, 500) as $chunk) {
+							    foreach ($chunk as $productId) {
+								    $product = wc_get_product($productId);
+								    if ($product) {
+									    if (!$product->is_type('simple')) {
+										    $variations = $func->getProductVariations($productId);
+										    if (is_iterable($variations)) {
+											    foreach ($variations as $variation) {
+												    $wooQuantities[$variation->get_id()] = $variation->get_stock_quantity();
+											    }
+										    }
+									    } else {
+										    $wooQuantities[$productId] = $product->get_stock_quantity();
+									    }
+								    }
+							    }
+						    }
 
-                                if ($response->Success) {
-                                    foreach ($response->Result as $result) {
-                                        $codeWithoutLeadingZeros = ltrim($result->Code, '0');
-                                        $hesabfaQuantities[$codeWithoutLeadingZeros] = $result->Quantity;
-                                    }
-                                }
-                            }
-                            foreach($wpFa as $item) {
-                                try {
-                                    if($hesabfaQuantities[$item->idHesabfa]) {
-                                        $hesabfaQuantity = $hesabfaQuantities[$item->idHesabfa];
-                                        $woocommerceQuantity = 0;
-
-                                        //get woocommerce quantity
-//                                        $productInWoocommerce = new WC_Product($item->idWp);
-                                        $productInWoocommerce = wc_get_product($item->idWp);
-                                        if($productInWoocommerce) {
-                                            if(!$productInWoocommerce->is_type( 'simple' )) {
-                                                //variation
-                                                $variations = $func->getProductVariations($item->idWp);
-                                                foreach($variations as $variation) {
-                                                    if($variation->get_id() == $item->idWpAttribute)
-                                                        $woocommerceQuantity = $variation->get_stock_quantity();
-                                                }
-                                            } else {
-                                                $woocommerceQuantity = $productInWoocommerce->get_stock_quantity();
-                                            }
-                                        }
-                                        ?>
-                                        <tr style="<?php if($hesabfaQuantity != $woocommerceQuantity) echo 'background: #FFCCCB'; ?>;">
-                                            <td><?php echo esc_html($item->id);?></td>
-                                            <td><?php echo esc_html($item->objType);?></td>
-                                            <td><?php echo esc_html($item->idHesabfa);?></td>
-                                            <td><?php echo esc_html($item->idWp);?></td>
-                                            <td><?php echo esc_html($item->idWpAttribute);?></td>
-                                            <td><?php echo $item->active == 1 ? "فعال" : "غیرفعال"; ?></td>
-                                            <td><?php echo esc_html($hesabfaQuantity); ?></td>
-                                            <td><?php echo esc_html($woocommerceQuantity); ?></td>
-                                        </tr>
-                                    <?php }
-                                } catch(Exception $e) {
-                                    HesabfaLogService::log(array("Error Catch: " . $e->getMessage()));
-                                }
-                            }
-                        } else {
-                            foreach($wpFa as $item) { ?>
+						    foreach ($wpFa_paged as $item) {
+							    try {
+								    $idHesabfa = ltrim($item->idHesabfa, '0');
+								    $hesabfaQuantity = $hesabfaQuantities[$idHesabfa] ?? 0;
+								    $woocommerceQuantity = $wooQuantities[$item->idWpAttribute] ?? $wooQuantities[$item->idWp] ?? 0;
+								    ?>
+                                    <tr style="<?php if($hesabfaQuantity != $woocommerceQuantity) echo 'background: #FFCCCB'; ?>;">
+                                        <td><?php echo esc_html($item->id); ?></td>
+                                        <td><?php echo esc_html($item->objType); ?></td>
+                                        <td><?php echo esc_html($item->idHesabfa); ?></td>
+                                        <td><?php echo esc_html($item->idWp); ?></td>
+                                        <td><?php echo esc_html($item->idWpAttribute); ?></td>
+                                        <td><?php echo $item->active == 1 ? "فعال" : "غیرفعال"; ?></td>
+                                        <td><?php echo esc_html($hesabfaQuantity); ?></td>
+                                        <td><?php echo esc_html($woocommerceQuantity); ?></td>
+                                    </tr>
+								    <?php
+							    } catch (Exception $e) {
+								    HesabfaLogService::log(["Error Catch: " . $e->getMessage()]);
+							    }
+						    }
+					    } else {
+						    foreach ($wpFa_paged as $item) { ?>
                                 <tr>
-                                    <td><?php echo esc_html($item->id);?></td>
-                                    <td><?php echo esc_html($item->objType);?></td>
-                                    <td><?php echo esc_html($item->idHesabfa);?></td>
-                                    <td><?php echo esc_html($item->idWp);?></td>
-                                    <td><?php echo esc_html($item->idWpAttribute);?></td>
+                                    <td><?php echo esc_html($item->id); ?></td>
+                                    <td><?php echo esc_html($item->objType); ?></td>
+                                    <td><?php echo esc_html($item->idHesabfa); ?></td>
+                                    <td><?php echo esc_html($item->idWp); ?></td>
+                                    <td><?php echo esc_html($item->idWpAttribute); ?></td>
                                     <td><?php echo $item->active == 1 ? "فعال" : "غیرفعال"; ?></td>
                                     <td><?php echo "-"; ?></td>
                                     <td><?php echo "-"; ?></td>
                                 </tr>
-                            <?php }
-                        }
-                    }
-                    ?>
+						    <?php }
+					    }
+				    }
+				    ?>
                     </tbody>
                 </table>
             </div>
-        <?php }
+
+		    <?php if ($total_pages > 1): ?>
+                <div class="pagination">
+				    <?php for ($i = 1; $i <= $total_pages; $i++): ?>
+                        <a href="admin.php?page=ssbhesabfa-option&woocommerce_search_code&woocommerce_attribute_search_code&hesabfa_search_code&obj_type_search=product&ssbhesabfa_search_form_button=مشاهده&tab=extra&pageno=<?php echo esc_attr($i); ?>" class="<?php echo ($i == $current_page ? 'active' : ''); ?>">
+						    <?php echo esc_html($i); ?>
+                        </a>
+				    <?php endfor; ?>
+                </div>
+		    <?php endif; ?>
+
+	    <?php }
 
     }
 //==============================================================================================
@@ -695,6 +718,7 @@ class Ssbhesabfa_Setting {
         <form id="ssbhesabfa_form" enctype="multipart/form-data" action="" method="post">
 			<?php $Html_output->init( $ssbhesabf_setting_fields ); ?>
             <p class="submit hesabfa-p">
+                <input type="hidden" name="ssbhesabfa_api_nonce" value="<?php echo wp_create_nonce('ssbhesabfa_api_nonce'); ?>">
                 <input type="submit" name="ssbhesabfa_integration" class="button-primary"
                        value="<?php esc_attr_e( 'Save changes', 'ssbhesabfa' ); ?>"/>
             </p>
@@ -884,6 +908,7 @@ class Ssbhesabfa_Setting {
             </div>
 
             <p class="submit hesabfa-p">
+                <input type="hidden" name="ssbhesabfa_api_nonce" value="<?php echo wp_create_nonce('ssbhesabfa_api_nonce'); ?>">
                 <input type="submit" name="ssbhesabfa_integration" class="button-primary"
                        value="<?php esc_attr_e( 'Save changes', 'ssbhesabfa' ); ?>"/>
             </p>
@@ -1088,6 +1113,7 @@ class Ssbhesabfa_Setting {
         <form id="ssbhesabfa_form" enctype="multipart/form-data" action="" method="post">
 			<?php $Html_output->init( $ssbhesabf_setting_fields ); ?>
             <p class="submit hesabfa-p">
+                <input type="hidden" name="ssbhesabfa_api_nonce" value="<?php echo wp_create_nonce('ssbhesabfa_api_nonce'); ?>">
                 <input type="submit" name="ssbhesabfa_integration" class="button-primary"
                        value="<?php esc_attr_e( 'Save changes', 'ssbhesabfa' ); ?>"/>
             </p>
@@ -1289,6 +1315,7 @@ class Ssbhesabfa_Setting {
         <form id="ssbhesabfa_form" enctype="multipart/form-data" action="" method="post">
 			<?php $Html_output->init( $ssbhesabf_setting_fields ); ?>
             <p class="submit hesabfa-p">
+                <input type="hidden" name="ssbhesabfa_api_nonce" value="<?php echo wp_create_nonce('ssbhesabfa_api_nonce'); ?>">
                 <input type="submit" name="ssbhesabfa_integration" class="button-primary"
                        value="<?php esc_attr_e( 'Save changes', 'ssbhesabfa' ); ?>"/>
             </p>
@@ -1431,6 +1458,7 @@ class Ssbhesabfa_Setting {
 
         <form id="ssbhesabfa_form" enctype="multipart/form-data" action="" method="post">
 			<?php $Html_output->init( $ssbhesabf_setting_fields ); ?>
+            <input type="hidden" name="ssbhesabfa_api_nonce" value="<?php echo wp_create_nonce('ssbhesabfa_api_nonce'); ?>">
             <p class="submit hesabfa-p">
                 <input type="submit" name="ssbhesabfa_integration" class="button-primary"
                        value="<?php esc_attr_e( 'Save changes', 'ssbhesabfa' ); ?>"/>

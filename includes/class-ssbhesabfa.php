@@ -10,13 +10,13 @@
  * version of the plugin.
  *
  * @class      Ssbhesabfa
- * @version    2.1.7
+ * @version    2.1.9
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/includes
  * @author     Saeed Sattar Beglou <saeed.sb@gmail.com>
  * @author     HamidReza Gharahzadeh <hamidprime@gmail.com>
- * @author     Sepehr Najafi <sepehrn249@gmail.com>
+ * @author     Sepehr Najafi <sepehrnm78@yahoo.com>
  */
 
 class Ssbhesabfa
@@ -64,7 +64,7 @@ class Ssbhesabfa
         if (defined('SSBHESABFA_VERSION')) {
             $this->version = SSBHESABFA_VERSION;
         } else {
-            $this->version = '2.1.7';
+            $this->version = '2.1.9';
         }
         $this->plugin_name = 'ssbhesabfa';
 
@@ -221,7 +221,8 @@ class Ssbhesabfa
                 if(get_option("ssbhesabfa_save_order_option") == 0) {
                     $this->loader->add_action('woocommerce_order_status_changed', $plugin_admin, 'ssbhesabfa_hook_order_status_change', 10, 3);
                 } else {
-                    $this->loader->add_action('woocommerce_new_order', $plugin_admin, 'ssbhesabfa_hook_new_order', 11, 2);
+	                $this->loader->add_action('woocommerce_order_status_changed', $plugin_admin, 'ssbhesabfa_hook_order_status_change', 20, 3);
+                    $this->loader->add_action('woocommerce_new_order', $plugin_admin, 'ssbhesabfa_hook_new_order', 10, 2);
                 }
 
                 //Runs when an order paid.

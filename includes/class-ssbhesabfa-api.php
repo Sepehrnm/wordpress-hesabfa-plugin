@@ -4,13 +4,13 @@ include_once(plugin_dir_path(__DIR__) . 'admin/services/HesabfaLogService.php');
 
 /**
  * @class      Ssbhesabfa_Api
- * @version    2.1.7
+ * @version    2.1.9
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/api
  * @author     Saeed Sattar Beglou <saeed.sb@gmail.com>
  * @author     HamidReza Gharahzadeh <hamidprime@gmail.com>
- * @author     Sepehr Najafi <sepehrn249@gmail.com>
+ * @author     Sepehr Najafi <sepehrnm78@yahoo.com>
  */
 
 class Ssbhesabfa_Api
@@ -320,10 +320,10 @@ class Ssbhesabfa_Api
 		$response = [];
 		$method = 'invoice/save';
 		$data = array(
-		'invoice' => $invoice,
+			'invoice' => $invoice,
 		);
 		if (!empty($GUID)) {
-		$data['requestUniqueId'] = $GUID;
+			$data['requestUniqueId'] = $GUID;
 		}
 
 		if (isset($data['requestUniqueId'])) {
@@ -358,7 +358,7 @@ class Ssbhesabfa_Api
             'transactionFee' => $transactionFee,
         );
 
-        $data = array_merge($data, $financialData);
+	    if($financialData != null) $data = array_merge($data, $financialData);
         if($accountPath != []) $data = array_merge($data, $accountPath);
 
         return $this->apiRequest($method, $data);

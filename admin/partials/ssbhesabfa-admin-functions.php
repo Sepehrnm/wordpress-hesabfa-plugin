@@ -6,13 +6,13 @@ include_once(plugin_dir_path(__DIR__) . 'services/HesabfaWpFaService.php');
 
 /**
  * @class      Ssbhesabfa_Admin_Functions
- * @version    2.1.7
+ * @version    2.1.9
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin/functions
  * @author     Saeed Sattar Beglou <saeed.sb@gmail.com>
  * @author     HamidReza Gharahzadeh <hamidprime@gmail.com>
- * @author     Sepehr Najafi <sepehrn249@gmail.com>
+ * @author     Sepehr Najafi <sepehrnm78@yahoo.com>
  */
 class Ssbhesabfa_Admin_Functions
 {
@@ -251,6 +251,8 @@ class Ssbhesabfa_Admin_Functions
 
 //        $order = new WC_Order($id_order);
 	    $order = wc_get_order($id_order);
+	    if(get_option("ssbhesabfa_save_order_option") == 1)
+		    $orderItems = $order->get_items();
 
 	    $additionalFields = array();
 	    //save additional fields meta
@@ -519,6 +521,8 @@ class Ssbhesabfa_Admin_Functions
 			    ), array('id' => $wpFaId));
 			    HesabfaLogService::log(array("Invoice successfully updated. Invoice number: " . (string)$response->Result->Number . ". Order ID: $id_order"));
 		    }
+
+			sleep(2);
 
 		    $warehouse = get_option('ssbhesabfa_item_update_quantity_based_on', "-1");
 		    if ($warehouse != "-1" && $orderType === 0)
@@ -818,6 +822,7 @@ class Ssbhesabfa_Admin_Functions
                     $rpp=$extraSettingRPP;
                 }
             }
+
             $result = array();
             $result["error"] = false;
             global $wpdb;
@@ -856,7 +861,9 @@ class Ssbhesabfa_Admin_Functions
 
                 if (!$id_obj) {
                     $hesabfaItem = ssbhesabfaItemService::mapProduct($product, $id_product);
-                    array_push($items, $hesabfaItem);
+					if(!$hesabfaItem["SellPrice"])
+						$hesabfaItem["SellPrice"] = 0;
+	                array_push($items, $hesabfaItem);
                     $updateCount++;
                 }
 
@@ -1143,7 +1150,7 @@ class Ssbhesabfa_Admin_Functions
             $result["done"] = $batch == $totalBatch;
             return $result;
         } catch(Error $error) {
-            HesabfaLogService::writeLogStr("Error in Exporting Opening Quantity" . $error->getMessage());
+            HesabfaLogService::log(array("Error in Exporting Opening Quantity" . $error->getMessage()));
         }
     }
 //========================================================================================================================
@@ -1273,8 +1280,8 @@ class Ssbhesabfa_Admin_Functions
             //$order = new WC_Order($order->ID);
 
             //direct access
-            //$order = wc_get_order($order->ID);
-            $order = wc_get_order($order->get_id());
+            $order = wc_get_order($order->ID);
+//            $order = wc_get_order($order->get_id());
 
             $id_order = $order->get_id();
             $id_obj = $wpFaService->getWpFaId('order', $id_order);
@@ -1894,7 +1901,7 @@ class Ssbhesabfa_Admin_Functions
         return $phoneNumber;
     }
 //=========================================================================================================================
-    public function convertPersianDigitsToEnglish($inputString) : int {
+    public function convertPersianDigitsToEnglish($inputString) {
         $newNumbers = range(0, 9);
         $persianDecimal = array('&#1776;', '&#1777;', '&#1778;', '&#1779;', '&#1780;', '&#1781;', '&#1782;', '&#1783;', '&#1784;', '&#1785;');
         $arabicDecimal  = array('&#1632;', '&#1633;', '&#1634;', '&#1635;', '&#1636;', '&#1637;', '&#1638;', '&#1639;', '&#1640;', '&#1641;');
