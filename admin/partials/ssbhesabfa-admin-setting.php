@@ -4,7 +4,7 @@ include_once( plugin_dir_path( __DIR__ ) . 'services/HesabfaLogService.php' );
 error_reporting(0);
 /**
  * @class      Ssbhesabfa_Setting
- * @version    2.1.9
+ * @version    2.2.0
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin/setting
@@ -267,6 +267,7 @@ class Ssbhesabfa_Setting {
             <div class="p-4 rounded" style="width: 90%; background: rgba(211,211,211,0.48);">
                 <h3>بروزرسانی ID آخرین تغییر</h3>
                 <p style="font-weight: bold;">این گزینه تغییرات را به آخرین ID بروزرسانی می کند.</p>
+                <input type="hidden" name="ssbhesabfa_api_nonce" value="<?php echo wp_create_nonce('ssbhesabfa_api_nonce'); ?>">
                 <input type="submit" name="ssbhesabfa_sync_last_change_id" id="ssbhesabfa_sync_last_change_id" class="button-primary"
                        value="<?php esc_attr_e( 'Sync Last Change ID', 'ssbhesabfa' ); ?>"/>
             </div>
@@ -286,6 +287,7 @@ class Ssbhesabfa_Setting {
                 <label for="hesabfa_code" class="form-label"><strong>کد حسابداری بدون محصول در حسابفا</strong></label>
                 <input type="text" name="hesabfa_code" id="hesabfa_code">
 
+                <input type="hidden" name="ssbhesabfa_api_nonce" value="<?php echo wp_create_nonce('ssbhesabfa_api_nonce'); ?>">
                 <input type="submit" name="ssbhesabfa_save_product_manually_to_hesabfa" id="ssbhesabfa_save_product_manually_to_hesabfa" class="button-primary"
                        value="ذخیره"/>
             </div>
@@ -339,6 +341,7 @@ class Ssbhesabfa_Setting {
                 <h3 style="font-weight: bold;">بروز رسانی اطلاعات</h3>
             </label>
             <br><br>
+            <input type="hidden" name="ssbhesabfa_api_nonce" value="<?php echo wp_create_nonce('ssbhesabfa_api_nonce'); ?>">
             <input type="radio" name="ssbhesabfa_check_for_sync" id="ssbhesabfa_check_for_sync_webhook" value="0" <?php if(get_option('ssbhesabfa_check_for_sync') == 0) echo 'checked'; ?>> وب هوک
             <input type="radio" name="ssbhesabfa_check_for_sync" id="ssbhesabfa_check_for_sync_auto" value="1" <?php if(get_option('ssbhesabfa_check_for_sync') == 1) echo 'checked'; ?>> بروزرسانی اتوماتیک
             <br><br>
@@ -382,6 +385,7 @@ class Ssbhesabfa_Setting {
                 می توانید از یکی از دو هوک ووکامرس زیر برای ثبت سفارش در حسابفا استفاده کنید
             </label>
             <br><br>
+            <input type="hidden" name="ssbhesabfa_api_nonce" value="<?php echo wp_create_nonce('ssbhesabfa_api_nonce'); ?>">
             <input type="radio" name="ssbhesabfa_save_order_option" id="ssbhesabfa_save_order_option" value="0" <?php if(get_option('ssbhesabfa_save_order_option') == 0) echo 'checked'; ?>> woocommerce_new_order
             <input type="radio" name="ssbhesabfa_save_order_option" id="ssbhesabfa_save_order_option" value="1" <?php if(get_option('ssbhesabfa_save_order_option') == 1) echo 'checked'; ?>> woocommerce_order_status_changed
             <br><br>
@@ -420,6 +424,7 @@ class Ssbhesabfa_Setting {
                 <option value="order">سفارش</option>
                 <option value="customer">مشتری</option>
             </select>
+            <input type="hidden" name="ssbhesabfa_api_nonce" value="<?php echo wp_create_nonce('ssbhesabfa_api_nonce'); ?>">
             <input type="submit" name="ssbhesabfa_search_form_button" id="ssbhesabfa_search_form_button" class="button-primary"
                    value="مشاهده"/>
         </form>

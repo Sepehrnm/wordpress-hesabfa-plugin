@@ -468,6 +468,9 @@ by clicking update stock and price button in hesabfa tab in product edit page
 = 2.1.8 - 05.02.2025 =
 * add feature: add extra validation for invoice GUID
 
-= 2.1.9 - 03.08.2025 =
+= 2.1.9 - 08.03.2025 =
 * add feature: add form validations
 * add feature: add pagination for link table list view
+
+= 2.2.0 - 10.03.2025 =
+* bug fix: fix nonce token
