@@ -2,13 +2,13 @@
 
 /**
  * @class      Ssbhesabfa_Admin_Display
- * @version    2.2.0
+ * @version    2.2.1
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin/display
+ * @author     Sepehr Najafi <sepehrnm78@yahoo.com>
  * @author     Saeed Sattar Beglou <saeed.sb@gmail.com>
  * @author     HamidReza Gharahzadeh <hamidprime@gmail.com>
- * @author     Sepehr Najafi <sepehrnm78@yahoo.com>
  */
 
 class Ssbhesabfa_Admin_Display

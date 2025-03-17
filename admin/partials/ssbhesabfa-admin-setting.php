@@ -4,13 +4,13 @@ include_once( plugin_dir_path( __DIR__ ) . 'services/HesabfaLogService.php' );
 error_reporting(0);
 /**
  * @class      Ssbhesabfa_Setting
- * @version    2.2.0
+ * @version    2.2.1
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin/setting
+ * @author     Sepehr Najafi <sepehrnm78@yahoo.com>
  * @author     Saeed Sattar Beglou <saeed.sb@gmail.com>
  * @author     HamidReza Gharahzadeh <hamidprime@gmail.com>
- * @author     Sepehr Najafi <sepehrnm78@yahoo.com>
  */
 class Ssbhesabfa_Setting {
 

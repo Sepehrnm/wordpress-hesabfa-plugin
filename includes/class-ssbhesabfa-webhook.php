@@ -6,9 +6,9 @@ include_once(plugin_dir_path(__DIR__) . 'admin/services/HesabfaWpFaService.php')
 /*
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/includes
+ * @author     Sepehr Najafi <sepehrnm78@yahoo.com>
  * @author     Saeed Sattar Beglou <saeed.sb@gmail.com>
  * @author     HamidReza Gharahzadeh <hamidprime@gmail.com>
- * @author     Sepehr Najafi <sepehrnm78@yahoo.com>
  */
 
 class Ssbhesabfa_Webhook

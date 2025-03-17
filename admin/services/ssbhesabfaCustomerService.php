@@ -24,24 +24,13 @@ class ssbhesabfaCustomerService
         $RegistrationNumber = '';
         $Website = '';
         $Mobile = '';
+	    $state_name = '';
 
         if(isset($checkout_fields['NationalCode'])) $NationalCode = $checkout_fields['NationalCode'];
         if(isset($checkout_fields['EconomicCode'])) $EconomicCode = $checkout_fields['EconomicCode'];
         if(isset($checkout_fields['RegistrationNumber'])) $RegistrationNumber = $checkout_fields['RegistrationNumber'];
         if(isset($checkout_fields['Website'])) $Website = $checkout_fields['Website'];
         if(isset($checkout_fields['Phone'])) $Mobile = $checkout_fields['Phone'];
-
-//        $NationalCode = $checkout_fields['NationalCode'];
-//        $EconomicCode = $checkout_fields['EconomicCode'];
-//        $RegistrationNumber = $checkout_fields['RegistrationNumber'];
-//        $Website = $checkout_fields['Website'];
-//	      $Mobile = $checkout_fields['Phone'];
-
-//        if($NationalCode === false) $NationalCode = '';
-//        if($EconomicCode === false) $EconomicCode = '';
-//        if($RegistrationNumber === false) $RegistrationNumber = '';
-//        if($Website === false) $Website = '';
-//        if($Mobile === false) $Mobile = '';
 
         if (empty($name) || $name === ' ') $name = __('Not Defined', 'ssbhesabfa');
 
@@ -170,24 +159,13 @@ class ssbhesabfaCustomerService
         $RegistrationNumber = '';
         $Website = '';
         $Mobile = '';
+		$state_name = '';
 
         if(isset($checkout_fields['NationalCode'])) $NationalCode = $checkout_fields['NationalCode'];
         if(isset($checkout_fields['EconomicCode'])) $EconomicCode = $checkout_fields['EconomicCode'];
         if(isset($checkout_fields['RegistrationNumber'])) $RegistrationNumber = $checkout_fields['RegistrationNumber'];
         if(isset($checkout_fields['Website'])) $Website = $checkout_fields['Website'];
         if(isset($checkout_fields['Phone'])) $Mobile = $checkout_fields['Phone'];
-
-//        $NationalCode = $checkout_fields['NationalCode'];
-//        $EconomicCode = $checkout_fields['EconomicCode'];
-//        $RegistrationNumber = $checkout_fields['RegistrationNumber'];
-//        $Website = $checkout_fields['Website'];
-//	      $Mobile = $checkout_fields['Phone'];
-//
-//	    if($NationalCode === false) $NationalCode = '';
-//	    if($EconomicCode === false) $EconomicCode = '';
-//	    if($RegistrationNumber === false) $RegistrationNumber = '';
-//	    if($Website === false) $Website = '';
-//	    if($Mobile === false) $Mobile = '';
 
         //direct access
 //        WC()->countries->countries[ $order->shipping_country ];
@@ -253,7 +231,7 @@ class ssbhesabfaCustomerService
 //===========================================================================================================
     private static function correctCustomerData($hesabfaCustomer) {
         if($hesabfaCustomer["Phone"] == '')         unset($hesabfaCustomer["Phone"]);
-        if($hesabfaCustomer["Mobile"] == '')        unset($hesabfaCustomer["Mobile"]);
+        if(isset($hesabfaCustomer["Mobile"]) && $hesabfaCustomer["Mobile"] == '')        unset($hesabfaCustomer["Mobile"]);
         if($hesabfaCustomer["Email"] == '')         unset($hesabfaCustomer["Email"]);
         if($hesabfaCustomer["Address"] == '')       unset($hesabfaCustomer["Address"]);
         if($hesabfaCustomer["PostalCode"] == '')    unset($hesabfaCustomer["PostalCode"]);

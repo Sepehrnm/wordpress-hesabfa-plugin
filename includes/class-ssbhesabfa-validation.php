@@ -2,13 +2,13 @@
 
 /*
  * @class      Ssbhesabfa_Validation
- * @version    2.2.0
+ * @version    2.2.1
  * @since      1.1.5
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/includes
+ * @author     Sepehr Najafi <sepehrnm78@yahoo.com>
  * @author     Saeed Sattar Beglou <saeed.sb@gmail.com>
  * @author     HamidReza Gharahzadeh <hamidprime@gmail.com>
- * @author     Sepehr Najafi <sepehrnm78@yahoo.com>
  */
 
 class Ssbhesabfa_Validation

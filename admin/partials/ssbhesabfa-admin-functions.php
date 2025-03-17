@@ -6,13 +6,13 @@ include_once(plugin_dir_path(__DIR__) . 'services/HesabfaWpFaService.php');
 
 /**
  * @class      Ssbhesabfa_Admin_Functions
- * @version    2.2.0
+ * @version    2.2.1
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin/functions
+ * @author     Sepehr Najafi <sepehrnm78@yahoo.com>
  * @author     Saeed Sattar Beglou <saeed.sb@gmail.com>
  * @author     HamidReza Gharahzadeh <hamidprime@gmail.com>
- * @author     Sepehr Najafi <sepehrnm78@yahoo.com>
  */
 class Ssbhesabfa_Admin_Functions
 {
@@ -505,20 +505,25 @@ class Ssbhesabfa_Admin_Functions
 		    }
 
 		    if ($number === null) {
-			    $wpdb->insert($wpdb->prefix . 'ssbhesabfa', array(
+			    $result = $wpdb->insert($wpdb->prefix . 'ssbhesabfa', array(
 				    'id_hesabfa' => (int)$response->Result->Number,
 				    'obj_type' => $obj_type,
 				    'id_ps' => $id_order,
 			    ));
+				if(!$result && gettype($result) == "boolean")
+					HesabfaLogService::log(array("Error in saving invoice in database. Invoice number: " . (string)$response->Result->Number . ". Order ID: $id_order"));
 			    HesabfaLogService::log(array("Invoice successfully added. Invoice number: " . (string)$response->Result->Number . ". Order ID: $id_order"));
 		    } else {
 			    $wpFaId = $wpFaService->getWpFaId($obj_type, $id_order);
 
-			    $wpdb->update($wpdb->prefix . 'ssbhesabfa', array(
+			    $result = $wpdb->update($wpdb->prefix . 'ssbhesabfa', array(
 				    'id_hesabfa' => (int)$response->Result->Number,
 				    'obj_type' => $obj_type,
 				    'id_ps' => $id_order,
 			    ), array('id' => $wpFaId));
+
+				if(!$result && gettype($result) == "boolean")
+					HesabfaLogService::log(array("Error in updating row in database. Invoice number: " . (string)$response->Result->Number . ". Order ID: $id_order"));
 			    HesabfaLogService::log(array("Invoice successfully updated. Invoice number: " . (string)$response->Result->Number . ". Order ID: $id_order"));
 		    }
 

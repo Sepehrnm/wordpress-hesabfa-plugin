@@ -1,10 +1,10 @@
 === Hesabfa Accounting ===
-Contributors: saeedsb, hamidprime, sepehr-najafi
+Contributors: saeedsb, hamidprime, sepehrnajafi78
 Tags: accounting cloud hesabfa
 Requires at least: 5.2
 Tested up to: 6.7.1
 Requires PHP: 5.6
-Stable tag: 2.1.9
+Stable tag: 2.2.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -474,3 +474,6 @@ by clicking update stock and price button in hesabfa tab in product edit page
 
 = 2.2.0 - 10.03.2025 =
 * bug fix: fix nonce token
+
+= 2.2.1 - 17.03.2025 =
+* add feature: add extra validation for invoice link save in database
