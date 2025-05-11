@@ -10,7 +10,7 @@
  * version of the plugin.
  *
  * @class      Ssbhesabfa
- * @version    2.2.1
+ * @version    2.2.2
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/includes
@@ -64,7 +64,7 @@ class Ssbhesabfa
         if (defined('SSBHESABFA_VERSION')) {
             $this->version = SSBHESABFA_VERSION;
         } else {
-            $this->version = '2.2.1';
+            $this->version = '2.2.2';
         }
         $this->plugin_name = 'ssbhesabfa';
 
@@ -291,6 +291,7 @@ class Ssbhesabfa
             $this->loader->add_filter('wp_ajax_adminUpdateProducts', $plugin_admin, 'adminUpdateProductsCallback');
             $this->loader->add_filter('wp_ajax_adminUpdateProductsWithFilter', $plugin_admin, 'adminUpdateProductsWithFilterCallback');
             $this->loader->add_filter('wp_ajax_adminSubmitInvoice', $plugin_admin, 'adminSubmitInvoiceCallback');
+            $this->loader->add_filter('wp_ajax_adminRemoveInvoice', $plugin_admin, 'adminRemoveInvoiceCallback');
 
             /*
              * Action - Ajax 'Log Tab' from Hesabfa/Log

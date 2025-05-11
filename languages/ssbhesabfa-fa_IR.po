@@ -439,6 +439,12 @@ msgstr "کد متا در جدول پست متا"
 msgid "National code"
 msgstr "کد ملی"
 
+msgid "Copy customer's phone"
+msgstr "ذخیره کپی تلفن مشتری"
+
+msgid "Copy customer's phone into mobile field in hesabfa."
+msgstr "ذخیره شماره تلفن سفارش به عنوان تلفن همراه مشتری"
+
 msgid "Economic code"
 msgstr "کد اقتصادی"
 
@@ -893,7 +899,13 @@ msgid "Update failed. Please check the log file."
 msgstr "به روزرسانی ناموفق بود. لطفاً لاگ را بررسی کنید."
 
 msgid "Number of products in store:"
-msgstr "تعداد محصولات در فروشگاه:"
+msgstr "تعداد کل محصولات در فروشگاه به همراه متغیر ها:"
+
+msgid "Number of simple products in store:"
+msgstr "تعداد محصولات ساده در فروشگاه:"
+
+msgid "Number of products variations in store:"
+msgstr "تعداد محصولات متغیر در فروشگاه:"
 
 msgid "Number of products in hesabfa:"
 msgstr "تعداد محصولات در حسابفا:"
@@ -909,6 +921,9 @@ msgstr "فاکتور حسابفا"
 
 msgid "Submit Invoice"
 msgstr "ثبت فاکتور"
+
+msgid "Remove Invoice"
+msgstr "حذف فاکتور"
 
 msgid "Submit Invoice in Hesabfa"
 msgstr "ثبت فاکتور در حسابفا"

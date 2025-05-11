@@ -6,7 +6,7 @@ include_once(plugin_dir_path(__DIR__) . 'services/HesabfaWpFaService.php');
 
 /**
  * @class      Ssbhesabfa_Admin_Functions
- * @version    2.2.1
+ * @version    2.2.2
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin/functions
@@ -232,6 +232,19 @@ class Ssbhesabfa_Admin_Functions
         return $phone;
     }
 //====================================================================================================================
+	public function deleteInvoiceLink($orderId): bool {
+		$wpFaService = new HesabfaWpFaService();
+		$wpFa = $wpFaService->getWpFa('order', $orderId);
+		if ($wpFa) {
+			$wpFaService->updateActive($wpFa, false);
+
+			HesabfaLogService::log(array("Invoice Link Deactivated Manually. Order Id: " . $orderId));
+			return true;
+		}
+
+		return false;
+	}
+//====================================================================================================================
     //Invoice
     public function setOrder($id_order, $orderType = 0, $reference = null, $orderItems = array()) {
 	    if (!isset($id_order)) {
@@ -256,24 +269,32 @@ class Ssbhesabfa_Admin_Functions
 
 	    $additionalFields = array();
 	    //save additional fields meta
-	    if(get_option('ssbhesabfa_contact_add_additional_checkout_fields_hesabfa') == 1) {
-		    $additionalFields = array(
-			    "nationalCode" => $order->get_meta('_billing_hesabfa_national_code'),
-			    "economicCode" => $order->get_meta('_billing_hesabfa_economic_code'),
-			    "registrationNumber" => $order->get_meta('_billing_hesabfa_registeration_number'),
-			    "website" => $order->get_meta('_billing_hesabfa_website'),
-			    "phone" => $order->get_meta('_billing_hesabfa_phone')
-		    );
-		    $this->SaveAdditionalFieldsMeta($id_order, $additionalFields);
-	    } elseif(get_option('ssbhesabfa_contact_add_additional_checkout_fields_hesabfa') == '2') {
-		    $additionalFields = array(
-			    "nationalCode" => get_option('ssbhesabfa_contact_NationalCode_text_hesabfa'),
-			    "economicCode" => get_option('ssbhesabfa_contact_EconomicCode_text_hesabfa'),
-			    "registrationNumber" => get_option('ssbhesabfa_contact_RegistrationNumber_text_hesabfa'),
-			    "website" => get_option('ssbhesabfa_contact_Website_text_hesabfa'),
-			    "phone" => get_option('ssbhesabfa_contact_Phone_text_hesabfa')
-		    );
-		    $this->SaveAdditionalFieldsMeta($id_order, $additionalFields);
+	    if(
+			get_option('ssbhesabfa_contact_NationalCode_checkbox_hesabfa') == 'yes' ||
+			get_option('ssbhesabfa_contact_EconomicCode_checkbox_hesabfa') == 'yes' ||
+			get_option('ssbhesabfa_contact_RegistrationNumber_checkbox_hesabfa') == 'yes' ||
+			get_option('ssbhesabfa_contact_Website_checkbox_hesabfa') == 'yes' ||
+			get_option('ssbhesabfa_contact_Phone_checkbox_hesabfa') == 'yes'
+	    ) {
+		    if(get_option('ssbhesabfa_contact_add_additional_checkout_fields_hesabfa') == 1) {
+			    $additionalFields = array(
+				    "nationalCode" => $order->get_meta('_billing_hesabfa_national_code'),
+				    "economicCode" => $order->get_meta('_billing_hesabfa_economic_code'),
+				    "registrationNumber" => $order->get_meta('_billing_hesabfa_registeration_number'),
+				    "website" => $order->get_meta('_billing_hesabfa_website'),
+				    "phone" => $order->get_meta('_billing_hesabfa_phone')
+			    );
+			    $this->SaveAdditionalFieldsMeta($id_order, $additionalFields);
+		    } elseif(get_option('ssbhesabfa_contact_add_additional_checkout_fields_hesabfa') == '2') {
+			    $additionalFields = array(
+				    "nationalCode" => get_option('ssbhesabfa_contact_NationalCode_text_hesabfa'),
+				    "economicCode" => get_option('ssbhesabfa_contact_EconomicCode_text_hesabfa'),
+				    "registrationNumber" => get_option('ssbhesabfa_contact_RegistrationNumber_text_hesabfa'),
+				    "website" => get_option('ssbhesabfa_contact_Website_text_hesabfa'),
+				    "phone" => get_option('ssbhesabfa_contact_Phone_text_hesabfa')
+			    );
+			    $this->SaveAdditionalFieldsMeta($id_order, $additionalFields);
+		    }
 	    }
 	    $dokanOption = get_option("ssbhesabfa_invoice_dokan", 0);
 
@@ -285,28 +306,37 @@ class Ssbhesabfa_Admin_Functions
 			    return false;
 	    }
 
-	    $id_customer = $order->get_customer_id();
-	    if ($id_customer !== 0) {
+		try {
+			$isContactSaved = false;
+		    $id_customer = $order->get_customer_id();
+		    if ($id_customer !== 0) {
 
-		    $contactCode = $this->setContact($id_customer, 'first', $id_order, $additionalFields);
+			    $contactCode = $this->setContact($id_customer, 'first', $id_order, $additionalFields);
 
-		    if ($contactCode == null) {
+			    if ($contactCode == null) {
+				    if (!$contactCode) {
+					    return false;
+				    }
+			    }
+			    HesabfaLogService::writeLogStr("order ID " . $id_order);
+			    if (get_option('ssbhesabfa_contact_address_status') == 2) {
+				    $this->setContact($id_customer, 'billing', $id_order);
+			    } elseif (get_option('ssbhesabfa_contact_address_status') == 3) {
+				    $this->setContact($id_customer, 'shipping', $id_order);
+			    }
+		    } else {
+			    $contactCode = $this->setGuestCustomer($id_order, $additionalFields);
 			    if (!$contactCode) {
 				    return false;
 			    }
 		    }
-		    HesabfaLogService::writeLogStr("order ID " . $id_order);
-		    if (get_option('ssbhesabfa_contact_address_status') == 2) {
-			    $this->setContact($id_customer, 'billing', $id_order);
-		    } elseif (get_option('ssbhesabfa_contact_address_status') == 3) {
-			    $this->setContact($id_customer, 'shipping', $id_order);
-		    }
-	    } else {
-		    $contactCode = $this->setGuestCustomer($id_order, $additionalFields);
-		    if (!$contactCode) {
-			    return false;
-		    }
-	    }
+			$isContactSaved = true;
+		} catch (Exception $ex) {
+			HesabfaLogService::log(array("Error in saving contact. Error: " . $ex->getMessage()));
+		}
+
+		if(!$isContactSaved)
+			return false;
 
 	    global $notDefinedProductID;
 	    $notDefinedItems = array();
@@ -358,7 +388,7 @@ class Ssbhesabfa_Admin_Functions
 			    $discount = $this->getPriceInHesabfaDefaultCurrency($wcProduct->get_regular_price() - $wcProduct->get_sale_price());
 			    $discount *= $product['quantity'];
 		    } else {
-			    $price = $this->getPriceInHesabfaDefaultCurrency($product['subtotal'] / $product['quantity']);
+			    $price = $this->getPriceInHesabfaDefaultCurrency((int)$product['subtotal'] / $product['quantity']);
 			    $discount = $this->getPriceInHesabfaDefaultCurrency($product['subtotal'] - $product['total']);
 		    }
 
@@ -533,6 +563,9 @@ class Ssbhesabfa_Admin_Functions
 		    if ($warehouse != "-1" && $orderType === 0)
 			    $this->setWarehouseReceipt($invoiceItems, (int)$response->Result->Number, $warehouse, $date, $invoice_project);
 
+			if($orderType == 2)
+			    $this->setReceivingWarehouseReceipt($invoiceItems, (int)$response->Result->Number, $warehouse, $date, $invoice_project);
+
 		    return true;
 	    } else {
 		    foreach ($invoiceItems as $item) {
@@ -562,6 +595,40 @@ class Ssbhesabfa_Admin_Functions
             'InvoiceType' => 0,
             'Date' => $date,
             'Items' => $items
+        );
+
+        if ($project != -1)
+            $data['Project'] = $project;
+
+        $hesabfa = new Ssbhesabfa_Api();
+        $response = $hesabfa->saveWarehouseReceipt($data);
+
+        if ($response->Success)
+            HesabfaLogService::log(array("Warehouse receipt successfully saved/updated. warehouse receipt number: " . (string)$response->Result->Number . ". Invoice number: $invoiceNumber"));
+        else
+            HesabfaLogService::log(array("Cannot save/update Warehouse receipt. Error Code: " . (string)$response->ErrorCode . ". Error Message: " . (string)$response->ErrorMessage . ". Invoice number: $invoiceNumber"));
+    }
+
+//========================================================================================================================
+    public function setReceivingWarehouseReceipt($items, $invoiceNumber, $warehouseCode, $date, $project)
+    {
+        $invoiceOption = get_option('ssbhesabfa_invoice_freight');
+        if($invoiceOption == 1) {
+            $invoiceFreightCode = get_option('ssbhesabfa_invoice_freight_code');
+            for ($i = 0 ; $i < count($items) ; $i++) {
+                if($items[$i]["ItemCode"] == $invoiceFreightCode) {
+                    unset($items[$i]);
+                }
+            }
+        }
+
+        $data = array(
+            'WarehouseCode' => $warehouseCode,
+            'InvoiceNumber' => $invoiceNumber,
+            'InvoiceType' => 2,
+            'Date' => $date,
+            'Items' => $items,
+	        'Receiving' => true
         );
 
         if ($project != -1)
@@ -780,7 +847,7 @@ class Ssbhesabfa_Admin_Functions
         if (!isset($id_order)) return false;
 
         global $wpdb;
-        $row = $wpdb->get_row("SELECT `id_hesabfa` FROM " . $wpdb->prefix . "ssbhesabfa WHERE `id_ps` = $id_order AND `obj_type` = 'order'");
+        $row = $wpdb->get_row("SELECT `id_hesabfa` FROM " . $wpdb->prefix . "ssbhesabfa WHERE `id_ps` = $id_order AND `obj_type` = 'order' AND active = '1'");
 
         if (is_object($row)) {
             return $row->id_hesabfa;
@@ -806,7 +873,7 @@ class Ssbhesabfa_Admin_Functions
         if (!isset($id_order)) return false;
 
         global $wpdb;
-        $row = $wpdb->get_row("SELECT `id_hesabfa` FROM " . $wpdb->prefix . "ssbhesabfa WHERE `id_ps` = $id_order AND `obj_type` = 'order'");
+        $row = $wpdb->get_row("SELECT `id_hesabfa` FROM " . $wpdb->prefix . "ssbhesabfa WHERE `id_ps` = $id_order AND `obj_type` = 'order' AND active = '1'");
 
         if (is_object($row)) {
             return $row->id_hesabfa;
@@ -862,7 +929,7 @@ class Ssbhesabfa_Admin_Functions
                 $id_product = $item->ID;
                 $product = new WC_Product($id_product);
 
-                $id_obj = $wpFaService->getWpFaId('product', $id_product, 0);
+                $id_obj = $wpFaService->getWpFaId('product', $id_product, 0, 1);
 
                 if (!$id_obj) {
                     $hesabfaItem = ssbhesabfaItemService::mapProduct($product, $id_product);
@@ -876,7 +943,7 @@ class Ssbhesabfa_Admin_Functions
                 if ($variations) {
                     foreach ($variations as $variation) {
                         $id_attribute = $variation->get_id();
-                        $id_obj = $wpFaService->getWpFaId('product', $id_product, $id_attribute);
+                        $id_obj = $wpFaService->getWpFaId('product', $id_product, $id_attribute, 1);
 
                         if (!$id_obj) {
                             $hesabfaItem = ssbhesabfaItemService::mapProductVariation($product, $variation, $id_product);
@@ -1048,116 +1115,219 @@ class Ssbhesabfa_Admin_Functions
         }
     }
 //========================================================================================================================
-    public function exportOpeningQuantity($batch, $totalBatch, $total)
-    {
-        try {
-            $wpFaService = new HesabfaWpFaService();
+//    public function exportOpeningQuantity($batch, $totalBatch, $total)
+//    {
+//        try {
+//            $wpFaService = new HesabfaWpFaService();
+//
+//            $result = array();
+//            $result["error"] = false;
+//            $extraSettingRPP = get_option("ssbhesabfa_set_rpp_for_export_opening_products");
+//
+//            $rpp=500;
+//            if($extraSettingRPP) {
+//                if($extraSettingRPP != '-1' && $extraSettingRPP != '0') {
+//                    $rpp=$extraSettingRPP;
+//                }
+//            }
+//
+//            global $wpdb;
+//
+//	        if ($batch == 1) {
+//		        $total = $wpdb->get_var(
+//			        $wpdb->prepare(
+//				        "SELECT COUNT(*) FROM {$wpdb->posts}
+//            					WHERE post_type = 'product' AND post_status IN ('publish', 'private')"
+//			        )
+//		        );
+//		        $totalBatch = ceil($total / $rpp);
+//	        }
+//
+//            $offset = ($batch - 1) * $rpp;
+//
+//	        $products = $wpdb->get_results(
+//		        $wpdb->prepare(
+//			        "SELECT ID FROM {$wpdb->posts}
+//					        WHERE post_type = 'product' AND post_status IN ('publish', 'private')
+//					        ORDER BY ID ASC
+//					        LIMIT %d, %d",
+//			        $offset,
+//			        $rpp
+//		        )
+//	        );
+//
+//            $items = array();
+//
+//            foreach ($products as $item) {
+//                $variations = $this->getProductVariations($item->ID);
+//                if (!$variations) {
+//                    $id_obj = $wpFaService->getWpFaId('product', $item->ID, 0);
+//
+//                    if ($id_obj != false) {
+//                        $product = new WC_Product($item->ID);
+//                        $quantity = $product->get_stock_quantity();
+//                        $price = $product->get_regular_price() ? $product->get_regular_price() : $product->get_price();
+//
+//                        $row = $wpdb->get_row("SELECT `id_hesabfa` FROM `" . $wpdb->prefix . "ssbhesabfa` WHERE `id` = " . $id_obj . " AND `obj_type` = 'product'");
+//
+//                        if (is_object($product) && is_object($row) && $quantity > 0 && $price > 0) {
+//                            array_push($items, array(
+//                                'Code' => $row->id_hesabfa,
+//                                'Quantity' => $quantity,
+//                                'UnitPrice' => $this->getPriceInHesabfaDefaultCurrency($price),
+//                            ));
+//                        }
+//                    }
+//                } else {
+//                    foreach ($variations as $variation) {
+//                        $id_attribute = $variation->get_id();
+//                        $id_obj = $wpFaService->getWpFaId('product', $item->ID, $id_attribute);
+//                        if ($id_obj != false) {
+//                            $quantity = $variation->get_stock_quantity();
+//                            $price = $variation->get_regular_price() ? $variation->get_regular_price() : $variation->get_price();
+//
+//                            $row = $wpdb->get_row("SELECT `id_hesabfa` FROM `" . $wpdb->prefix . "ssbhesabfa` WHERE `id` = " . $id_obj . " AND `obj_type` = 'product'");
+//
+//                            if (is_object($variation) && is_object($row) && $quantity > 0 && $price > 0) {
+//                                array_push($items, array(
+//                                    'Code' => $row->id_hesabfa,
+//                                    'Quantity' => $quantity,
+//                                    'UnitPrice' => $this->getPriceInHesabfaDefaultCurrency($price),
+//                                ));
+//                            }
+//                        }
+//                    }
+//                }
+//            }
+//
+//            if (!empty($items)) {
+//                $hesabfa = new Ssbhesabfa_Api();
+//                $response = $hesabfa->itemUpdateOpeningQuantity($items);
+//                if ($response->Success) {
+//                    // continue batch loop
+//                } else {
+//                    HesabfaLogService::log(array("ssbhesabfa - Cannot set Opening quantity. Error Code: ' . $response->ErrorCode . '. Error Message: ' . $response->ErrorMessage"));
+//                    $result['error'] = true;
+//                    if ($response->ErrorCode = 199 && $response->ErrorMessage == 'No-Shareholders-Exist') {
+//                        $result['errorType'] = 'shareholderError';
+//                        return $result;
+//                    }
+//                    return $result;
+//                }
+//            }
+//            sleep(2);
+//            $result["batch"] = $batch;
+//            $result["totalBatch"] = $totalBatch;
+//            $result["total"] = $total;
+//            $result["done"] = $batch == $totalBatch;
+//            return $result;
+//        } catch(Error $error) {
+//            HesabfaLogService::log(array("Error in Exporting Opening Quantity" . $error->getMessage()));
+//        }
+//    }
+	public function exportOpeningQuantity()
+	{
+		try {
+			$wpFaService = new HesabfaWpFaService();
+			$hesabfa = new Ssbhesabfa_Api();
+			global $wpdb;
 
-            $result = array();
-            $result["error"] = false;
-            $extraSettingRPP = get_option("ssbhesabfa_set_rpp_for_export_opening_products");
+			$result = array();
+			$result["error"] = false;
 
-            $rpp=500;
-            if($extraSettingRPP) {
-                if($extraSettingRPP != '-1' && $extraSettingRPP != '0') {
-                    $rpp=$extraSettingRPP;
-                }
-            }
+			$extraSettingRPP = get_option("ssbhesabfa_set_rpp_for_export_opening_products");
+			$rpp = ($extraSettingRPP && $extraSettingRPP != '-1' && $extraSettingRPP != '0') ? $extraSettingRPP : 500;
 
-            global $wpdb;
+			$total = $wpdb->get_var(
+				"SELECT COUNT(*) FROM {$wpdb->posts}
+             WHERE post_type = 'product' AND post_status IN ('publish', 'private')"
+			);
+			$totalBatch = ceil($total / $rpp);
 
-	        if ($batch == 1) {
-		        $total = $wpdb->get_var(
-			        $wpdb->prepare(
-				        "SELECT COUNT(*) FROM {$wpdb->posts}
-            					WHERE post_type = 'product' AND post_status IN ('publish', 'private')"
-			        )
-		        );
-		        $totalBatch = ceil($total / $rpp);
-	        }
+			$allItems = array();
 
-            $offset = ($batch - 1) * $rpp;
+			for ($batch = 1; $batch <= $totalBatch; $batch++) {
+				$offset = ($batch - 1) * $rpp;
 
-	        $products = $wpdb->get_results(
-		        $wpdb->prepare(
-			        "SELECT ID FROM {$wpdb->posts}
-					        WHERE post_type = 'product' AND post_status IN ('publish', 'private')
-					        ORDER BY ID ASC
-					        LIMIT %d, %d",
-			        $offset,
-			        $rpp
-		        )
-	        );
+				$products = $wpdb->get_results(
+					$wpdb->prepare(
+						"SELECT ID FROM {$wpdb->posts}
+                     WHERE post_type = 'product' AND post_status IN ('publish', 'private')
+                     ORDER BY ID ASC
+                     LIMIT %d, %d",
+						$offset,
+						$rpp
+					)
+				);
 
-            $items = array();
+				foreach ($products as $item) {
+					$variations = $this->getProductVariations($item->ID);
 
-            foreach ($products as $item) {
-                $variations = $this->getProductVariations($item->ID);
-                if (!$variations) {
-                    $id_obj = $wpFaService->getWpFaId('product', $item->ID, 0);
+					if (!$variations) {
+						$id_obj = $wpFaService->getWpFaId('product', $item->ID, 0);
 
-                    if ($id_obj != false) {
-                        $product = new WC_Product($item->ID);
-                        $quantity = $product->get_stock_quantity();
-                        $price = $product->get_regular_price() ? $product->get_regular_price() : $product->get_price();
+						if ($id_obj != false) {
+							$product = new WC_Product($item->ID);
+							$quantity = $product->get_stock_quantity();
+							$price = $product->get_regular_price() ? $product->get_regular_price() : $product->get_price();
 
-                        $row = $wpdb->get_row("SELECT `id_hesabfa` FROM `" . $wpdb->prefix . "ssbhesabfa` WHERE `id` = " . $id_obj . " AND `obj_type` = 'product'");
+							$row = $wpdb->get_row("SELECT `id_hesabfa` FROM `{$wpdb->prefix}ssbhesabfa` WHERE `id` = {$id_obj} AND `obj_type` = 'product'");
 
-                        if (is_object($product) && is_object($row) && $quantity > 0 && $price > 0) {
-                            array_push($items, array(
-                                'Code' => $row->id_hesabfa,
-                                'Quantity' => $quantity,
-                                'UnitPrice' => $this->getPriceInHesabfaDefaultCurrency($price),
-                            ));
-                        }
-                    }
-                } else {
-                    foreach ($variations as $variation) {
-                        $id_attribute = $variation->get_id();
-                        $id_obj = $wpFaService->getWpFaId('product', $item->ID, $id_attribute);
-                        if ($id_obj != false) {
-                            $quantity = $variation->get_stock_quantity();
-                            $price = $variation->get_regular_price() ? $variation->get_regular_price() : $variation->get_price();
+							if (is_object($product) && is_object($row) && $quantity > 0 && $price > 0) {
+								$allItems[] = array(
+									'Code' => $row->id_hesabfa,
+									'Quantity' => $quantity,
+									'UnitPrice' => $this->getPriceInHesabfaDefaultCurrency($price),
+								);
+							}
+						}
+					} else {
+						foreach ($variations as $variation) {
+							$id_attribute = $variation->get_id();
+							$id_obj = $wpFaService->getWpFaId('product', $item->ID, $id_attribute);
 
-                            $row = $wpdb->get_row("SELECT `id_hesabfa` FROM `" . $wpdb->prefix . "ssbhesabfa` WHERE `id` = " . $id_obj . " AND `obj_type` = 'product'");
+							if ($id_obj != false) {
+								$quantity = $variation->get_stock_quantity();
+								$price = $variation->get_regular_price() ? $variation->get_regular_price() : $variation->get_price();
 
-                            if (is_object($variation) && is_object($row) && $quantity > 0 && $price > 0) {
-                                array_push($items, array(
-                                    'Code' => $row->id_hesabfa,
-                                    'Quantity' => $quantity,
-                                    'UnitPrice' => $this->getPriceInHesabfaDefaultCurrency($price),
-                                ));
-                            }
-                        }
-                    }
-                }
-            }
+								$row = $wpdb->get_row("SELECT `id_hesabfa` FROM `{$wpdb->prefix}ssbhesabfa` WHERE `id` = {$id_obj} AND `obj_type` = 'product'");
 
-            if (!empty($items)) {
-                $hesabfa = new Ssbhesabfa_Api();
-                $response = $hesabfa->itemUpdateOpeningQuantity($items);
-                if ($response->Success) {
-                    // continue batch loop
-                } else {
-                    HesabfaLogService::log(array("ssbhesabfa - Cannot set Opening quantity. Error Code: ' . $response->ErrorCode . '. Error Message: ' . $response->ErrorMessage"));
-                    $result['error'] = true;
-                    if ($response->ErrorCode = 199 && $response->ErrorMessage == 'No-Shareholders-Exist') {
-                        $result['errorType'] = 'shareholderError';
-                        return $result;
-                    }
-                    return $result;
-                }
-            }
-            sleep(2);
-            $result["batch"] = $batch;
-            $result["totalBatch"] = $totalBatch;
-            $result["total"] = $total;
-            $result["done"] = $batch == $totalBatch;
-            return $result;
-        } catch(Error $error) {
-            HesabfaLogService::log(array("Error in Exporting Opening Quantity" . $error->getMessage()));
-        }
-    }
+								if (is_object($variation) && is_object($row) && $quantity > 0 && $price > 0) {
+									$allItems[] = array(
+										'Code' => $row->id_hesabfa,
+										'Quantity' => $quantity,
+										'UnitPrice' => $this->getPriceInHesabfaDefaultCurrency($price),
+									);
+								}
+							}
+						}
+					}
+				}
+				sleep(1);
+			}
+
+			if (!empty($allItems)) {
+				$response = $hesabfa->itemUpdateOpeningQuantity($allItems);
+
+				if (!$response->Success) {
+					HesabfaLogService::log(array("ssbhesabfa - Cannot set Opening quantity. Error Code: " . $response->ErrorCode . ". Error Message: " . $response->ErrorMessage));
+					$result['error'] = true;
+					if ($response->ErrorCode == 199 && $response->ErrorMessage == 'No-Shareholders-Exist') {
+						$result['errorType'] = 'shareholderError';
+					}
+				}
+			}
+
+			$result["total"] = $total;
+			$result["totalBatch"] = $totalBatch;
+			$result["done"] = true;
+			return $result;
+
+		} catch (Error $error) {
+			HesabfaLogService::log(array("Error in Exporting Opening Quantity: " . $error->getMessage()));
+		}
+	}
+
 //========================================================================================================================
     public function exportCustomers($batch, $totalBatch, $total, $updateCount)
     {

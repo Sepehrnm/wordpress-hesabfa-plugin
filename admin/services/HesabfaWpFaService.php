@@ -128,7 +128,7 @@ class HesabfaWpFaService
         return null;
     }
 //=========================================================================================================
-    public function getWpFaId($objType, $idWp, $idWpAttribute = 0)
+    public function getWpFaId($objType, $idWp, $idWpAttribute = 0, $active = 1)
     {
         if (!isset($objType) || !isset($idWp))
             return false;
@@ -141,10 +141,12 @@ class HesabfaWpFaService
                 FROM {$wpdb->prefix}ssbhesabfa
                 WHERE `id_ps` = %d
                 AND `id_ps_attribute` = %d
-                AND `obj_type` = %s",
+                AND `obj_type` = %s
+                AND `active` = %d",
                 $idWp,
                 $idWpAttribute,
-                $objType
+                $objType,
+	            $active
             )
         );
 
@@ -188,7 +190,7 @@ class HesabfaWpFaService
 //=========================================================================================================
     public function getCustomerCodeByWpId($id_customer)
     {
-        $obj = $this->getWpFa('customer', $id_customer);
+        $obj = $this->getWpFa('customer', $id_customer, 0, 1);
 
         if ($obj != null) return $obj->idHesabfa;
 
@@ -404,5 +406,40 @@ class HesabfaWpFaService
             );
         }
     }
+//=========================================================================================================
+	public function getAllLinkedProducts() {
+		global $wpdb;
+
+		$sql = $wpdb->prepare(
+			"SELECT *
+            FROM {$wpdb->prefix}ssbhesabfa
+            WHERE `obj_type` = 'product'
+            AND `active` = '1'"
+		);
+
+		$result = $wpdb->get_results($sql);
+
+		$wpFaObjects = array();
+		if (isset($result) && is_array($result) && count($result) > 0) {
+			foreach ($result as $item)
+				$wpFaObjects[] = $this->mapWpFa($item);
+			return $wpFaObjects;
+		}
+		return null;
+	}
+//=========================================================================================================
+	public function deactivateWithIdHesabfaList($idArray): bool {
+		if(empty($idArray))
+			return false;
+		global $wpdb;
+
+		$table_name = $wpdb->prefix . 'ssbhesabfa';
+		$placeholders = implode(',', array_fill(0, count($idArray), '%d'));
+		$sql = "UPDATE $table_name SET active = 0 WHERE id_hesabfa IN ($placeholders)";
+		$wpdb->query($wpdb->prepare($sql, ...$idArray));
+
+		return true;
+	}
+
 //=========================================================================================================
 }

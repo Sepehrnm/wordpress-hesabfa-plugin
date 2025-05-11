@@ -7,7 +7,7 @@ include_once(plugin_dir_path(__DIR__) . 'admin/services/HesabfaWpFaService.php')
  * The admin-specific functionality of the plugin.
  *
  * @class      Ssbhesabfa_Admin
- * @version    2.2.1
+ * @version    2.2.2
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin
@@ -470,6 +470,21 @@ class Ssbhesabfa_Admin
             die();
         }
     }
+//==========================================================================================================================
+    public function adminRemoveInvoiceCallback()
+    {
+        HesabfaLogService::writeLogStr('Remove Invoice Manually');
+
+        if (is_admin() && (defined('DOING_AJAX') || DOING_AJAX)) {
+            $orderId = wc_clean($_POST['orderId']);
+
+            $func = new Ssbhesabfa_Admin_Functions();
+            $result = $func->deleteInvoiceLink($orderId);
+
+            echo json_encode($result);
+            die();
+        }
+    }
 //=========================================================================================================================
     public function adminSyncProductsManuallyCallback()
     {
@@ -679,67 +694,13 @@ class Ssbhesabfa_Admin
             if ($key == 'order_status') {
                 // Inserting after "Status" column
                 $reordered_columns['hesabfa-column-invoice-number'] = __('Invoice in Hesabfa', 'ssbhesabfa');
+                $reordered_columns['hesabfa-column-remove-invoice'] = __('Remove Invoice', 'ssbhesabfa');
                 $reordered_columns['hesabfa-column-submit-invoice'] = __('Submit Invoice', 'ssbhesabfa');
             }
         }
         return $reordered_columns;
     }
 //=========================================================================================================================
-//    public function custom_orders_list_column_content($column, $post_id)
-//    {
-//	    global $wpdb;
-//
-//        if (get_option('woocommerce_custom_orders_table_enabled') == 'yes') {
-//            switch ($column) {
-//                case 'hesabfa-column-invoice-number':
-//                    $product_id = $post_id->ID; // Extract product ID from the object
-//    //                $row = $wpdb->get_row("SELECT `id_hesabfa` FROM `" . $wpdb->prefix . "ssbhesabfa` WHERE `id_ps` = $post_id AND `obj_type` = 'order'");
-//                    $table_name = $wpdb->prefix . 'ssbhesabfa';
-//                    $row = $wpdb->get_row(
-//                        $wpdb->prepare(
-//                            "SELECT id_hesabfa FROM $table_name WHERE id_ps = %d AND obj_type = 'order'",
-//                            $product_id
-//                        )
-//                    );
-//
-//                    if (!empty($row)) {
-//                        echo '<mark class="order-status"><span>' . $row->id_hesabfa . '</span></mark>';
-//                    } else {
-//                        echo '<small></small>';
-//                    }
-//                    break;
-//
-//                case 'hesabfa-column-submit-invoice':
-//                    // Use the product ID for the data attribute value
-//                    $product_id = $post_id->ID;
-//                    echo '<a role="button" class="button btn-submit-invoice" ';
-//                    echo 'data-order-id="' . $product_id . '">';
-//                    echo __('Submit Invoice', 'ssbhesabfa');
-//                    echo '</a>';
-//                    break;
-//            }
-//        } else {
-//            switch ($column) {
-//                case 'hesabfa-column-invoice-number' :
-//                    // Get custom post meta data
-//                    $row = $wpdb->get_row("SELECT `id_hesabfa` FROM `" . $wpdb->prefix . "ssbhesabfa` WHERE `id_ps` = $post_id AND `obj_type` = 'order'");
-//
-//                    //$my_var_one = get_post_meta( $post_id, '_the_meta_key1', true );
-//                    if (!empty($row))
-//                        echo '<mark class="order-status"><span>' . $row->id_hesabfa . '</span></mark>';
-//                    else
-//                        echo '<small></small>';
-//                    break;
-//
-//                case 'hesabfa-column-submit-invoice' :
-//                    echo '<a role="button" class="button btn-submit-invoice" ';
-//                    echo "data-order-id='$post_id'>";
-//                    echo __('Submit Invoice', 'ssbhesabfa');
-//                    echo '</a>';
-//                    break;
-//            }
-//        }
-//    }
     public function custom_orders_list_column_content($column, $post_id)
     {
         global $wpdb;
@@ -751,7 +712,7 @@ class Ssbhesabfa_Admin
                     $table_name = $wpdb->prefix . 'ssbhesabfa';
                     $row = $wpdb->get_row(
                         $wpdb->prepare(
-                            "SELECT id_hesabfa FROM $table_name WHERE id_ps = %d AND obj_type = 'order'",
+                            "SELECT id_hesabfa FROM $table_name WHERE id_ps = %d AND obj_type = 'order' AND active = '1'",
                             $order->get_id()
                         )
                     );
@@ -769,13 +730,20 @@ class Ssbhesabfa_Admin
                     echo esc_html__('Submit Invoice', 'ssbhesabfa');
                     echo '</a>';
                     break;
+
+                case 'hesabfa-column-remove-invoice':
+                    echo '<a role="button" class="button btn-remove-invoice" ';
+                    echo 'data-order-id="' . esc_attr($order->get_id()) . '">';
+                    echo esc_html__('Remove Invoice', 'ssbhesabfa');
+                    echo '</a>';
+                    break;
             }
         } else {
             switch ($column) {
                 case 'hesabfa-column-invoice-number':
                     $row = $wpdb->get_row(
                         $wpdb->prepare(
-                            "SELECT id_hesabfa FROM `" . $wpdb->prefix . "ssbhesabfa` WHERE id_ps = %d AND obj_type = 'order'",
+                            "SELECT id_hesabfa FROM `" . $wpdb->prefix . "ssbhesabfa` WHERE id_ps = %d AND obj_type = 'order' AND active = '1'",
                             $order->get_id()
                         )
                     );
@@ -791,6 +759,13 @@ class Ssbhesabfa_Admin
                     echo '<a role="button" class="button btn-submit-invoice" ';
                     echo 'data-order-id="' . esc_attr($order->get_id()) . '">';
                     echo esc_html__('Submit Invoice', 'ssbhesabfa');
+                    echo '</a>';
+                    break;
+
+                case 'hesabfa-column-remove-invoice':
+                    echo '<a role="button" class="button btn-remove-invoice" ';
+                    echo 'data-order-id="' . esc_attr($order->get_id()) . '">';
+                    echo esc_html__('Remove Invoice', 'ssbhesabfa');
                     echo '</a>';
                     break;
             }
@@ -848,6 +823,13 @@ class Ssbhesabfa_Admin
     //Contact
     public function ssbhesabfa_hook_edit_user(WP_User $user)
     {
+	    $deactivate_user_btn_style = "
+            background: #DC3545;
+            color: white;
+            border: none;
+            padding: 0.4rem;
+            border-radius: 5px;
+        ";
         $wpFaService = new HesabfaWpFaService();
         $code = isset($user) ? $wpFaService->getCustomerCodeByWpId($user->ID) : '';
         ?>
@@ -859,12 +841,21 @@ class Ssbhesabfa_Admin
                 </th>
                 <td>
                     <input
-                            type="text"
-                            value="<?php if($code != null) echo esc_html($code); ?>"
-                            name="user_hesabfa_code"
-                            id="user_hesabfa_code"
-                            class="regular-text"
-                    ><br/>
+                        type="text"
+                        value="<?php if($code != null) echo esc_html($code); ?>"
+                        name="user_hesabfa_code"
+                        id="user_hesabfa_code"
+                        class="regular-text"
+                    >
+                    <input
+                        type="submit"
+                        name="user_deactivate_btn"
+                        id="user_deactivate_btn"
+                        class="button"
+                        style="<?php echo esc_attr($deactivate_user_btn_style); ?>"
+                        value="حذف لینک شخص"
+                    >
+                    <br/>
                     <div class="description mt-2">
                         <?php echo esc_html__("The contact code of this user in Hesabfa, if you want to map this user "
                             . "to a contact in Hesabfa, enter the Contact code.", 'ssbhesabfa'); ?>
@@ -876,11 +867,28 @@ class Ssbhesabfa_Admin
         <?php
     }
 //=========================================================================================================================
+	public static function adminDeleteContactLink($user_hesabfa_code = '')
+	{
+        if($user_hesabfa_code == '')
+            return;
+        $wpFaService = new HesabfaWpFaService();
+        $wpFa = $wpFaService->getWpFaByHesabfaId('customer', $user_hesabfa_code, 1);
+        if ($wpFa) {
+            $wpFaService->updateActive($wpFa, 0);
+            HesabfaLogService::writeLogStr("حذف ارتباط شخص. کد شخص: " . $user_hesabfa_code);
+        }
+	}
+//=========================================================================================================================
     public function ssbhesabfa_hook_user_register($id_customer)
     {
         $user_hesabfa_code = '';
         if(isset($_REQUEST['user_hesabfa_code']))
             $user_hesabfa_code = $_REQUEST['user_hesabfa_code'];
+
+	    if(isset($_REQUEST['user_deactivate_btn'])) {
+		    $this->adminDeleteContactLink($user_hesabfa_code);
+            return;
+	    }
 
         if (isset($user_hesabfa_code) && $user_hesabfa_code !== "" && $user_hesabfa_code != null) {
             $wpFaService = new HesabfaWpFaService();
@@ -1775,17 +1783,26 @@ class Ssbhesabfa_Admin
 //=========================================================================================================================
     function show_additional_fields_in_order_detail($order) {
         $orderId = $order->get_id();
-	    $NationalCode = '_billing_hesabfa_national_code';
-        $EconomicCode = '_billing_hesabfa_economic_code';
+	    $NationalCode       = '_billing_hesabfa_national_code';
+        $EconomicCode       = '_billing_hesabfa_economic_code';
 	    $RegistrationNumber = '_billing_hesabfa_registeration_number';
-	    $Website = '_billing_hesabfa_website';
-	    $Phone = '_billing_hesabfa_phone';
+	    $Website            = '_billing_hesabfa_website';
+	    $Phone              = '_billing_hesabfa_phone';
 
 	    $NationalCode_isActive = get_option('ssbhesabfa_contact_NationalCode_checkbox_hesabfa');
 	    $EconomicCode_isActive = get_option('ssbhesabfa_contact_EconomicCode_checkbox_hesabfa');
 	    $RegistrationNumber_isActive = get_option('ssbhesabfa_contact_RegistrationNumber_checkbox_hesabfa');
 	    $Website_isActive = get_option('ssbhesabfa_contact_Website_checkbox_hesabfa');
 	    $Phone_isActive = get_option('ssbhesabfa_contact_Phone_checkbox_hesabfa');
+
+	    $add_additional_fileds = get_option('ssbhesabfa_contact_add_additional_checkout_fields_hesabfa');
+	    if($add_additional_fileds == '2') {
+		    $NationalCode       = get_option( 'ssbhesabfa_contact_NationalCode_text_hesabfa' );
+		    $EconomicCode       = get_option( 'ssbhesabfa_contact_EconomicCode_text_hesabfa' );
+		    $RegistrationNumber = get_option( 'ssbhesabfa_contact_RegistrationNumber_text_hesabfa' );
+		    $Website            = get_option( 'ssbhesabfa_contact_Website_text_hesabfa' );
+		    $Phone              = get_option( 'ssbhesabfa_contact_Phone_text_hesabfa' );
+	    }
 
 	    if($NationalCode_isActive == 'yes')
 		    echo '<p><strong>' . esc_html__('National code', 'ssbhesabfa')  . ': </strong> ' .'<br>'. '<strong>' . esc_attr(get_post_meta( $orderId, $NationalCode, true )) . '</strong></p>';

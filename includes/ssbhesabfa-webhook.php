@@ -28,5 +28,5 @@ if ($result->Password != get_option('ssbhesabfa_webhook_password')) {
 if(get_option("ssbhesabfa_check_for_sync") == 0) {
     include(dirname(__FILE__) . '/class-ssbhesabfa-webhook.php');
     HesabfaLogService::writeLogStr("Hesabfa Webhook Called");
-    new Ssbhesabfa_Webhook();
+    new Ssbhesabfa_Webhook((array) $result);
 }

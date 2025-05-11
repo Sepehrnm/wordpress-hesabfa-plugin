@@ -26,11 +26,11 @@ class ssbhesabfaCustomerService
         $Mobile = '';
 	    $state_name = '';
 
-        if(isset($checkout_fields['NationalCode'])) $NationalCode = $checkout_fields['NationalCode'];
-        if(isset($checkout_fields['EconomicCode'])) $EconomicCode = $checkout_fields['EconomicCode'];
-        if(isset($checkout_fields['RegistrationNumber'])) $RegistrationNumber = $checkout_fields['RegistrationNumber'];
-        if(isset($checkout_fields['Website'])) $Website = $checkout_fields['Website'];
-        if(isset($checkout_fields['Phone'])) $Mobile = $checkout_fields['Phone'];
+        if(isset($checkout_fields['NationalCode']) && $checkout_fields['NationalCode'] ) $NationalCode = $checkout_fields['NationalCode'];
+        if(isset($checkout_fields['EconomicCode']) && $checkout_fields['EconomicCode']) $EconomicCode = $checkout_fields['EconomicCode'];
+        if(isset($checkout_fields['RegistrationNumber']) && $checkout_fields['RegistrationNumber']) $RegistrationNumber = $checkout_fields['RegistrationNumber'];
+        if(isset($checkout_fields['Website']) && $checkout_fields['Website']) $Website = $checkout_fields['Website'];
+        if(isset($checkout_fields['Phone']) && $checkout_fields['Phone']) $Mobile = $checkout_fields['Phone'];
 
         if (empty($name) || $name === ' ') $name = __('Not Defined', 'ssbhesabfa');
 
@@ -83,8 +83,11 @@ class ssbhesabfaCustomerService
                         'Tag' => json_encode(array('id_customer' => $id_customer)),
                         'Note' => __('Customer ID in OnlineStore: ', 'ssbhesabfa') . $id_customer,
                     );
-                    if(strlen($Mobile) > 0) $hesabfaCustomer['Mobile'] = Ssbhesabfa_Validation::contactPhoneValidation($Mobile);
-                    break;
+                    if(strlen($Mobile) > 0)
+						$hesabfaCustomer['Mobile'] = Ssbhesabfa_Validation::contactPhoneValidation($Mobile);
+	                if(get_option('ssbhesabfa_copy_contact_phone_in_mobile') == 1 || get_option('ssbhesabfa_copy_contact_phone_in_mobile') == 'yes')
+		                $hesabfaCustomer['Mobile'] = $hesabfaCustomer['Phone'];
+					break;
                 case 'shipping':
                     $country_name = self::$countries[$order->get_shipping_country()];
 
@@ -133,8 +136,11 @@ class ssbhesabfaCustomerService
                         'Tag' => json_encode(array('id_customer' => $id_customer)),
                         'Note' => __('Customer ID in OnlineStore: ', 'ssbhesabfa') . $id_customer,
                     );
-                    if(strlen($Mobile) > 0) $hesabfaCustomer['Mobile'] = Ssbhesabfa_Validation::contactPhoneValidation($Mobile);
-                    break;
+                    if(strlen($Mobile) > 0)
+						$hesabfaCustomer['Mobile'] = Ssbhesabfa_Validation::contactPhoneValidation($Mobile);
+	                if(get_option('ssbhesabfa_copy_contact_phone_in_mobile') == 1 || get_option('ssbhesabfa_copy_contact_phone_in_mobile') == 'yes')
+		                $hesabfaCustomer['Mobile'] = $hesabfaCustomer['Phone'];
+					break;
             }
         }
 
@@ -161,11 +167,11 @@ class ssbhesabfaCustomerService
         $Mobile = '';
 		$state_name = '';
 
-        if(isset($checkout_fields['NationalCode'])) $NationalCode = $checkout_fields['NationalCode'];
-        if(isset($checkout_fields['EconomicCode'])) $EconomicCode = $checkout_fields['EconomicCode'];
-        if(isset($checkout_fields['RegistrationNumber'])) $RegistrationNumber = $checkout_fields['RegistrationNumber'];
-        if(isset($checkout_fields['Website'])) $Website = $checkout_fields['Website'];
-        if(isset($checkout_fields['Phone'])) $Mobile = $checkout_fields['Phone'];
+	    if(isset($checkout_fields['NationalCode']) && $checkout_fields['NationalCode'] ) $NationalCode = $checkout_fields['NationalCode'];
+	    if(isset($checkout_fields['EconomicCode']) && $checkout_fields['EconomicCode']) $EconomicCode = $checkout_fields['EconomicCode'];
+	    if(isset($checkout_fields['RegistrationNumber']) && $checkout_fields['RegistrationNumber']) $RegistrationNumber = $checkout_fields['RegistrationNumber'];
+	    if(isset($checkout_fields['Website']) && $checkout_fields['Website']) $Website = $checkout_fields['Website'];
+	    if(isset($checkout_fields['Phone']) && $checkout_fields['Phone']) $Mobile = $checkout_fields['Phone'];
 
         //direct access
 //        WC()->countries->countries[ $order->shipping_country ];
@@ -214,7 +220,10 @@ class ssbhesabfaCustomerService
             $hesabfaCustomer['Company'] = Ssbhesabfa_Validation::contactCompanyValidation($order->get_shipping_company());
         }
 
-	    if(strlen($Mobile) > 0) $hesabfaCustomer['Mobile'] = Ssbhesabfa_Validation::contactPhoneValidation($Mobile);
+	    if(strlen($Mobile) > 0)
+			$hesabfaCustomer['Mobile'] = Ssbhesabfa_Validation::contactPhoneValidation($Mobile);
+		if(get_option('ssbhesabfa_copy_contact_phone_in_mobile') == 1 || get_option('ssbhesabfa_copy_contact_phone_in_mobile') == 'yes')
+			$hesabfaCustomer['Mobile'] = $hesabfaCustomer['Phone'];
 
         return self::correctCustomerData($hesabfaCustomer);
     }

@@ -556,7 +556,36 @@ jQuery(function ($) {
             $('#tips-alert').addClass('d-none');
         });
     });
+//=====================================================================================================================
+    $(".btn-remove-invoice").on( "click", function() {
+        var orderId = $(this).attr("data-order-id");
 
+        var btnEl = $('.btn-remove-invoice[data-order-id=' + orderId + ']');
+
+        btnEl.attr('aria-disabled', true);
+        btnEl.addClass('disabled');
+        btnEl.html('حذف فاکتور...');
+        //btnEl.show();
+
+        removeInvoice(orderId);
+    });
+    function removeInvoice(orderId) {
+        var data = {
+            'action': 'adminRemoveInvoice',
+            'orderId': orderId
+        };
+        $.post(ajaxurl, data, function (response) {
+            if ('failed' !== response) {
+                const res = JSON.parse(response);
+                // refresh page
+                location.reload();
+            } else {
+                alert('خطا در حذف فاکتور');
+                return false;
+            }
+        });
+    }
+//=====================================================================================================================
     $(".btn-submit-invoice").on( "click", function() {
         var orderId = $(this).attr("data-order-id");
 

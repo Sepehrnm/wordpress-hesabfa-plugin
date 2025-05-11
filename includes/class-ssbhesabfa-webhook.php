@@ -18,8 +18,9 @@ class Ssbhesabfa_Webhook
     public $itemsObjectId = array();
     public $contactsObjectId = array();
     public $warehouseReceiptsObjectId = array();
+	public $codeIncluded = false;
 
-    public function __construct()
+    public function __construct(array $webhookResult = array())
     {
         $wpFaService = new HesabfaWpFaService();
         $hesabfaApi = new Ssbhesabfa_Api();
@@ -32,7 +33,19 @@ class Ssbhesabfa_Webhook
             $lastChangeId = get_option('ssbhesabfa_last_log_check_id');
         }
 
-        $changes = $hesabfaApi->settingGetChanges($lastChangeId);
+	    $changes = null;
+		if(Count($webhookResult['ObjectIdList']) > 0 && $webhookResult['Action'] == 52) {
+			foreach($webhookResult['ObjectIdList'] as $objectId) {
+				$changesTemp = $hesabfaApi->settingGetChanges($lastChangeId);
+				if($changesTemp->Success) {
+					$changes = $changesTemp;
+					$lastChangeId--;
+				}
+			}
+			$this->codeIncluded = true;
+		} else {
+            $changes = $hesabfaApi->settingGetChanges($lastChangeId);
+		}
 
         if ($changes->Success) {
             update_option('ssbhesabfa_business_expired', 0);
@@ -131,7 +144,11 @@ class Ssbhesabfa_Webhook
         }
 
         if (!empty($this->itemsObjectId)) {
-            $objects = $this->getObjectsByIdList($this->itemsObjectId, 'item');
+	        if($this->codeIncluded)
+				$objects = $this->getObjectsByIdList($this->itemsObjectId, 'item');
+			else
+				$objects = $this->getObjectsByCodeList($this->itemsObjectId);
+
             if ($objects != false) {
                 foreach ($objects as $object) {
                     array_push($items, $object);
@@ -278,7 +295,7 @@ class Ssbhesabfa_Webhook
 
         $warehouse = get_option('ssbhesabfa_item_update_quantity_based_on', "-1");
         if ($warehouse == "-1")
-            $result = $hesabfaApi->itemGetItems(array('Take' => 100000, 'Filters' => $filters));
+            $result = $hesabfaApi->itemGetItems(array('Take' => 1000000, 'Filters' => $filters));
         else {
             $result = $hesabfaApi->itemGetQuantity($warehouse, $codeList);
         }

@@ -4,7 +4,7 @@ include_once( plugin_dir_path( __DIR__ ) . 'services/HesabfaLogService.php' );
 error_reporting(0);
 /**
  * @class      Ssbhesabfa_Setting
- * @version    2.2.1
+ * @version    2.2.2
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin/setting
@@ -573,9 +573,127 @@ class Ssbhesabfa_Setting {
 				    <?php endfor; ?>
                 </div>
 		    <?php endif; ?>
+    <?php } ?>
+        <br><br>
+        <form class="p-4 rounded" style="max-width: 90%; background: rgba(211,211,211,0.48);" enctype="multipart/form-data" method="GET" action="admin.php">
+            <h3>مشاهده کالا های لینک شده که در حسابفا وجود ندارند</h3>
+            <input type="hidden" name="page" value="ssbhesabfa-option" />
+            <input type="hidden" name="tab" value="extra" />
+            <input type="hidden" name="ssbhesabfa_api_nonce" value="<?php echo wp_create_nonce('ssbhesabfa_api_nonce'); ?>">
+            <input type="submit" name="ssbhesabfa_search_form_second_button" id="ssbhesabfa_search_form_second_button" class="button-primary"
+                   value="مشاهده"/>
+        </form>
+	    <?php
+	    if (isset($_POST['deactivate_all_button']) && check_admin_referer('deactivate_all_action', 'deactivate_all_nonce')) {
+		    $wpFaService = new HesabfaWpFaService();
+		    $missingItems = json_decode(stripslashes($_POST['total_missing']), true);
 
+		    $idList = array_column($missingItems, 'idHesabfa');
+		    $result = $wpFaService->deactivateWithIdHesabfaList($idList);
+
+            if($result)
+    		    echo '<div class="notice notice-success"><p>همه موارد با موفقیت غیرفعال شدند.</p></div>';
+	    }
+
+	    if (isset($_GET["ssbhesabfa_search_form_second_button"])) {
+		    $wpFaService = new HesabfaWpFaService();
+		    $wpFa = $wpFaService->getAllLinkedProducts();
+
+		    $api = new Ssbhesabfa_Api();
+
+		    $allHesabfaIds = array_map(function($item) {
+			    return str_pad((string)$item->idHesabfa, 6, '0', STR_PAD_LEFT);
+		    }, $wpFa);
+
+		    $batchSize = 500;
+		    $chunks = array_chunk($allHesabfaIds, $batchSize);
+		    $existingCodes = [];
+
+		    foreach ($chunks as $chunk) {
+			    $response = $api->itemGetItems([
+				    'Take' => 1000000,
+				    'Skip' => 0,
+				    'Filters' => [
+					    [
+						    "Property" => "Code",
+						    "Operator" => "in",
+						    "Value" => $chunk
+					    ]
+				    ]
+			    ]);
+
+			    if ($response->Success && !empty($response->Result)) {
+				    foreach ($response->Result->List as $itemResult) {
+					    $code = str_pad((string)$itemResult->Code, 6, '0', STR_PAD_LEFT);
+					    $existingCodes[$code] = true;
+				    }
+			    }
+		    }
+
+		    $missingItems = array_filter($wpFa, function($item) use ($existingCodes) {
+			    $code = str_pad((string)$item->idHesabfa, 6, '0', STR_PAD_LEFT);
+			    return !isset($existingCodes[$code]);
+		    });
+
+		    $current_page = isset($_GET['pageno']) ? max(1, intval($_GET['pageno'])) : 1;
+		    $items_per_page = 500;
+		    $total_missing = count($missingItems);
+		    $total_pages = ceil($total_missing / $items_per_page);
+		    $offset = ($current_page - 1) * $items_per_page;
+
+		    $pagedMissingItems = array_slice(array_values($missingItems), $offset, $items_per_page);
+		    ?>
+
+            <div class="table-responsive mt-2 p-2" style="max-height: 400px; overflow-y: auto; max-width:92%; border: 1px solid #333; border-radius: 5px;">
+                <table class="table table-striped table-hover">
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>نوع آیتم</th>
+                        <th>کد حسابفا</th>
+                        <th>کد ووکامرس</th>
+                        <th>کد متغیر ووکامرس</th>
+                        <th>تعداد کل: <?php echo esc_html($total_missing); ?>
+                            <form method="POST" style="display:inline;">
+		                        <?php wp_nonce_field('deactivate_all_action', 'deactivate_all_nonce'); ?>
+                                <input type="submit" name="deactivate_all_button" value="غیرفعال‌سازی همه" class="button button-secondary"
+                                       onclick="return confirm('آیا مطمئن هستید که می‌خواهید همه را غیرفعال کنید؟');">
+                                <input type="hidden" name="ssbhesabfa_api_nonce" value="<?php echo wp_create_nonce('ssbhesabfa_api_nonce'); ?>">
+                                <input type="hidden" name="total_missing" value='<?php echo esc_attr(json_encode($missingItems)); ?>'>
+                            </form>
+                        </th>
+                    </tr>
+                    </thead>
+                    <tbody>
+				    <?php foreach ($pagedMissingItems as $item): ?>
+                        <tr>
+                            <td><?php echo esc_html($item->id); ?></td>
+                            <td><?php echo esc_html($item->objType); ?></td>
+                            <td><?php echo esc_html($item->idHesabfa); ?></td>
+                            <td><?php echo esc_html($item->idWp); ?></td>
+                            <td><?php echo esc_html($item->idWpAttribute); ?></td>
+                            <td></td>
+                        </tr>
+				    <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+
+		    <?php if ($total_pages > 1): ?>
+                <div class="pagination">
+				    <?php for ($i = 1; $i <= $total_pages; $i++): ?>
+                        <a href="admin.php?page=ssbhesabfa-option&ssbhesabfa_search_form_second_button=مشاهده&tab=extra&pageno=<?php echo esc_attr($i); ?>"
+                           class="<?php echo ($i == $current_page ? 'active' : ''); ?>">
+						    <?php echo esc_html($i); ?>
+                        </a>
+				    <?php endfor; ?>
+                </div>
+		    <?php endif; ?>
 	    <?php }
 
+        ?>
+
+        <?php
     }
 //==============================================================================================
     public static function ssbhesabfa_extra_setting_save_field() {
@@ -786,6 +904,13 @@ class Ssbhesabfa_Setting {
 			'title'   => __( 'Check Customer\'s mobile and national code', 'ssbhesabfa' ),
 			'desc'    => __( 'Check the customer\'s mobile and national code match.', 'ssbhesabfa' ),
 			'id'      => 'ssbhesabfa_contact_check_mobile_and_national_code',
+			'type'    => 'checkbox',
+			'default' => 'no'
+		);
+		$fields[] = array(
+			'title'   => __( 'Copy customer\'s phone', 'ssbhesabfa' ),
+			'desc'    => __( 'Copy customer\'s phone into mobile field in hesabfa.', 'ssbhesabfa' ),
+			'id'      => 'ssbhesabfa_copy_contact_phone_in_mobile',
 			'type'    => 'checkbox',
 			'default' => 'no'
 		);
@@ -1643,6 +1768,7 @@ class Ssbhesabfa_Setting {
                         <li>با انجام این عملیات موجودی کنونی محصولات در فروشگاه بعنوان موجودی اول دوره محصولات در حسابفا
                             ثبت می شوند.
                         </li>
+                        <li>محصولاتی که قیمت آنها صفر باشد، در این عملیات در تراز افتتاحیه اضافه نخواهند شد.</li>
                         <li>بطور کلی فقط یک بار باید از این گزینه استفاده کنید،
                             که این کار باید پس از خروج محصولات به حسابفا و یا پس از همسان سازی دستی تمام محصولات
                             انجام شود.
@@ -1725,6 +1851,8 @@ class Ssbhesabfa_Setting {
 	public static function ssbhesabfa_sync_setting() {
 		$result               = self::getProductsCount();
 		$storeProductsCount   = $result["storeProductsCount"];
+		$storeSimpleProductsCount   = $result["storeSimpleProductsCount"];
+		$storeProductsVariationCount   = $result["storeProductsVariationCount"];
 		$hesabfaProductsCount = $result["hesabfaProductsCount"];
 		$linkedProductsCount  = $result["linkedProductsCount"];
 
@@ -1797,6 +1925,8 @@ class Ssbhesabfa_Setting {
 
         <div class="notice notice-info mt-3">
             <p class="hesabfa-p"><?php echo esc_html__( 'Number of products in store:', 'ssbhesabfa' ) . ' <b>' . esc_html($storeProductsCount) . '</b>' ?></p>
+            <p class="hesabfa-p"><?php echo esc_html__( 'Number of simple products in store:', 'ssbhesabfa' ) . ' <b>' . esc_html($storeSimpleProductsCount   ) . '</b>' ?></p>
+            <p class="hesabfa-p"><?php echo esc_html__( 'Number of products variations in store:', 'ssbhesabfa' ) . ' <b>' . esc_html($storeProductsVariationCount   ) . '</b>' ?></p>
             <p class="hesabfa-p"><?php echo esc_html__( 'Number of products in hesabfa:', 'ssbhesabfa' ) . ' <b>' . esc_html($hesabfaProductsCount) . '</b>' ?></p>
             <p class="hesabfa-p"><?php echo esc_html__( 'Number of linked products:', 'ssbhesabfa' ) . ' <b>' . esc_html($linkedProductsCount) . '</b>' ?></p>
         </div>
@@ -1976,13 +2106,17 @@ class Ssbhesabfa_Setting {
 //=============================================================================================
 	public static function getProductsCount() {
 		$storeProductsCount   = self::getProductCountsInStore();
+		$storeSimpleProductsCount   = self::getSimpleProductCountsInStore();
+		$storeProductsVariationCount   = self::getProductVariationCountsInStore();
 		$hesabfaProductsCount = self::getProductCountsInHesabfa();
 		$linkedProductsCount  = self::getLinkedProductsCount();
 
 		return array(
-			"storeProductsCount"   => $storeProductsCount,
-			"hesabfaProductsCount" => $hesabfaProductsCount,
-			"linkedProductsCount"  => $linkedProductsCount
+			"storeProductsCount"            => $storeProductsCount,
+			"storeSimpleProductsCount"      => $storeSimpleProductsCount,
+			"storeProductsVariationCount"   => $storeProductsVariationCount,
+			"hesabfaProductsCount"          => $hesabfaProductsCount,
+			"linkedProductsCount"           => $linkedProductsCount
 		);
 	}
 //=============================================================================================
@@ -2011,7 +2145,7 @@ class Ssbhesabfa_Setting {
 
         return $wpdb->get_var(
             $wpdb->prepare(
-                "SELECT COUNT(*) FROM {$wpdb->prefix}ssbhesabfa WHERE obj_type = 'product'"
+                "SELECT COUNT(*) FROM {$wpdb->prefix}ssbhesabfa WHERE obj_type = 'product' AND active = 1"
             )
         );
     }
@@ -2035,6 +2169,38 @@ class Ssbhesabfa_Setting {
         );
     }
 
+	public static function getSimpleProductCountsInStore() {
+		global $wpdb;
+
+		return $wpdb->get_var(
+			$wpdb->prepare(
+            "SELECT COUNT(*) 
+            FROM {$wpdb->prefix}posts 
+            WHERE post_type = 'product' 
+            AND post_status IN ('publish', 'private', 'draft') 
+            AND NOT EXISTS (
+                SELECT 1 FROM {$wpdb->prefix}posts AS variations 
+                WHERE variations.post_parent = {$wpdb->prefix}posts.ID 
+                AND variations.post_type = 'product_variation'
+            )"
+			)
+		);
+	}
+//=============================================================================================
+	public static function getProductVariationCountsInStore() {
+		global $wpdb;
+
+		return $wpdb->get_var(
+			$wpdb->prepare(
+            "SELECT COUNT(DISTINCT p.ID) 
+            FROM {$wpdb->prefix}posts AS p 
+            JOIN {$wpdb->prefix}posts AS v ON p.ID = v.post_parent 
+            WHERE p.post_type = 'product' 
+            AND v.post_type = 'product_variation' 
+            AND p.post_status IN ('publish', 'private', 'draft')"
+			)
+		);
+	}
 //=============================================================================================
 	public static function getSubscriptionInfo() {
 		$businessName = '';
