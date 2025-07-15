@@ -6,7 +6,7 @@
  * This class defines all code necessary to run during the plugin's activation.
  *
  * @class      Ssbhesabfa_Activator
- * @version    2.2.2
+ * @version    2.2.3
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/includes
@@ -32,6 +32,7 @@ class Ssbhesabfa_Activator {
         add_option('ssbhesabfa_debug_mode', 0);
         add_option('ssbhesabfa_check_for_sync', 0);
         //add_option('ssbhesabfa_check_for_sync_webhook', 1);
+        add_option('ssbhesabfa_invoice_save_for_one_person_in_hesabfa', 0);
         add_option('ssbhesabfa_invoice_freight', 0);
         add_option('ssbhesabfa_save_order_option', 0);
         add_option('ssbhesabfa_check_for_sync_auto', 0);

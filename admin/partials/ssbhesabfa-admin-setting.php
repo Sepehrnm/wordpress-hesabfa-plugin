@@ -4,7 +4,7 @@ include_once( plugin_dir_path( __DIR__ ) . 'services/HesabfaLogService.php' );
 error_reporting(0);
 /**
  * @class      Ssbhesabfa_Setting
- * @version    2.2.2
+ * @version    2.2.3
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin/setting
@@ -266,17 +266,25 @@ class Ssbhesabfa_Setting {
             </p>
             <div class="p-4 rounded" style="width: 90%; background: rgba(211,211,211,0.48);">
                 <h3>بروزرسانی ID آخرین تغییر</h3>
-                <p style="font-weight: bold;">این گزینه تغییرات را به آخرین ID بروزرسانی می کند.</p>
+                <p>این گزینه تغییرات را به آخرین ID بروزرسانی می کند.</p>
                 <input type="hidden" name="ssbhesabfa_api_nonce" value="<?php echo wp_create_nonce('ssbhesabfa_api_nonce'); ?>">
                 <input type="submit" name="ssbhesabfa_sync_last_change_id" id="ssbhesabfa_sync_last_change_id" class="button-primary"
                        value="<?php esc_attr_e( 'Sync Last Change ID', 'ssbhesabfa' ); ?>"/>
             </div>
             <br>
             <div class="p-4 rounded" style="width: 90%; background: rgba(211,211,211,0.48);">
-                <h3 style="font-weight: bold;">افزودن دستی محصول به حسابفا</h3>
-                <p style="font-weight: bold;">در فیلد کد ووکامرس، کد محصول بدون لینک را که می خواهید در حسابفا ذخیره کنید، وارد نمایید.</p>
-                <p style="font-weight: bold;">در فیلد کد حسابفا، کد حسابداری را وارد نمایید به طوری که محصولی با این کد حسابداری وجود نداشته باشد تا محصول ووکامرس انتخابی با این کد در حسابفا اضافه شود.</p>
-                <p style="font-weight: bold;">در صورتی که محصول ساده است به جای کد متغیر عدد صفر را قرار دهید.</p>
+                <h3>حذف option های فاکتور ها</h3>
+                <p>این گزینه option هایی که برای فاکتور ها در جدول option ووکامرس ثبت می شود را پاک می کند.</p>
+                <input type="hidden" name="ssbhesabfa_api_nonce" value="<?php echo wp_create_nonce('ssbhesabfa_api_nonce'); ?>">
+                <input type="submit" name="ssbhesabfa_delete_options" id="ssbhesabfa_delete_options" class="button-primary"
+                       value="<?php esc_attr_e( 'Delete', 'ssbhesabfa' ); ?>"/>
+            </div>
+            <br>
+            <div class="p-4 rounded" style="width: 90%; background: rgba(211,211,211,0.48);">
+                <h3>افزودن دستی محصول به حسابفا</h3>
+                <p>در فیلد کد ووکامرس، کد محصول بدون لینک را که می خواهید در حسابفا ذخیره کنید، وارد نمایید.</p>
+                <p>در فیلد کد حسابفا، کد حسابداری را وارد نمایید به طوری که محصولی با این کد حسابداری وجود نداشته باشد تا محصول ووکامرس انتخابی با این کد در حسابفا اضافه شود.</p>
+                <p>در صورتی که محصول ساده است به جای کد متغیر عدد صفر را قرار دهید.</p>
 
                 <label for="woocommerce_code" class="form-label"><strong>کد پایه ووکامرس کالای بدون لینک</strong></label>
                 <input type="text" name="woocommerce_code" id="woocommerce_code">
@@ -302,6 +310,13 @@ class Ssbhesabfa_Setting {
         if(isset($_POST['ssbhesabfa_sync_last_change_id'])) {
             $func = new Ssbhesabfa_Admin_Functions();
             $func->syncLastChangeID();
+        }
+
+        if(isset($_POST['ssbhesabfa_delete_options'])) {
+            $func = new Ssbhesabfa_Admin_Functions();
+            $res = $func->deleteInvoicesOptions();
+            if($res)
+                HesabfaLogService::writeLogStr("Options Deleted Manually");
         }
 
         if(isset($_POST['ssbhesabfa_save_product_manually_to_hesabfa'])) {
@@ -1208,6 +1223,23 @@ class Ssbhesabfa_Setting {
             'class' => 'input-text'
         );
 
+
+        $fields[] = array(
+            'title' => '',
+            'desc' => __('Save invoice for only one person', 'ssbhesabfa'),
+            'id' => 'ssbhesabfa_invoice_save_for_one_person_in_hesabfa',
+            'type' => 'checkbox',
+            'default' => 'no',
+        );
+
+        $fields[] = array(
+            'title' => __('Invoice Contact Code', 'ssbhesabfa'),
+            'id' => 'ssbhesabfa_invoice_save_for_one_person_in_hesabfa_code',
+            'type' => 'text',
+            'placeholder' => __('Invoice Contact Code', 'ssbhesabfa'),
+            'class' => 'input-text'
+        );
+
         if(is_plugin_active( 'dokan-lite/dokan.php' )){
             $fields[] = array(
                 'title'   => __( "Submit invoice base on Dokan orders", 'ssbhesabfa' ),
@@ -1251,6 +1283,10 @@ class Ssbhesabfa_Setting {
                 if(get_option('ssbhesabfa_invoice_freight') == 1 && !(get_option('ssbhesabfa_invoice_freight_code'))) {
                     HesabfaLogService::writeLogStr("Invoice Freight Service Code is not Defined in Hesabfa ---- کد خدمت حمل و نقل تعریف نشده است");
                     echo '<script>alert("کد خدمت حمل و نقل تعریف نشده است")</script>';
+                }
+                if(get_option('ssbhesabfa_invoice_save_for_one_person_in_hesabfa') == "yes" && !(get_option('ssbhesabfa_invoice_save_for_one_person_in_hesabfa_code'))) {
+                    HesabfaLogService::writeLogStr("Invoice Contact Code is not Defined ---- کد شخص ثابت برای فاکتور ها تعریف نشده است");
+                    echo '<script>alert("کد شخص ثابت برای فاکتور ها تعریف نشده است")</script>';
                 }
             ?>
         </form>

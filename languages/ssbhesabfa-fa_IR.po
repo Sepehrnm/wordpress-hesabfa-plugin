@@ -344,6 +344,17 @@ msgstr "پاک کردن کل لاگ ها"
 msgid "Find Log File"
 msgstr "جستجوی فایل لاگ براساس تاریخ"
 
+#: admin/partials/ssbhesabfa-admin-setting.php:1613
+msgid "Delete"
+msgstr "حذف"
+
+
+msgid "Save invoice for only one person"
+msgstr "ذخیره کل سفارش ها به حساب یک شخص ثابت"
+
+msgid "Invoice Contact Code"
+msgstr "کد شخص ثابت فاکتور"
+
 #: admin/partials/ssbhesabfa-admin-setting.php:84
 #: admin/partials/ssbhesabfa-admin-setting.php:130
 #: admin/partials/ssbhesabfa-admin-setting.php:191

@@ -85,6 +85,8 @@ class HesabfaWpFaService
             $params[] = $obj_type_search;
         }
 
+        $conditions[] = "active = 1";
+
         $sql = "SELECT * FROM {$wpdb->prefix}ssbhesabfa";
         if (!empty($conditions)) {
             $sql .= " WHERE " . implode(" AND ", $conditions);
@@ -440,6 +442,15 @@ class HesabfaWpFaService
 
 		return true;
 	}
+//=========================================================================================================
+    public function deleteInvoicesOptions(): bool {
+        global $wpdb;
 
+        $table_name = $wpdb->prefix . 'options';
+        $sql = "DELETE FROM $table_name WHERE option_value LIKE %s";
+        $deleted = $wpdb->query($wpdb->prepare($sql, '%-ssbhesabfa'));
+
+        return $deleted > 0;
+    }
 //=========================================================================================================
 }

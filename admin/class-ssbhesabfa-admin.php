@@ -7,7 +7,7 @@ include_once(plugin_dir_path(__DIR__) . 'admin/services/HesabfaWpFaService.php')
  * The admin-specific functionality of the plugin.
  *
  * @class      Ssbhesabfa_Admin
- * @version    2.2.2
+ * @version    2.2.3
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin
@@ -580,11 +580,7 @@ class Ssbhesabfa_Admin
                     $wpFaService = new HesabfaWpFaService();
 
                     if ($product["type"] == "variation") {
-                        if(array_key_exists('parent_id', $product)) {
-                            $parentId = $product['parent_id'];
-                            $productParentId = explode(':', $parentId)[1];
-                            $wpFa = $wpFaService->getWpFaSearch($productParentId, $product['id'], '', "product");
-                        }
+                        $wpFa = $wpFaService->getWpFaSearch('', $product['id'], '', "product");
                     } elseif ($product["type"] == "simple" || $product["type"] == "variable") {
                         $wpFa = $wpFaService->getWpFaSearch($product['id'], 0, '', "product");
                     }
@@ -952,8 +948,8 @@ class Ssbhesabfa_Admin
             HesabfaLogService::writeLogStr("status: $status");
 
             if ($status == $to) {
+                HesabfaLogService::writeLogStr("to: $to");
                 $orderResult = $function->setOrder($id_order);
-                sleep(2);
                 if ($orderResult) {
                     // set payment
                     foreach (get_option('ssbhesabfa_payment_status') as $statusPayment) {

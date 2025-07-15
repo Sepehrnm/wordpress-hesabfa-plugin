@@ -1,7 +1,7 @@
 <?php
 /*
  * @class      Ssbhesabfa_Html_output
- * @version    2.2.2
+ * @version    2.2.3
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin/output
@@ -364,6 +364,14 @@ class Ssbhesabfa_Html_output {
             }
         }
         foreach ($update_options as $name => $value) {
+            if(isset($update_options["ssbhesabfa_invoice_freight"])) {
+                if(!isset($update_options["ssbhesabfa_invoice_status"])) {
+                    update_option("ssbhesabfa_invoice_status", 0);
+                }
+                if(!isset($update_options["ssbhesabfa_invoice_return_status"])) {
+                    update_option("ssbhesabfa_invoice_return_status", 0);
+                }
+            }
             update_option($name, wc_clean($value));
         }
         echo '<div class="updated"><p class="hesabfa-p">' . esc_html__( 'Settings were saved successfully.', 'ssbhesabfa' ) . '</p></div>';

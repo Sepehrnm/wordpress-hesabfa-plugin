@@ -487,3 +487,11 @@ by clicking update stock and price button in hesabfa tab in product edit page
 * add feature: add remove contact link to woocommerce user info
 * add feature: add warehouse receipt for return order
 * refactoring: export opening quantity method
+
+= 2.2.3 - 17.05.2025 =
+* add feature: add extra validation for saving invoice based on invoice reference
+* bug fix: fix update multi selects for invoice status and return invoice status
+* bug fix: fix GUID option save
+* add feature: add delete invoices options in extra settings tab
+* add feature: add save all invoices for only one contact option
+* bug fix: fix woocommerce csv option bug

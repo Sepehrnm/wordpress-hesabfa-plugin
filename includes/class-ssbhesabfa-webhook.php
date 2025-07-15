@@ -34,7 +34,13 @@ class Ssbhesabfa_Webhook
         }
 
 	    $changes = null;
-		if(Count($webhookResult['ObjectIdList']) > 0 && $webhookResult['Action'] == 52) {
+		if(
+            isset($webhookResult['ObjectIdList']) &&
+            is_array($webhookResult['ObjectIdList']) &&
+            Count($webhookResult['ObjectIdList']) > 0 &&
+            isset($webhookResult['Action']) &&
+            $webhookResult['Action'] == 52)
+        {
 			foreach($webhookResult['ObjectIdList'] as $objectId) {
 				$changesTemp = $hesabfaApi->settingGetChanges($lastChangeId);
 				if($changesTemp->Success) {

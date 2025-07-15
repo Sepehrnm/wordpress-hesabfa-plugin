@@ -58,7 +58,7 @@ class ssbhesabfaCustomerService
                     $city = $order->get_billing_city();
                     if(preg_match('/^[0-9]+$/', $city)) {
                         $func = new Ssbhesabfa_Admin_Functions();
-                        $city = $func->convertCityCodeToName($order->get_billing_city());
+                        $city = $func->get_state_city_term_name($order->get_billing_city());
                     }
 
                     $hesabfaCustomer = array(
@@ -111,7 +111,7 @@ class ssbhesabfaCustomerService
                     $city = $order->get_shipping_city();
                     if(preg_match('/^[0-9]+$/', $city)) {
                         $func = new Ssbhesabfa_Admin_Functions();
-                        $city = $func->convertCityCodeToName($order->get_shipping_city());
+                        $city = $func->get_state_city_term_name($order->get_shipping_city());
                     }
 
                     $hesabfaCustomer = array(
@@ -187,7 +187,7 @@ class ssbhesabfaCustomerService
         $city = $order->get_billing_city();
         if(preg_match('/^[0-9]+$/', $city)) {
             $func = new Ssbhesabfa_Admin_Functions();
-            $city = $func->convertCityCodeToName($order->get_billing_city());
+            $city = $func->get_state_city_term_name($order->get_billing_city());
         }
 
         $fullAddress = $order->get_billing_address_1() . '-' . $order->get_billing_address_2();

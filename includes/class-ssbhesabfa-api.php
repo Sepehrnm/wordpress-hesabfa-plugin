@@ -4,7 +4,7 @@ include_once(plugin_dir_path(__DIR__) . 'admin/services/HesabfaLogService.php');
 
 /**
  * @class      Ssbhesabfa_Api
- * @version    2.2.2
+ * @version    2.2.3
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/api
@@ -238,6 +238,21 @@ class Ssbhesabfa_Api
 //================================================================================================
     public function itemBatchSave($items)
     {
+        $response = (object) [
+            "Success" => "",
+            "ErrorCode" => "",
+            "ErrorMessage" => ""
+        ];
+
+        if(get_option("ssbhesabfa_do_not_submit_product_automatically") == "yes" ||
+           get_option("ssbhesabfa_do_not_submit_product_automatically") == 1
+        ) {
+            $response->Success = false;
+            $response->ErrorCode = 100;
+            $response->ErrorMessage = "Saving Items Option is off  ------  ذخیره اتوماتیک محصولات غیرفعال است";
+            return $response;
+        }
+
         $method = 'item/batchsave';
         $data = array(
             'items' => $items,
@@ -318,14 +333,48 @@ class Ssbhesabfa_Api
 //================================================================================================
     public function invoiceSave($invoice, $GUID='')
     {
-		$response = [];
-		$method = 'invoice/save';
+        $response = [];
+        $method = 'invoice/save';
+        //check if invoice with this reference exists
+
+        $invoices = $this->invoiceGetInvoices(
+            array(
+                "SortBy" => "Date",
+                "SortDesc" => true,
+                "Take" => 1,
+                "Skip" => 0,
+                "Filters" =>
+                array(
+                    array(
+                        "Property" => "Reference",
+                        "Operator" => "=",
+                        "Value" => $invoice["Reference"]
+                    ),
+
+                    array(
+                        "Property" => "Status",
+                        "Operator" => "=",
+                        "Value" => "1"
+                    )
+                )
+            )
+        );
+
+        if(!$invoices->Success) {
+            HesabfaLogService::writeLogStr("Cannot Get Invoice Reference");
+            $response["Success"] = false;
+            return $response;
+        }
+
+        if(count($invoices->Result->List) == 1)
+            $invoice["Number"] = $invoices->Result->List[0]->Number;
+
 		$data = array(
 			'invoice' => $invoice,
 		);
-		if (!empty($GUID)) {
+
+		if (!empty($GUID))
 			$data['requestUniqueId'] = $GUID;
-		}
 
 		if (isset($data['requestUniqueId'])) {
 			$this->saveStatistics();
