@@ -7,7 +7,7 @@ include_once(plugin_dir_path(__DIR__) . 'admin/services/HesabfaWpFaService.php')
  * The admin-specific functionality of the plugin.
  *
  * @class      Ssbhesabfa_Admin
- * @version    2.2.3
+ * @version    2.2.4
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin
@@ -629,8 +629,8 @@ class Ssbhesabfa_Admin
     {
         add_rewrite_rule('ssbhesabfa-webhook.php$', 'index.php?ssbhesabfa_webhook=1', 'top');
 
-        require_once plugin_dir_path(__DIR__) . 'includes/class-ssbhesabfa-activator.php';
-        Ssbhesabfa_Activator::activate();
+//        require_once plugin_dir_path(__DIR__) . 'includes/class-ssbhesabfa-activator.php';
+//        Ssbhesabfa_Activator::activate();
 
         if(get_option("ssbhesabfa_check_for_sync") == 1) {
             $this->checkForSyncChanges();
@@ -639,18 +639,14 @@ class Ssbhesabfa_Admin
 //=========================================================================================================================
     private function checkForSyncChanges()
     {
-        // Get the last sync time
         $syncChangesLastDate = get_option('ssbhesabfa_sync_changes_last_date');
         if (!$syncChangesLastDate) {
-            // Initialize the last sync date if not set
-            $syncChangesLastDate = time(); // Use PHP's time() function
+            $syncChangesLastDate = time();
             add_option('ssbhesabfa_sync_changes_last_date', $syncChangesLastDate);
         }
 
-        // Get the current time
-        $nowDateTime = time(); // Current UNIX timestamp
+        $nowDateTime = time();
 
-        // Time interval (default: 4 minutes)
         $timeInterval = 4;
         $extraSettingTimeInterval = get_option("ssbhesabfa_check_for_sync_select");
 
@@ -658,10 +654,8 @@ class Ssbhesabfa_Admin
             $timeInterval = (int)$extraSettingTimeInterval;
         }
 
-        // Calculate the time difference in minutes
         $diffMinutes = ($nowDateTime - (int)$syncChangesLastDate) / 60;
 
-        // Check if it's time to sync
         if ($diffMinutes >= $timeInterval) {
             $this->performSync();
         }
@@ -670,7 +664,7 @@ class Ssbhesabfa_Admin
     private function performSync()
     {
         HesabfaLogService::writeLogStr('Sync Changes Automatically');
-        update_option('ssbhesabfa_sync_changes_last_date', time()); // Update last sync time
+        update_option('ssbhesabfa_sync_changes_last_date', time());
         require_once plugin_dir_path(dirname(__FILE__)) . 'includes/class-ssbhesabfa-webhook.php';
         new Ssbhesabfa_Webhook();
     }

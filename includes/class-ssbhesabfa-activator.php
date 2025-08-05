@@ -6,7 +6,7 @@
  * This class defines all code necessary to run during the plugin's activation.
  *
  * @class      Ssbhesabfa_Activator
- * @version    2.2.3
+ * @version    2.2.4
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/includes
@@ -99,11 +99,11 @@ class Ssbhesabfa_Activator {
 				$trigger_exists = $wpdb->get_var(
 					$wpdb->prepare(
 						"SELECT TRIGGER_NAME 
-                     FROM INFORMATION_SCHEMA.TRIGGERS 
-                     WHERE TRIGGER_SCHEMA = %s 
-                     AND EVENT_OBJECT_TABLE = %s 
-                     AND TRIGGER_NAME = %s",
-						DB_NAME,
+                         FROM INFORMATION_SCHEMA.TRIGGERS 
+                         WHERE TRIGGER_SCHEMA = %s 
+                         AND EVENT_OBJECT_TABLE = %s 
+                         AND TRIGGER_NAME = %s",
+                        $wpdb->dbname,
 						$table_name,
 						$trigger_name
 					)

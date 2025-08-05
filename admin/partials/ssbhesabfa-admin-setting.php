@@ -4,7 +4,7 @@ include_once( plugin_dir_path( __DIR__ ) . 'services/HesabfaLogService.php' );
 error_reporting(0);
 /**
  * @class      Ssbhesabfa_Setting
- * @version    2.2.3
+ * @version    2.2.4
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin/setting
@@ -84,14 +84,14 @@ class Ssbhesabfa_Setting {
                     * با حذف افزونه از وردپرس، جدول ارتباط بین افزونه و حسابفا نیز از دیتابیس وردپرس حذف می شود
                     و کلیه ارتباطات از بین می رود.
                 </li>
-            </ul>
-        </div>
-        <div class="alert alert-warning hesabfa-f mt-4">
-            <strong style="font-size: 1rem;">نکات</strong>
-            <br>
-            <ul class="mt-2">
-                <li> *
-                    پیشنهاد می شود قبل از شروع کار با افزونه، حتما ویدیو خودآموز افزونه را مشاهده نمایید.
+                <li>
+                    * برای حذف محصولات دارای لینک در سایت، باید ابتدا لینک محصول را حذف کنید و سپس اقدام به حذف محصول در ووکامرس کنید.
+                </li>
+                <li>
+                    * حتما قبل از شروع کار با افزونه، ویدیو خودآموز افزونه را مشاهده نمایید.
+                </li>
+                <li>
+                    * در صورت خطای عدم اتصال بعد از ذخیره اطلاعات در تب api برای دامنه .com و .ir، لازم است که ابتدا طرح کسب و کار خود را چک کنید. در صورت درست بودن، api در سمت سرور و یا هاست در حال بلاک شدن است که نیاز است رفع بلاک کنید.
                 </li>
             </ul>
         </div>
@@ -1197,6 +1197,14 @@ class Ssbhesabfa_Setting {
         );
 
         $fields[] = array(
+            'title' => '',
+            'desc' => __('Check Invoice by Reference in Hesabfa', 'ssbhesabfa'),
+            'id' => 'ssbhesabfa_check_invoice_by_reference_in_hesabfa',
+            'type' => 'checkbox',
+            'default' => 'no',
+        );
+
+        $fields[] = array(
             'title' => __('Save Freight', 'ssbhesabfa'),
             'id' => 'ssbhesabfa_invoice_freight',
             'type' => 'radio',
@@ -1271,6 +1279,8 @@ class Ssbhesabfa_Setting {
             فیلد "ذخیره هزینه به عنوان خدمت" برای سامانه مودیان مالیاتی می باشد.
             <br>
             توجه کنید که مقدار این فیلد به درستی وارد شده باشد تا در ثبت فاکتور مشکلی ایجاد نشود.
+            <br>
+            در صورت انتخاب گزینه "بررسی تکراری بودن فاکتور زمان ثبت بر اساس ارجاع" اگر فاکتور با ارجاع تکراری در حسابفا باشد، فاکتور آپدیت می شود.
         </div>
         <form id="ssbhesabfa_form" enctype="multipart/form-data" action="" method="post">
 			<?php $Html_output->init( $ssbhesabf_setting_fields ); ?>
@@ -1528,21 +1538,21 @@ class Ssbhesabfa_Setting {
             'class' => 'input-text'
 		);
 
-		$fields[] = array(
-			'title' => __( 'Email', 'ssbhesabfa' ),
-			'desc'  => __( 'Enter a Hesabfa email account', 'ssbhesabfa' ),
-			'id'    => 'ssbhesabfa_account_username',
-			'type'  => 'email',
-			'class' => 'input-text'
-		);
-
-		$fields[] = array(
-			'title' => __( 'Password', 'ssbhesabfa' ),
-			'desc'  => __( 'Enter a Hesabfa password', 'ssbhesabfa' ),
-			'id'    => 'ssbhesabfa_account_password',
-			'type'  => 'password',
-			'class' => 'input-text'
-		);
+//		$fields[] = array(
+//			'title' => __( 'Email', 'ssbhesabfa' ),
+//			'desc'  => __( 'Enter a Hesabfa email account', 'ssbhesabfa' ),
+//			'id'    => 'ssbhesabfa_account_username',
+//			'type'  => 'email',
+//			'class' => 'input-text'
+//		);
+//
+//		$fields[] = array(
+//			'title' => __( 'Password', 'ssbhesabfa' ),
+//			'desc'  => __( 'Enter a Hesabfa password', 'ssbhesabfa' ),
+//			'id'    => 'ssbhesabfa_account_password',
+//			'type'  => 'password',
+//			'class' => 'input-text'
+//		);
 
 		$fields[] = array(
 			'title' => __( 'Login token', 'ssbhesabfa' ),
@@ -2195,47 +2205,94 @@ class Ssbhesabfa_Setting {
     public static function getProductCountsInStore() {
         global $wpdb;
 
+//        return $wpdb->get_var(
+//            $wpdb->prepare(
+//                "SELECT COUNT(*)
+//            FROM {$wpdb->prefix}posts
+//            WHERE post_type IN ('product', 'product_variation')
+//            AND post_status IN ('publish', 'private', 'draft')"
+//            )
+//        );
+
         return $wpdb->get_var(
             $wpdb->prepare(
                 "SELECT COUNT(*) 
             FROM {$wpdb->prefix}posts 
-            WHERE post_type IN ('product', 'product_variation') 
-            AND post_status IN ('publish', 'private', 'draft')"
+            WHERE post_type IN (%s, %s) 
+            AND post_status IN (%s, %s, %s)",
+                'product',              // First %s replacement
+                'product_variation',    // Second %s replacement
+                'publish',              // Third %s replacement
+                'private',              // Fourth %s replacement
+                'draft'                 // Fifth %s replacement
             )
         );
     }
 
 	public static function getSimpleProductCountsInStore() {
-		global $wpdb;
+        global $wpdb;
 
-		return $wpdb->get_var(
-			$wpdb->prepare(
-            "SELECT COUNT(*) 
+//		return $wpdb->get_var(
+//			$wpdb->prepare(
+//            "SELECT COUNT(*)
+//            FROM {$wpdb->prefix}posts
+//            WHERE post_type = 'product'
+//            AND post_status IN ('publish', 'private', 'draft')
+//            AND NOT EXISTS (
+//                SELECT 1 FROM {$wpdb->prefix}posts AS variations
+//                WHERE variations.post_parent = {$wpdb->prefix}posts.ID
+//                AND variations.post_type = 'product_variation'
+//            )"
+//			)
+//		);
+        return $wpdb->get_var(
+            $wpdb->prepare(
+                "SELECT COUNT(*) 
             FROM {$wpdb->prefix}posts 
-            WHERE post_type = 'product' 
-            AND post_status IN ('publish', 'private', 'draft') 
+            WHERE post_type = %s 
+            AND post_status IN (%s, %s, %s) 
             AND NOT EXISTS (
                 SELECT 1 FROM {$wpdb->prefix}posts AS variations 
                 WHERE variations.post_parent = {$wpdb->prefix}posts.ID 
-                AND variations.post_type = 'product_variation'
-            )"
-			)
-		);
+                AND variations.post_type = %s
+            )",
+                'product',          // First %s (post_type)
+                'publish',          // Second %s (first post_status)
+                'private',         // Third %s (second post_status)
+                'draft',           // Fourth %s (third post_status)
+                'product_variation' // Fifth %s (variations post_type)
+            )
+        );
 	}
 //=============================================================================================
 	public static function getProductVariationCountsInStore() {
-		global $wpdb;
+        global $wpdb;
 
-		return $wpdb->get_var(
-			$wpdb->prepare(
-            "SELECT COUNT(DISTINCT p.ID) 
+//		return $wpdb->get_var(
+//			$wpdb->prepare(
+//            "SELECT COUNT(DISTINCT p.ID)
+//            FROM {$wpdb->prefix}posts AS p
+//            JOIN {$wpdb->prefix}posts AS v ON p.ID = v.post_parent
+//            WHERE p.post_type = 'product'
+//            AND v.post_type = 'product_variation'
+//            AND p.post_status IN ('publish', 'private', 'draft')"
+//			)
+//		);
+        return $wpdb->get_var(
+            $wpdb->prepare(
+                "SELECT COUNT(DISTINCT p.ID) 
             FROM {$wpdb->prefix}posts AS p 
             JOIN {$wpdb->prefix}posts AS v ON p.ID = v.post_parent 
-            WHERE p.post_type = 'product' 
-            AND v.post_type = 'product_variation' 
-            AND p.post_status IN ('publish', 'private', 'draft')"
-			)
-		);
+            WHERE p.post_type = %s 
+            AND v.post_type = %s 
+            AND p.post_status IN (%s, %s, %s)",
+                'product',              // First %s (p.post_type)
+                'product_variation',    // Second %s (v.post_type)
+                'publish',             // Third %s (first post_status)
+                'private',             // Fourth %s (second post_status)
+                'draft'                // Fifth %s (third post_status)
+            )
+        );
 	}
 //=============================================================================================
 	public static function getSubscriptionInfo() {

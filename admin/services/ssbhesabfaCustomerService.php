@@ -8,6 +8,7 @@ class ssbhesabfaCustomerService
     public static function mapCustomer($code, $id_customer, $type = 'first',$id_order = '', $additionalFields = array()): array
     {
         self::getCountriesAndStates();
+        $func = new Ssbhesabfa_Admin_Functions();
 
         $customer = new WC_Customer($id_customer);
         $order = new WC_Order($id_order);
@@ -57,9 +58,11 @@ class ssbhesabfaCustomerService
 
                     $city = $order->get_billing_city();
                     if(preg_match('/^[0-9]+$/', $city)) {
-                        $func = new Ssbhesabfa_Admin_Functions();
                         $city = $func->get_state_city_term_name($order->get_billing_city());
+//                        $city = $func->convertCityCodeToName($order->get_billing_city());
                     }
+
+                    $state_name = $func->convertStateNameToPersian($state_name);
 
                     $hesabfaCustomer = array(
                         'Code' => $code,
@@ -110,9 +113,11 @@ class ssbhesabfaCustomerService
 
                     $city = $order->get_shipping_city();
                     if(preg_match('/^[0-9]+$/', $city)) {
-                        $func = new Ssbhesabfa_Admin_Functions();
                         $city = $func->get_state_city_term_name($order->get_shipping_city());
+//                        $city = $func->convertCityCodeToName($order->get_shipping_city());
                     }
+
+                    $state_name = $func->convertStateNameToPersian($state_name);
 
                     $hesabfaCustomer = array(
                         'Code' => $code,
@@ -150,6 +155,7 @@ class ssbhesabfaCustomerService
     public static function mapGuestCustomer($code, $id_order, $additionalFields = array()): array
     {
         $order = new WC_Order($id_order);
+        $func = new Ssbhesabfa_Admin_Functions();
 
         $name = $order->get_billing_first_name() . ' ' . $order->get_billing_last_name();
         if (empty($order->get_billing_first_name()) && empty($order->get_billing_last_name())) {
@@ -186,11 +192,13 @@ class ssbhesabfaCustomerService
 
         $city = $order->get_billing_city();
         if(preg_match('/^[0-9]+$/', $city)) {
-            $func = new Ssbhesabfa_Admin_Functions();
             $city = $func->get_state_city_term_name($order->get_billing_city());
+//            $city = $func->convertCityCodeToName($order->get_billing_city());
         }
 
         $fullAddress = $order->get_billing_address_1() . '-' . $order->get_billing_address_2();
+
+        $state_name = $func->convertStateNameToPersian($state_name);
 
         $hesabfaCustomer = array(
             'Code' => $code,

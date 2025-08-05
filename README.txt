@@ -4,7 +4,7 @@ Tags: accounting cloud hesabfa
 Requires at least: 5.2
 Tested up to: 6.8
 Requires PHP: 5.6
-Stable tag: 2.2.3
+Stable tag: 2.2.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -495,3 +495,10 @@ by clicking update stock and price button in hesabfa tab in product edit page
 * add feature: add delete invoices options in extra settings tab
 * add feature: add save all invoices for only one contact option
 * bug fix: fix woocommerce csv option bug
+
+= 2.2.4 - 04.08.2025 =
+* refactoring: remove redundant fields in api tab
+* refactoring: change select queries
+* add feature: add invoice check by reference option
+* add feature: add current user info to log file
+* bug fix: fix persian woocommerce state abbreviation

@@ -61,11 +61,10 @@ class Ssbhesabfa_Webhook
                     switch ($item->ObjectType) {
                         case 'Invoice':
                             if ($item->Action == 123) {
-                                $wpFa1 = $wpFaService->getWpFaByHesabfaId('order', $item->Extra2);
-                                if($wpFa1) {
-                                    //$wpFaService->delete($wpFa1);
-                                    $wpFaService->updateActive($wpFa1, 0);
-                                    HesabfaLogService::writeLogStr("The invoice link with the order deleted. Invoice number: " . $item->Extra2 . ", Order id: " . $wpFa1->idWp);
+                                $wpFa = $wpFaService->getWpFaByHesabfaId('order', $item->Extra2);
+                                if($wpFa) {
+                                    $wpFaService->updateActive($wpFa, 0);
+                                    HesabfaLogService::writeLogStr("The invoice link with the order deactivated. Invoice number: " . $item->Extra2 . ", Order id: " . $wpFa->idWp);
                                 }
                             }
                             $this->invoicesObjectId[] = $item->ObjectId;
@@ -82,20 +81,20 @@ class Ssbhesabfa_Webhook
                             if ($item->Action == 53) {
                                 $wpFa = $wpFaService->getWpFaByHesabfaId('product', $item->Extra);
                                 if ($wpFa) {
-                                    global $wpdb;
-                                    $wpdb->delete($wpdb->prefix . 'ssbhesabfa', array('id' => $wpFa->id));
+                                    $wpFaService->updateActive($wpFa, 0);
+                                    HesabfaLogService::writeLogStr("The product link deactivated. Hesabfa code: " . $item->Extra2 . ", Product code: " . $wpFa->idWp);
                                 }
-                                break;
                             }
 
                             $this->itemsObjectId[] = $item->ObjectId;
                             break;
                         case 'Contact':
                             if ($item->Action == 33) {
-                                $id_obj = $wpFaService->getWpFaIdByHesabfaId('customer', $item->Extra);
-                                global $wpdb;
-                                $wpdb->delete($wpdb->prefix . 'ssbhesabfa', array('id' => $id_obj));
-                                break;
+                                $wpFa = $wpFaService->getWpFaByHesabfaId('customer', $item->Extra);
+                                if($wpFa) {
+                                    $wpFaService->updateActive($wpFa, 0);
+                                    HesabfaLogService::writeLogStr("The customer link deactivated. Hesabfa code: " . $item->Extra2 . ", Customer code: " . $wpFa->idWp);
+                                }
                             }
 
                             $this->contactsObjectId[] = $item->ObjectId;

@@ -4,11 +4,12 @@ class HesabfaLogService
 {
     public static function writeLogStr($str)
     {
-        $fileName = WP_CONTENT_DIR . '/ssbhesabfa-' . date("20y-m-d") . '.txt';
+        $currentUser = wp_get_current_user();
+        $fileName = WP_CONTENT_DIR . '/ssbhesabfa-' . date("Y-m-d") . '.txt';
 
-        $dateTime = new DateTimeImmutable( 'now', wp_timezone() );
+        $dateTime = new DateTimeImmutable('now', wp_timezone());
         $date = $dateTime->format('[Y-m-d H:i:s] ');
-        $str = $date . $str;
+        $str = $date . $currentUser->user_login . "(" . $currentUser->user_email . ")  " . $str;
 
         $str = mb_convert_encoding($str, 'UTF-8');
         file_put_contents($fileName, PHP_EOL . $str, FILE_APPEND);
@@ -24,6 +25,8 @@ class HesabfaLogService
 
     public static function log($params)
     {
+        $currentUser = wp_get_current_user();
+        $currentUserLog = $currentUser->user_login . "(" . $currentUser->user_email . ")  ";
         $fileName = WP_CONTENT_DIR . '/ssbhesabfa-' . date("20y-m-d") . '.txt';
         $log = '';
 
@@ -32,11 +35,11 @@ class HesabfaLogService
 
         foreach ($params as $message) {
             if (is_array($message) || is_object($message)) {
-                $log .= $date . print_r($message, true) . "\n";
+                $log .= $date . $currentUserLog . print_r($message, true) . "\n";
             } elseif (is_bool($message)) {
-                $log .= $date . ($message ? 'true' : 'false') . "\n";
+                $log .= $date . $currentUserLog . ($message ? 'true' : 'false') . "\n";
             } else {
-                $log .= $date . $message . "\n";
+                $log .= $date . $currentUserLog . $message . "\n";
             }
         }
 
