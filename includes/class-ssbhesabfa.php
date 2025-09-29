@@ -10,7 +10,7 @@
  * version of the plugin.
  *
  * @class      Ssbhesabfa
- * @version    2.2.4
+ * @version    2.2.5
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/includes
@@ -183,12 +183,14 @@ class Ssbhesabfa
                     $this->loader->add_filter( 'woocommerce_product_export_product_default_columns', $plugin_admin, 'admin_product_add_column' );
                     $this->loader->add_filter('woocommerce_product_export_rows', $plugin_admin, 'admin_product_export_rows', 10, 2);
                 }
-                // these lines add hesabfa id to the all products list page and make it sortable as well
+
+                // these lines add hesabfa id to the all products list page and make it sortable and searchable as well
                 ///////////////////////////////////////////////////////////////////////////////////////////////////////
                 if(get_option('ssbhesabfa_show_product_code_in_products_page') === 'yes') {
                     $this->loader->add_filter( 'manage_edit-product_columns', $plugin_admin,'admin_products_hesabfaId_column', 12 );
                     $this->loader->add_action( 'manage_product_posts_custom_column', $plugin_admin, 'admin_products_hesabfaId_column_content', 10, 2 );
                     $this->loader->add_filter( 'manage_edit-product_sortable_columns', $plugin_admin,'admin_products_hesabfaId_column');
+                    $this->loader->add_action( 'pre_get_posts', $plugin_admin, 'admin_product_search_by_hesabfaId' );
                 }
 
                 $this->loader->add_action('custom_product_tabs', $plugin_admin, 'ssbhesabfa_general_notices');

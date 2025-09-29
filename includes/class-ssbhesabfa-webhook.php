@@ -137,7 +137,6 @@ class Ssbhesabfa_Webhook
     {
         //Items
         $items = array();
-
         if (!empty($this->warehouseReceiptsObjectId)) {
             $receipts = $this->getObjectsByIdList($this->warehouseReceiptsObjectId, 'WarehouseReceipt');
             if ($receipts != false) {

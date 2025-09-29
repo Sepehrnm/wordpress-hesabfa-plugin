@@ -345,7 +345,26 @@ class HesabfaWpFaService
         $idWp = isset($wpFa->idWp) ? (int)$wpFa->idWp : 0;
         $idWpAttribute = isset($wpFa->idWpAttribute) ? (int)$wpFa->idWpAttribute : 0;
 
-        $wpdb->update(
+//        $wpdb->update(
+//            $wpdb->prefix . 'ssbhesabfa',
+//            array(
+//                'id_hesabfa' => $idHesabfa,
+//                'obj_type' => $objType,
+//                'id_ps' => $idWp,
+//                'id_ps_attribute' => $idWpAttribute,
+//                'active' => 1
+//            ),
+//            array('id' => $wpFa->id),
+//            array(
+//                '%s',
+//                '%s',
+//                '%d',
+//                '%d'
+//            ),
+//            array('%d')
+//        );
+
+        $result = $wpdb->update(
             $wpdb->prefix . 'ssbhesabfa',
             array(
                 'id_hesabfa' => $idHesabfa,
@@ -355,17 +374,41 @@ class HesabfaWpFaService
                 'active' => 1
             ),
             array('id' => $wpFa->id),
+            array('%s','%s','%d','%d','%d'),
+            array('%d')
+        );
+
+        if ($result === false) {
+            error_log("DB Update failed: " . $wpdb->last_error);
+            error_log("Last query: " . $wpdb->last_query);
+        } elseif ($result === 0) {
+            error_log("DB Update did not change anything (row exists but same data).");
+        } else {
+            error_log("DB Update successful, rows affected: " . $result);
+        }
+
+    }
+//=========================================================================================================
+    public function updateActive(WpFa $wpFa, $active)
+    {
+        global $wpdb;
+
+        $id = isset($wpFa->id) ? (int)$wpFa->id : 0;
+
+        $wpdb->update(
+            $wpdb->prefix . 'ssbhesabfa',
             array(
-                '%s',
-                '%s',
-                '%d',
+                'active' => $active,
+            ),
+            array('id' => $id),
+            array(
                 '%d'
             ),
             array('%d')
         );
     }
 //=========================================================================================================
-    public function updateActive(WpFa $wpFa, $active)
+    public function updateActiveById(WpFa $wpFa, $active)
     {
         global $wpdb;
 

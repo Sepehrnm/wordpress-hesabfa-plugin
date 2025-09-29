@@ -4,7 +4,7 @@ include_once( plugin_dir_path( __DIR__ ) . 'services/HesabfaLogService.php' );
 error_reporting(0);
 /**
  * @class      Ssbhesabfa_Setting
- * @version    2.2.4
+ * @version    2.2.5
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin/setting
@@ -871,7 +871,6 @@ class Ssbhesabfa_Setting {
 	}
 //=============================================================================================
 	public static function ssbhesabfa_customers_setting_fields() {
-
 		$fields[] = array(
 			'title' => __( 'Customers Settings', 'ssbhesabfa' ),
 			'type'  => 'title',
@@ -1200,6 +1199,14 @@ class Ssbhesabfa_Setting {
             'title' => '',
             'desc' => __('Check Invoice by Reference in Hesabfa', 'ssbhesabfa'),
             'id' => 'ssbhesabfa_check_invoice_by_reference_in_hesabfa',
+            'type' => 'checkbox',
+            'default' => 'no',
+        );
+
+        $fields[] = array(
+            'title' => '',
+            'desc' => __('Sync Last Ten Orders and Submit Them in Hesabfa if not Already', 'ssbhesabfa'),
+            'id' => 'ssbhesabfa_check_orders_for_sync',
             'type' => 'checkbox',
             'default' => 'no',
         );

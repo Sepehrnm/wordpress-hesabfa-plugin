@@ -7,7 +7,7 @@ include_once(plugin_dir_path(__DIR__) . 'admin/services/HesabfaWpFaService.php')
  * The admin-specific functionality of the plugin.
  *
  * @class      Ssbhesabfa_Admin
- * @version    2.2.4
+ * @version    2.2.5
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin
@@ -564,66 +564,144 @@ class Ssbhesabfa_Admin
         return $columns;
     }
 //=========================================================================================================================
+    private function _create_csv_line(array $fields) {
+        $stream = fopen('php://memory', 'w+');
+        fputcsv($stream, $fields, ',');
+        rewind($stream);
+        $line = stream_get_contents($stream);
+        fclose($stream);
+        return $line;
+    }
+//=========================================================================================================================
     public function admin_product_export_rows($rows, $products) {
-        $rowsArray = explode("\n", $rows);
-        $exportRows = [];
+        $hesabfa_code_map = [];
+        $wpFaService = new HesabfaWpFaService();
 
-        $reflection = new ReflectionClass($products);
-        $property = $reflection->getProperty('row_data');
-        $property->setAccessible(true);
-        $productsArray = $property->getValue($products);
-        $matchingArray = [];
+        try {
+            $reflection = new ReflectionClass($products);
+            $property = $reflection->getProperty('row_data');
+            $property->setAccessible(true);
+            $products_data = $property->getValue($products);
+        } catch (ReflectionException $e) {
+            error_log('Hesabfa Exporter Error: Could not access row_data property. ' . $e->getMessage());
+            return $rows;
+        }
 
-        if (!empty($productsArray)) {
-            foreach ($productsArray as $product) {
-                if (is_array($product) && isset($product['id'])) {
-                    $wpFaService = new HesabfaWpFaService();
+        if (empty($products_data) || !is_array($products_data)) {
+            return $rows;
+        }
 
-                    if ($product["type"] == "variation") {
-                        $wpFa = $wpFaService->getWpFaSearch('', $product['id'], '', "product");
-                    } elseif ($product["type"] == "simple" || $product["type"] == "variable") {
-                        $wpFa = $wpFaService->getWpFaSearch($product['id'], 0, '', "product");
-                    }
+        foreach ($products_data as $product_data) {
+            if (!is_array($product_data) || empty($product_data['id'])) {
+                continue;
+            }
 
-                    if (is_array($wpFa)) {
-                        foreach ($wpFa as $item) {
-                            if ($item->idWpAttribute != 0) {
-                                $matchingArray[$item->idWpAttribute] = $item->idHesabfa;
-                            } else {
-                                $matchingArray[$item->idWp] = $item->idHesabfa;
-                            }
-                        }
+            $product_id = intval($product_data['id']);
+            $parent_id  = 0;
+            $wpFa       = null;
+            $type       = strtolower($product_data['type'] ?? '');
+
+            if (in_array($type, ['variation', 'product_variation'])) {
+                $wpFa = $wpFaService->getWpFaSearch('', $product_id, '', 'product');
+            } else {
+                $wpFa = $wpFaService->getWpFaSearch($product_id, 0, '', 'product');
+            }
+
+            if (!empty($wpFa) && is_array($wpFa)) {
+                foreach ($wpFa as $item) {
+                    $key = !empty($item->idWpAttribute) ? $item->idWpAttribute : $item->idWp;
+                    if (!empty($key) && isset($item->idHesabfa)) {
+                        $hesabfa_code_map[(string)$key] = $item->idHesabfa;
                     }
                 }
             }
         }
 
-        foreach ($rowsArray as $row) {
+        $rows_array  = explode("\n", $rows);
+        $export_rows = [];
+
+        foreach ($rows_array as $row) {
             if (empty(trim($row))) {
                 continue;
             }
+
             $columns = str_getcsv($row);
-            $inserted = false;
 
-            if (isset($columns[1])) {
-                foreach ($matchingArray as $wpId => $hesabfaId) {
-                    if ($columns[1] == $wpId && !$inserted) {
-                        $columns[0] = $hesabfaId;
-                        $inserted = true;
-                        break;
-                    }
-                }
+            $row_product_id = trim($columns[1] ?? '');
+
+            if (!empty($row_product_id) && isset($hesabfa_code_map[$row_product_id])) {
+                $columns[0] = $hesabfa_code_map[$row_product_id];
+            } else {
+                $columns[0] = 'کد ندارد';
             }
 
-            if (!$inserted) {
-                $columns[0] = "کد ندارد";
-            }
-
-            $exportRows[] = implode(",", $columns);
+            $export_rows[] = $this->_create_csv_line($columns);
         }
 
-        return implode("\n", $exportRows);
+        return implode("", $export_rows);
     }
+
+//=========================================================================================================================
+//    public function admin_product_export_rows($rows, $products) {
+//        $rowsArray = explode("\n", $rows);
+//        $exportRows = [];
+//
+//        $reflection = new ReflectionClass($products);
+//        $property = $reflection->getProperty('row_data');
+//        $property->setAccessible(true);
+//        $productsArray = $property->getValue($products);
+//        $matchingArray = [];
+//
+//        if (!empty($productsArray)) {
+//            foreach ($productsArray as $product) {
+//                if (is_array($product) && isset($product['id'])) {
+//                    $wpFaService = new HesabfaWpFaService();
+//
+//                    if ($product["type"] == "variation") {
+//                        $wpFa = $wpFaService->getWpFaSearch('', $product['id'], '', "product");
+//                    } elseif ($product["type"] == "simple" || $product["type"] == "variable") {
+//                        $wpFa = $wpFaService->getWpFaSearch($product['id'], 0, '', "product");
+//                    }
+//
+//                    if (is_array($wpFa)) {
+//                        foreach ($wpFa as $item) {
+//                            if ($item->idWpAttribute != 0) {
+//                                $matchingArray[$item->idWpAttribute] = $item->idHesabfa;
+//                            } else {
+//                                $matchingArray[$item->idWp] = $item->idHesabfa;
+//                            }
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//
+//        foreach ($rowsArray as $row) {
+//            if (empty(trim($row))) {
+//                continue;
+//            }
+//            $columns = str_getcsv($row);
+//            $inserted = false;
+//
+//            if (isset($columns[1])) {
+//                foreach ($matchingArray as $wpId => $hesabfaId) {
+//                    if ($columns[1] == $wpId && !$inserted) {
+//                        $columns[0] = $hesabfaId;
+//                        $inserted = true;
+//                        break;
+//                    }
+//                }
+//            }
+//
+//            if (!$inserted) {
+//                $columns[0] = "کد ندارد";
+//            }
+//
+//            $exportRows[] = implode(",", $columns);
+//        }
+//
+//        return implode("\n", $exportRows);
+//    }
 //=========================================================================================================================
     public function ssbhesabfa_init_internal()
     {
@@ -632,9 +710,11 @@ class Ssbhesabfa_Admin
 //        require_once plugin_dir_path(__DIR__) . 'includes/class-ssbhesabfa-activator.php';
 //        Ssbhesabfa_Activator::activate();
 
-        if(get_option("ssbhesabfa_check_for_sync") == 1) {
+        if(get_option("ssbhesabfa_check_for_sync") == 1)
             $this->checkForSyncChanges();
-        }
+
+        if(get_option("ssbhesabfa_check_orders_for_sync") == "yes" || get_option("ssbhesabfa_check_orders_for_sync") == "1")
+            $this->checkForSyncChanges();
     }
 //=========================================================================================================================
     private function checkForSyncChanges()
@@ -656,17 +736,53 @@ class Ssbhesabfa_Admin
 
         $diffMinutes = ($nowDateTime - (int)$syncChangesLastDate) / 60;
 
-        if ($diffMinutes >= $timeInterval) {
+        if ($diffMinutes >= $timeInterval && get_option("ssbhesabfa_check_for_sync") == 1)
             $this->performSync();
-        }
+
+        if($diffMinutes >= 4 && get_option("ssbhesabfa_check_orders_for_sync") == "yes" || get_option("ssbhesabfa_check_orders_for_sync") == "1")
+            $this->SyncInvoices();
     }
 
-    private function performSync()
+    private function SyncInvoices() : void
+    {
+        update_option('ssbhesabfa_sync_changes_last_date', time());
+        $fun = new Ssbhesabfa_Admin_Functions();
+        $fun->ReSubmitInvoices();
+    }
+
+    private function performSync() : void
     {
         HesabfaLogService::writeLogStr('Sync Changes Automatically');
+
         update_option('ssbhesabfa_sync_changes_last_date', time());
         require_once plugin_dir_path(dirname(__FILE__)) . 'includes/class-ssbhesabfa-webhook.php';
         new Ssbhesabfa_Webhook();
+    }
+//=========================================================================================================================
+    public function admin_product_search_by_hesabfaId($query) {
+        global $pagenow, $typenow, $wpdb;
+
+        if ( is_admin() && $pagenow === 'edit.php' && $typenow === 'product' && ! empty( $_GET['s'] ) ) {
+            $search_term = wc_clean( wp_unslash( $_GET['s'] ) );
+
+            $table = $wpdb->prefix . 'ssbhesabfa';
+
+            $product_ids = $wpdb->get_col( $wpdb->prepare(
+                "SELECT id_ps FROM {$table} WHERE id_hesabfa LIKE %s OR id_ps LIKE %s",
+                '%' . $wpdb->esc_like( $search_term ) . '%',
+                '%' . $wpdb->esc_like( $search_term ) . '%'
+            ) );
+
+            if ( ! empty( $product_ids ) ) {
+                $existing_post__in = $query->get( 'post__in' );
+
+                if ( ! empty( $existing_post__in ) ) {
+                    $query->set( 'post__in', array_merge( $existing_post__in, $product_ids ) );
+                } else {
+                    $query->set( 'post__in', $product_ids );
+                }
+            }
+        }
     }
 //=========================================================================================================================
     public function ssbhesabfa_query_vars($query_vars)
@@ -882,8 +998,8 @@ class Ssbhesabfa_Admin
 
         if (isset($user_hesabfa_code) && $user_hesabfa_code !== "" && $user_hesabfa_code != null) {
             $wpFaService = new HesabfaWpFaService();
-            $wpFaOld = $wpFaService->getWpFaByHesabfaId('customer', $user_hesabfa_code);
-            $wpFa = $wpFaService->getWpFa('customer', $id_customer);
+            $wpFaOld = $wpFaService->getWpFaByHesabfaId('customer', $user_hesabfa_code, 1);
+            $wpFa = $wpFaService->getWpFa('customer', $id_customer, 0, 1);
             HesabfaLogService::log(array("hook user register for: " . $id_customer));
 
             if (!$wpFaOld || !$wpFa || $wpFaOld->id !== $wpFa->id) {
@@ -1100,56 +1216,78 @@ class Ssbhesabfa_Admin
         }
     }
 //=========================================================================================================================
-    //ToDo: check why base product is not deleted
     public function ssbhesabfa_hook_delete_product($id_product)
     {
-
-        HesabfaLogService::writeLogStr("Product Delete Hook");
-
-        $func = new Ssbhesabfa_Admin_Functions();
         $wpFaService = new HesabfaWpFaService();
+        $wpFa = new WpFa();
 
         $hesabfaApi = new Ssbhesabfa_Api();
-        global $wpdb;
 
-        $variations = $func->getProductVariations($id_product);
-        if ($variations != false) {
-            foreach ($variations as $variation) {
-                $id_attribute = $variation->get_id();
-                $code = $wpFaService->getProductCodeByWpId($id_product, $id_attribute);
-                if ($code != false) {
-                    $hesabfaApi->itemDelete($code);
-                    $wpdb->delete($wpdb->prefix . 'ssbhesabfa', array('id_hesabfa' => $code, 'obj_type' => 'product'));
+        $post = get_post($id_product);
 
-                    HesabfaLogService::log(array("Product variation deleted. Product ID: $id_product-$id_attribute"));
-                }
+        if($post->post_type == "product") {
+            HesabfaLogService::writeLogStr("Product(Simple) Deactivate Hook");
+
+            $code = $wpFaService->getProductCodeByWpId($id_product);
+
+            if ($code) {
+                $hesabfaApi->itemDelete($code);
+
+                $wpFa->id = $wpFaService->getWpFaId('product', $id_product, 0, 1);
+                $wpFa->idWp = $id_product;
+                $wpFa->idWpAttribute = 0;
+                $wpFa->idHesabfa = $code;
+                $wpFa->objType = 'product';
+
+                $wpFaService->updateActive($wpFa, 0);
+
+                HesabfaLogService::log(array("Product deactivated. Product ID: $id_product"));
             }
         }
+        else if($post->post_type == "product_variation") {
+            HesabfaLogService::writeLogStr("Product(Variation) Deactivate Hook");
 
-        $code = $wpFaService->getProductCodeByWpId($id_product);
+            $id_product = $post->post_parent;
+            $id_attribute = $post->ID;
 
-        if ($code != false) {
-            $hesabfaApi->itemDelete($code);
-            $wpdb->delete($wpdb->prefix . 'ssbhesabfa', array('id_hesabfa' => $code, 'obj_type' => 'product'));
+            $code = $wpFaService->getProductCodeByWpId($id_product, $id_attribute);
+            if ($code) {
+                $hesabfaApi->itemDelete($code);
 
-            HesabfaLogService::log(array("Product deleted. Product ID: $id_product"));
+                $wpFa->id = $wpFaService->getWpFaId('product', $id_product, $id_attribute, 1);
+                $wpFa->idWp = $id_product;
+                $wpFa->idWpAttribute = $id_attribute;
+                $wpFa->idHesabfa = $code;
+                $wpFa->objType = 'product';
+
+                $wpFaService->updateActive($wpFa, 0);
+
+                HesabfaLogService::log(array("Product variation deactivated. Product ID: $id_product-$id_attribute"));
+            }
         }
     }
 //=========================================================================================================================
     public function ssbhesabfa_hook_delete_product_variation($id_attribute)
     {
-//        $func = new Ssbhesabfa_Admin_Functions();
-
+        $wpFa = new WpFa();
+        $wpFaService = new HesabfaWpFaService();
         $hesabfaApi = new Ssbhesabfa_Api();
         global $wpdb;
-        $row = $wpdb->get_row("SELECT * FROM `" . $wpdb->prefix . "ssbhesabfa` WHERE `id_ps_attribute` = $id_attribute AND `obj_type` = 'product'");
+
+        $row = $wpdb->get_row("SELECT * FROM `" . $wpdb->prefix . "ssbhesabfa` WHERE `id_ps_attribute` = $id_attribute AND `obj_type` = 'product' AND `active` = '1'`");
 
         if (is_object($row)) {
             $hesabfaApi->itemDelete($row->id_hesabfa);
 
-            $wpdb->delete($wpdb->prefix . 'ssbhesabfa', array('id' => $row->id));
+            $wpFa->id = $row->id;
+            $wpFa->idWp = $row->idPs;
+            $wpFa->idWpAttribute = $row->idPsAttribute;
+            $wpFa->idHesabfa = $row->id_hesabfa;
+            $wpFa->objType = 'product';
 
-            HesabfaLogService::log(array("Product variation deleted. Product ID: $row->id_ps-$id_attribute"));
+            $wpFaService->updateActive($wpFa, 0);
+
+            HesabfaLogService::log(array("Product variation deactivated. Product ID: $row->idPs-$id_attribute"));
         }
     }
 //=========================================================================================================================
@@ -1299,45 +1437,91 @@ class Ssbhesabfa_Admin
         }
 
         ?>
+<!--        <div id="panel_product_data_hesabfa" class="panel woocommerce_options_panel"-->
+<!--             data-product-id="--><?php //echo esc_attr($id_product) ?><!--">-->
+<!--            <table class="table table-striped">-->
+<!--                <tr class="small fw-bold">-->
+<!--                    <td>نام کالا</td>-->
+<!--                    <td>کد در حسابفا</td>-->
+<!--                    <td>ذخیره کد</td>-->
+<!--                    <td>حذف ارتباط</td>-->
+<!--                    <td>بروزرسانی قیمت و موجودی</td>-->
+<!--                    <td>قیمت</td>-->
+<!--                    <td>موجودی</td>-->
+<!--                </tr>-->
+<!--                --><?php
+//                foreach ($items as $item) {
+//                    ?>
+<!--                    <tr>-->
+<!--                        <td>--><?php //echo esc_html($item["Name"]); ?><!--</td>-->
+<!--                        <td><input type="text" value="--><?php //echo esc_attr($item["Code"]); ?><!--"-->
+<!--                                   id="hesabfa-item---><?php //echo esc_attr($item["Id"]); ?><!--" style="width: 75px;"-->
+<!--                                   class="hesabfa-item-code" data-id="--><?php //echo esc_attr($item["Id"]); ?><!--"></td>-->
+<!--                        <td><input type="button" value="ذخیره" data-id="--><?php //echo esc_attr($item["Id"]); ?><!--"-->
+<!--                                   class="button hesabfa-item-save"></td>-->
+<!--                        <td><input type="button" value="حذف ارتباط" data-id="--><?php //echo esc_attr($item["Id"]); ?><!--"-->
+<!--                                   class="button hesabfa-item-delete-link"></td>-->
+<!--                        <td><input type="button" value="بروزرسانی" data-id="--><?php //echo esc_attr($item["Id"]); ?><!--"-->
+<!--                                   class="button button-primary hesabfa-item-update"></td>-->
+<!--                        <td id="hesabfa-item-price---><?php //echo esc_attr($item["Id"]) ?><!--">--><?php //if(isset($item["SellPrice"])) echo esc_html($item["SellPrice"]); else echo  esc_html($item["RegularPrice"]); ?><!--</td>-->
+<!--                        <td id="hesabfa-item-quantity---><?php //echo esc_attr($item["Id"]) ?><!--">--><?php //echo esc_html($item["Quantity"]); ?><!--</td>-->
+<!--                    </tr>-->
+<!--                    --><?php
+//                }
+//                ?>
+<!--            </table>-->
+<!---->
+<!--            <input type="button" value="ذخیره همه" id="hesabfa-item-save-all" class="button">-->
+<!--            <input type="button" value="حذف ارتباط همه" id="hesabfa-item-delete-link-all" class="button">-->
+<!--            <input type="button" value="بروزرسانی همه" id="hesabfa-item-update-all" class="button button-primary">-->
+<!---->
+<!--        </div>-->
+
         <div id="panel_product_data_hesabfa" class="panel woocommerce_options_panel"
              data-product-id="<?php echo esc_attr($id_product) ?>">
-            <table class="table table-striped">
-                <tr class="small fw-bold">
-                    <td>نام کالا</td>
-                    <td>کد در حسابفا</td>
-                    <td>ذخیره کد</td>
-                    <td>حذف ارتباط</td>
-                    <td>بروزرسانی قیمت و موجودی</td>
-                    <td>قیمت</td>
-                    <td>موجودی</td>
-                </tr>
-                <?php
-                foreach ($items as $item) {
-                    ?>
-                    <tr>
-                        <td><?php echo esc_html($item["Name"]); ?></td>
-                        <td><input type="text" value="<?php echo esc_attr($item["Code"]); ?>"
-                                   id="hesabfa-item-<?php echo esc_attr($item["Id"]); ?>" style="width: 75px;"
-                                   class="hesabfa-item-code" data-id="<?php echo esc_attr($item["Id"]); ?>"></td>
-                        <td><input type="button" value="ذخیره" data-id="<?php echo esc_attr($item["Id"]); ?>"
-                                   class="button hesabfa-item-save"></td>
-                        <td><input type="button" value="حذف ارتباط" data-id="<?php echo esc_attr($item["Id"]); ?>"
-                                   class="button hesabfa-item-delete-link"></td>
-                        <td><input type="button" value="بروزرسانی" data-id="<?php echo esc_attr($item["Id"]); ?>"
-                                   class="button button-primary hesabfa-item-update"></td>
-                        <td id="hesabfa-item-price-<?php echo esc_attr($item["Id"]) ?>"><?php if(isset($item["SellPrice"])) echo esc_html($item["SellPrice"]); else echo  esc_html($item["RegularPrice"]); ?></td>
-                        <td id="hesabfa-item-quantity-<?php echo esc_attr($item["Id"]) ?>"><?php echo esc_html($item["Quantity"]); ?></td>
+            <div class="table-wrapper">
+                <table class="table table-striped">
+                    <thead>
+                    <tr class="small fw-bold">
+                        <td>نام کالا</td>
+                        <td>کد در حسابفا</td>
+                        <td>ذخیره کد</td>
+                        <td>حذف ارتباط</td>
+                        <td>بروزرسانی قیمت و موجودی</td>
+                        <td>قیمت</td>
+                        <td>موجودی</td>
                     </tr>
-                    <?php
-                }
-                ?>
-            </table>
+                    </thead>
+                    <tbody>
+                    <?php foreach ($items as $item): ?>
+                        <tr>
+                            <td><?php echo esc_html($item["Name"]); ?></td>
+                            <td><input type="text" value="<?php echo esc_attr($item["Code"]); ?>"
+                                       id="hesabfa-item-<?php echo esc_attr($item["Id"]); ?>" style="width: 75px;"
+                                       class="hesabfa-item-code" data-id="<?php echo esc_attr($item["Id"]); ?>"></td>
+                            <td><input type="button" value="ذخیره" data-id="<?php echo esc_attr($item["Id"]); ?>"
+                                       class="button hesabfa-item-save"></td>
+                            <td><input type="button" value="حذف ارتباط" data-id="<?php echo esc_attr($item["Id"]); ?>"
+                                       class="button hesabfa-item-delete-link"></td>
+                            <td><input type="button" value="بروزرسانی" data-id="<?php echo esc_attr($item["Id"]); ?>"
+                                       class="button button-primary hesabfa-item-update"></td>
+                            <td id="hesabfa-item-price-<?php echo esc_attr($item["Id"]) ?>">
+                                <?php echo isset($item["SellPrice"]) ? esc_html($item["SellPrice"]) : esc_html($item["RegularPrice"]); ?>
+                            </td>
+                            <td id="hesabfa-item-quantity-<?php echo esc_attr($item["Id"]) ?>">
+                                <?php echo esc_html($item["Quantity"]); ?>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
 
             <input type="button" value="ذخیره همه" id="hesabfa-item-save-all" class="button">
             <input type="button" value="حذف ارتباط همه" id="hesabfa-item-delete-link-all" class="button">
             <input type="button" value="بروزرسانی همه" id="hesabfa-item-update-all" class="button button-primary">
-
         </div>
+
         <?php
     }
 //=========================================================================================================================
@@ -1646,7 +1830,8 @@ class Ssbhesabfa_Admin
             foreach ($productAndCombinations as $p) {
                 $codes[] = str_pad($p->idHesabfa, 6, "0", STR_PAD_LEFT);
 
-                if ($ssbhesabfa_item_update_quantity == 'yes')
+                $isStockAvailable = get_post_meta($p->idWpAttribute == 0 ? $p->idWp : $p->idWpAttribute, '_manage_stock');
+                if ($ssbhesabfa_item_update_quantity == 'yes' && $isStockAvailable == 'yes')
                     update_post_meta($p->idWpAttribute == 0 ? $p->idWp : $p->idWpAttribute, '_manage_stock', 'yes');
             }
 

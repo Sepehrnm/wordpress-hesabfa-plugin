@@ -517,6 +517,9 @@ msgstr "کد خدمت حمل و نقل ذخیره شده در حسابفا"
 msgid "Check Invoice by Reference in Hesabfa"
 msgstr "بررسی تکراری بودن فاکتور زمان ثبت بر اساس ارجاع"
 
+msgid "Sync Last Ten Orders and Submit Them in Hesabfa if not Already"
+msgstr "همگام‌سازی ۱۰ سفارش آخر و ثبت آن‌ها در حسابفا (در صورت عدم ثبت قبلی)"
+
 #: admin/partials/ssbhesabfa-admin-setting.php:151
 #: admin/partials/ssbhesabfa-admin-setting.php:167
 #: admin/partials/ssbhesabfa-admin-setting.php:217

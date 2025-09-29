@@ -6,7 +6,7 @@ include_once(plugin_dir_path(__DIR__) . 'services/HesabfaWpFaService.php');
 
 /**
  * @class      Ssbhesabfa_Admin_Functions
- * @version    2.2.4
+ * @version    2.2.5
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin/functions
@@ -115,7 +115,7 @@ class Ssbhesabfa_Admin_Functions
         $row = $wpdb->get_row(
             $wpdb->prepare(
                 "SELECT `id_hesabfa` FROM {$wpdb->prefix}ssbhesabfa 
-                WHERE `id_ps` = %d AND `obj_type` = 'customer'",
+                WHERE `id_ps` = %d AND `obj_type` = 'customer' AND `active` = 1",
                 $id_customer
             )
         );
@@ -246,8 +246,8 @@ class Ssbhesabfa_Admin_Functions
 	}
 //====================================================================================================================
     //Invoice
-    public function setOrder($id_order, $orderType = 0, $reference = null, $orderItems = array()) {
-	    if (!isset($id_order)) {
+    public function setOrder($id_order, $orderType = 0, $reference = null, $orderItems = array(), $type = 'submit') {
+        if (!isset($id_order)) {
 		    return false;
 	    }
 
@@ -256,12 +256,14 @@ class Ssbhesabfa_Admin_Functions
 
             $number = $this->getInvoiceNumberByOrderId($id_order);
             HesabfaLogService::log(array("--------------------------- id_order: $id_order - invoice_number: $number ---------------------------"));
+
+            if($number && $type != 'submit')
+                return false;
+
             if (!$number) {
                 $number = null;
                 if ($orderType == 2) //return if saleInvoice not set before
-                {
                     return false;
-                }
             }
 
 //        $order = new WC_Order($id_order);
@@ -574,8 +576,12 @@ class Ssbhesabfa_Admin_Functions
                     return false;
                 }
 
-                if(count($invoices->Result->List) == 1)
+                if(count($invoices->Result->List) == 1) {
                     $data["Number"] = $invoices->Result->List[0]->Number;
+                    $numberToLog = $invoices->Result->List[0]->Number;
+                    $referenceToLog = $invoices->Result->List[0]->Reference;
+                    HesabfaLogService::writeLogStr("Invoice Found By Reference. Invoice Number: $numberToLog. Invoice Reference: $referenceToLog");
+                }
             }
 
             $response = $hesabfa->invoiceSave($data, $GUID);
@@ -2310,6 +2316,40 @@ class Ssbhesabfa_Admin_Functions
         return $term->name;
     }
 
+    //=========================================================================================================================
+    public function ReSubmitInvoices() {
+        HesabfaLogService::writeLogStr("Checking for ReSubmitting Invoices");
+        $wpFaService = new HesabfaWpFaService();
+
+        $statusesToSubmitInvoice = get_option('ssbhesabfa_invoice_status');
+        $statusesToSubmitPayment = get_option('ssbhesabfa_payment_status');
+
+        $args = array(
+            'status'       => $statusesToSubmitInvoice,
+            'limit'        => 10,
+        );
+
+        $orders = wc_get_orders($args);
+
+        $statusesToSubmitInvoice = implode(',', $statusesToSubmitInvoice);
+        $statusesToSubmitPayment = implode(',', $statusesToSubmitPayment);
+
+        foreach($orders as $order) {
+            $orderLinkRowId = $wpFaService->getWpFaId('order', $order->Id, 0, 1);
+
+            if($orderLinkRowId)
+                continue;
+
+            $current_status = $order->get_status();
+            if (strpos($statusesToSubmitInvoice, $current_status) !== false) {
+                $this->setOrder($order->Id, 0, null, array(), 'resubmit');
+
+                if (strpos($statusesToSubmitPayment, $current_status) !== false)
+                    $this->setOrderPayment($order->Id);
+            }
+            HesabfaLogService::writeLogStr("ReSubmitting for order with id of $order->Id finished.");
+        }
+    }
     //=========================================================================================================================
     public function convertCityCodeToName($cityCode) {
         $citiesArray = [

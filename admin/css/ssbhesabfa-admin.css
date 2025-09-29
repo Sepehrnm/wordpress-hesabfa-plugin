@@ -132,3 +132,21 @@ a.nav-tab {
     cursor: not-allowed;
     opacity: 0.5;
 }
+
+.table-wrapper {
+    max-height: 400px;
+    overflow-y: auto;
+    display: block;
+}
+
+.table-wrapper table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table-wrapper thead tr {
+    position: sticky;
+    top: 0;
+    background: #f9f9f9;
+    z-index: 2;
+}

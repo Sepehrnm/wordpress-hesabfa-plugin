@@ -1,10 +1,10 @@
 === Hesabfa Accounting ===
 Contributors: saeedsb, hamidprime, sepehrnajafi78
 Tags: accounting cloud hesabfa
-Requires at least: 5.2
-Tested up to: 6.8
+Requires at least: 6.2
+Tested up to: 6.8.2
 Requires PHP: 5.6
-Stable tag: 2.2.4
+Stable tag: 2.2.5
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -502,3 +502,9 @@ by clicking update stock and price button in hesabfa tab in product edit page
 * add feature: add invoice check by reference option
 * add feature: add current user info to log file
 * bug fix: fix persian woocommerce state abbreviation
+
+= 2.2.5 - 24.09.2025 =
+* refactoring: export csv code refactored
+* add feature: sync orders and submit them in hesabfa if not already option added
+* bug fix: remove product link after delete fixed
+* add feature: add hesabfa id search to admin product search
